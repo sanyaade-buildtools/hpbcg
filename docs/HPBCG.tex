@@ -1,0 +1,103 @@
+\documentclass{article}
+\usepackage{eurosym} % \euro{} \geneuro{} \geneuronarrow{} \geneurowide
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+\usepackage{url}
+%\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\title{HPBCG Documentation\\
+High Performance Binary Code Generation}
+\author{Henri-Pierre Charles}
+\newcommand{\hpbcg}{\textbf{HPBCG}\ }
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+\hpbcg is a tool which help to build binary code generator.
+
+Actually (january 2009) computer architecture reach a complexity
+point which leed to
+\begin{itemize}
+\item compiler which are unable to vectorize or use multimedia
+  instructions easily
+\item a bad use of huge register set. Compiler are still using
+  algorithm allocator which came from ages where register are rare.
+\item data are the main important parameter that actual compiler
+  cannot take into account because code generation is done at static
+  compile time.
+\end{itemize}
+
+\section{Actual status}
+
+\begin{description}
+\item[Cell spu] preliminar
+\end{description}
+
+\section{Using \hpbcg}
+
+\subsection{Installing \hpbcg}
+
+\hpbcg sould work on any reasonnable unix like target. The requirements
+are :
+\begin{description}
+\item[antlr] The parser is implemented with \url{antlr.org}
+\item[java] As antlr is writed in java. But java is not needed at
+  run-time, only at static compile time.
+\end{description}
+
+
+\subsection{Using hpbcg}
+
+\section{Compilettes examples}
+
+\subsection{Simple compilette}
+
+
+\section{Porting \hpbcg}
+
+Porting \hpbcg to a new architecture should be as simple than the
+architectural model you plan to target.
+
+\subsection{Architecture description}
+
+\subsection{HPBCG Parser}
+
+\section{Assembly languages}
+
+This part is devoted to different assembly langaguages that \hpbcg
+
+\subsection{cell-spu}
+
+\begin{description}
+\item[Integer register names] one of
+  \begin{itemize}
+  \item \verb|$lr|, \verb|$sp|
+  \item \verb|$0| .. \verb|$32|
+  \end{itemize}
+\end{description}
+
+\subsection{cell-ppu}
+
+\begin{description}
+\item[Integer register name]  one of
+  \begin{itemize}
+  \item \verb|0| .. \verb|32|
+  \end{itemize}
+\end{description}
+
+\subsection{power}
+\begin{description}
+\item[Integer register name]  one of
+  \begin{itemize}
+  \item \verb|r0| .. \verb|r32|
+  \end{itemize}
+\end{description}
+
+
+\end{document}
+
+% Local Variables: ***
+% compile-command:"MonMake HPBCG.pdf" ***
+% End: ***

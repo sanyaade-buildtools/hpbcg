@@ -1,0 +1,19 @@
+#!/bin/csh
+
+if (! $#) then
+    echo "$0 <ArchName>"
+    exit -1
+endif
+
+if (! -e $1) then
+    echo "File $1 does not exist "
+    exit -1
+endif
+
+setenv PSEUDO `basename $1 .isa`-pseudo.h
+
+if (-f ${PSEUDO}) then 
+    (./isatobcg -l $1; awk '/#define/{print $2}' ${PSEUDO} | sed 's/(.*$//' ) | sort
+else
+    ./isatobcg -l $1 | sort
+endif
