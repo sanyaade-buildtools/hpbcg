@@ -2,6 +2,8 @@
 
 package org.hpbcg;
 
+import java.io.*;
+
 class Insn
 {
     public static final int TYPEIREG = 1;
@@ -11,6 +13,7 @@ class Insn
     public static final int TYPEIDXREG = 5;
     public static final int TYPEINT =  6;
 
+    String [] insnList;
     String insnName;
     String [] registers;
     int [] types;
@@ -33,18 +36,21 @@ class Insn
     {
 	int i;
 	String tmp;
-	tmp = insnName+buildDescReg()+"(";
+	tmp = insnName+buildDescReg();
+	if (!verifExistInsn(tmp)) fatalErrorMsg ("Insn "+tmp+" doesn't exist");
+	tmp += "(";
 	for (i = 0; i < currentRegister - 1;  i++)
 	{
 	    tmp += registers[i] +',';
 
 	}
-	tmp += registers[i]+");";
+	if (currentRegister > 0) tmp += registers[i];
+	tmp += ");";
 	return tmp;
     }
     public String buildDescReg()
     {
-	String tmp = "_";
+	String tmp = "_i";
 
 	for (int i = 0; i < currentRegister; ++i)
 	    {
@@ -63,4 +69,69 @@ class Insn
 	return tmp;
 
     }
+    boolean verifExistInsn(String name)
+    {
+	if (null == insnList) fatalErrorMsg ("insnList == null");
+	for (int i = 0; i < insnList.length; ++i)
+	{
+	    if (insnList[i].equals(name))
+		return true;
+	}
+	return false;
+    } /* verifExistInsn */
+
+    public String [] loadInsnList(String name) 
+    {
+	String repDir [] = {"/users/prism/arpa/coca/hpc/Travail/Prog/HPBCG/src/isatobcg/", 
+			    "/usr/local/include", "/usr/include"};
+	String tmp [] = null;
+	String fileName = null;
+	boolean ok = false;
+	BufferedReader in;
+	int nline = 0;
+	try
+        {
+	    for (int i = 0; i < repDir.length; i++)
+	    {
+		fileName = repDir[i]+"/"+name+".lst";
+		File f = new File (fileName);
+		if (! f.exists())
+		    fatalErrorMsg("File "+fileName+" doesn't exist");
+		else
+		{
+		    ok = true;
+		    break;
+		}
+	    }
+	    if (ok)
+	    {
+		in = new BufferedReader(new FileReader(fileName));
+		while (null != in.readLine())
+		{
+		    nline ++;
+		}
+		in.close();
+		tmp = new String[nline];
+		in = new BufferedReader(new FileReader (fileName));
+		for (int i = 0; i < nline; i++)
+		{
+		    tmp[i] = in.readLine();	
+		    // System.out.println(tmp[i]);
+		}
+		in.close();
+	    }
+	    return tmp;
+	}
+	catch (java.lang.Exception e)
+	{
+	    e.printStackTrace();
+	}
+	return null;
+    }
+    public void fatalErrorMsg(String errorMsg)
+    {
+	System.err.println (errorMsg);	
+	System.exit (-1);
+    } /* fatalErrorMsg */
+
 }

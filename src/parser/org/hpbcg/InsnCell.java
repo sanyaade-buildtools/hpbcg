@@ -7,14 +7,18 @@ class InsnCell extends Insn
     public InsnCell()
     {
 	super(4);
+	insnList = loadInsnList("cell");
     }
     public InsnCell(String name)
     {
 	super(4);
+	insnList = loadInsnList("cell");
 	setInsn (name);
     }
     public void setParam (String name, int TYPE)
     {
+	String tmp;
+
 	types[currentRegister] = TYPE;
 	if (TYPE == TYPEIREG)
 	{
@@ -24,10 +28,17 @@ class InsnCell extends Insn
 		System.exit (-1);
 	    }
 	    else
-		registers[currentRegister++] = new String (name.getBytes(), 1, name.length() - 1);
+	    {
+		tmp = new String (name.getBytes(), 1, name.length() - 1);
+		if ("lr".equals(tmp))       registers[currentRegister] = "0";
+		else if ("sp".equals(tmp))  registers[currentRegister] = "1";
+		else     		    registers[currentRegister] = tmp;
+		// System.out.println("Register : "+tmp+":"+registers[currentRegister]);
+		currentRegister++;
+	    }
 	}
 	else
-		registers[currentRegister++] = name;
+	    registers[currentRegister++] = name;
     }
 }
 // The end

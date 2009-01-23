@@ -2,6 +2,8 @@
 
 #cpu cell
 
+typedef int (*pifi)(int);
+
 pifi rpnCompile(char *expr)
 {
   insn *code= (insn *)calloc(64, sizeof(insn));
@@ -10,30 +12,28 @@ pifi rpnCompile(char *expr)
 
   #[
 	.org	code2
-  ]#;
+  ]#
 
 
   while (*expr)
     {
-      char  buf[32];
       int n ;
-      if (sscanf(expr, "%[0-9]%n", buf, &n))
+      if (sscanf(expr, "%d", &n))
 	{
-	  expr += n - 1;
 	  if (top == 10)
 	    {
 	      fprintf(stderr, "expression too complex");
 	      exit(0);
 	    }
 	  ++top;
-	  #[		il	$(top), buf  ]#;
+	  #[		il	$(top), (n)  ]#;
 	}
       else if (*expr == '+')
 	{ --top; #[ a  $(top), $(top), $(top+1)	 ]# }
       else if (*expr == '-')
 	{ --top; #[ sf  $(top), $(top), $(top+1) ]# }
       else if (*expr == '*')
-	{ --top; #[ mpy a$(top), $(top), $(top+1) ]# }
+	{ --top; #[ mpy $(top), $(top), $(top+1) ]# }
       else if (*expr == '/')
 	{ --top; #[ a  $(top), $(top), $(top+1)	 ]# }
       else
@@ -50,7 +50,7 @@ pifi rpnCompile(char *expr)
       abort();
     }
 
-  #[	blr	  ]#;
+  #[ bi $lr ]#;
   iflush(code, asm_pc);
   if ((int)(asm_pc - code) >= 64)
     {

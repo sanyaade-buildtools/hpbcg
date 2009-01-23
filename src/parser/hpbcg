@@ -1,0 +1,8 @@
+#!/bin/csh
+
+setenv HPBCGHOME ${HOME}/Travail/Prog/HPBCG/src/parser/
+setenv CLASSPATH ${HPBCGHOME}/HPBCG.jar:${HPBCGHOME}/antlr-3.1.1-runtime.jar:$CLASSPATH
+
+# echo $CLASSPATH
+
+java org.hpbcg.Main $*

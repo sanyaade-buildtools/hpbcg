@@ -6,7 +6,6 @@ lexer grammar  Cell;  // -*- java -*-
     boolean debug;
     public void myParse(boolean debug) throws antlr.TokenStreamException
     {
-
         boolean inAsm = true;        
         Token a;
         Debug("/* Cell parser */");
@@ -55,6 +54,10 @@ lexer grammar  Cell;  // -*- java -*-
                 Debug("CELLREGOPEN");
                 currentInsn.setParam(a.getText(), Insn.TYPEIREG);
 		break;
+            case PAROPEN:         
+                Debug("PAROPEN");
+                currentInsn.setParam(a.getText(), Insn.TYPEINT);
+		break;
 	    case ORG:
 		a = nextToken();
 		a = nextToken();
@@ -83,8 +86,7 @@ lexer grammar  Cell;  // -*- java -*-
     }        
     public void Debug(String a)
     {
-        if (debug)
-            System.out.println(a);
+        if (debug)System.out.println(a);
     }
     public void Out(String a)
     {
@@ -104,6 +106,7 @@ INDEX    : (NUMBER)+ '('  CELLREG ')';
 MNEMO    : LETTER (LETTER | NUMBER)* ;
 CELLREG  : '$' (NUMBER)+ | '$lr' | '$sp' | '($' (NUMBER)+ ')';
 CELLREGOPEN : '$('  ( options {greedy=false;} : . )* ')' ;
+PAROPEN  : '('  ( options {greedy=false;} : . )* ')' ;
 
 fragment LETTER : ('a'..'z' | 'A'..'Z');
 fragment NUMBER : ('0'..'9');

@@ -1,12 +1,14 @@
-.SUFFIXES : .class .java .g
+.SUFFIXES : .class .java .g .hg
 
+.hg.c:
+	hpbcg $< > $@
 .g.java:
 	antlr $<
 .java.class:
 	jikes --emacs $<
 
 
-JFILES = C.java Cell.java 
+JFILES = C.java Cell.java Ia64.java
 CFILES = Main.java Insn.java InsnCell.java 
 D = org/hpbcg
 all: ${JFILES} class
