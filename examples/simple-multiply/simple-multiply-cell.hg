@@ -66,8 +66,7 @@ int main(int argc, char *argv[])
     }
 
   a = atoi (argv[1]);   /* Read data */
-
-  multiplyFunc = multiplyCompile(atoi(argv[1])); /* Generate cell code */
+  multiplyFunc = multiplyCompile(a); /* Generate cell code depending on a value */
   ctx = spe_context_create(0, NULL);		 /* Send it to worker */
   pthread_create(&pthread, NULL, &waitingThread, &ctx);
 

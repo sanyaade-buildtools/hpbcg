@@ -19,7 +19,7 @@ cell:
 	make FILES="${CELLFILES}" ADDCFLAGS="-I${CDIR}/include -lspe2" all
 
 ia64:
-	make FILES="${IAFILES}" ADDCFLAGS="" all
+	make FILES="${IAFILES}" ADDCFLAGS="-DASM_DEBUG" all
 
 simple-worker-cell: simple-worker-cell.c
 	spu-gcc -I${CDIR}/include -g -o simple-worker-cell simple-worker-cell.c 

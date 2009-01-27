@@ -41,12 +41,12 @@ enum ia64_Unit
 static const ui64_t ia64_nop[ia64_NumUnits]=
 {
   0x0000000000ULL,
-  0x0008000000ULL,  /* nop.i */
-  0x0008000000ULL,  /* nop.m */
-  0x4000000000ULL,  /* nop.b */
-  0x0008000000ULL,  /* nop.f */
-  0x0008000000ULL,  /* nop.l */
-  0x0008000000ULL   /* nop.x */
+  0x20008000000ULL,  /* nop.i */
+  0x30008000000ULL,  /* nop.m */
+  0x44000000000ULL,  /* nop.b */
+  0x50008000000ULL,  /* nop.f */
+  0x20008000000ULL,  /* nop.l */
+  0x20008000000ULL   /* nop.x */
 };
 
 

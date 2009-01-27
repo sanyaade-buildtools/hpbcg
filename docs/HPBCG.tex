@@ -1,8 +1,4 @@
 \documentclass{article}
-\usepackage{eurosym} % \euro{} \geneuro{} \geneuronarrow{} \geneurowide
-\usepackage[french]{babel}
-\usepackage[T1]{fontenc}
-\usepackage[latin1]{inputenc}
 \usepackage{url}
 %\usepackage[utf8]{inputenc}
 \usepackage{graphicx}
@@ -12,6 +8,7 @@ High Performance Binary Code Generation}
 \newcommand{\hpbcg}{\textbf{HPBCG}\ }
 \begin{document}
 \maketitle
+\tableofcontents{}
 
 \section{Introduction}
 
@@ -32,28 +29,94 @@ point which leed to
 \section{Actual status}
 
 \begin{description}
-\item[Cell spu] preliminar
+\item[Cell spu] Working draft 
+  \begin{itemize}
+  \item simple-multiply fonctionnal
+  \end{itemize}
+\item[Itanium]  Preliminar
 \end{description}
 
 \section{Using \hpbcg}
 
 \subsection{Installing \hpbcg}
 
-\hpbcg sould work on any reasonnable unix like target. The requirements
-are :
+\hpbcg sould work on any reasonnable unix like target. The
+requirements are :
 \begin{description}
 \item[antlr] The parser is implemented with \url{antlr.org}
 \item[java] As antlr is writed in java. But java is not needed at
   run-time, only at static compile time.
 \end{description}
 
+\hpbcg contain two parts :
+\begin{description}
+\item[Architecture description] contains the architecture description
+  and the parser used to generate the macro instructions. This part is
+  in the \texttt{src/isatobcg} directory
+\item[Parser] contains the parser in charge of the translation from
+  the \texttt{.hg} file to the \texttt{.c} file. This par is in the
+  \texttt{src/parser} directory.
+\end{description}
 
 \subsection{Using hpbcg}
 
 \section{Compilettes examples}
 
-\subsection{Simple compilette}
+\subsection{simple-multiply}
 
+This example is very simple, it's just a proof of concept.
+
+The obtained result is
+\begin{verbatim}
+turner:simple-multiply/>./simple-multiply-cell 42
+Code generation for multiply value 42
+Code generated
+  1   2   3   4   5   6   7   8   9  10 
+ 42  84 126 168 210 252 294 336 378 420 
+\end{verbatim}
+
+The \texttt{simple-multiply} program should generate a specialized
+version of a very simple program. The non specialized version is :
+\begin{verbatim}
+int multiply (int a, int b)
+{
+  return a * b;
+}
+\end{verbatim}
+
+This compilette will specialize this code with an ``optimized''
+version at run-time. For example the previous code will be specialized
+as
+\begin{verbatim}
+int multiply (int a)
+{
+  return a * 42;
+}
+\end{verbatim}
+
+\subsubsection{Cell version}
+
+Use the command \texttt{make cell} to build the program.
+
+The \texttt{cell} version contain 2 files :
+\begin{description}
+\item[simple-worker-cell.c] contain the initial SPU code. It will
+  \begin{enumerate}
+  \item download the binary code in a buffer
+  \item use this buffer as a function
+  \item call this function for all incoming parameter
+  \end{enumerate}
+\item[simple-multiply-cell.hg] is the code for the PPU. It will
+  \begin{enumerate}
+  \item generate a specialized code depending on the data given by the user.
+  \item sent it to the worker
+  \item use the worker 10 times for printing a array of multiplied values
+  \end{enumerate}
+\end{description}
+
+\subsubsection{Itanium version}
+
+Use the command \texttt{make ia64} to build the program.
 
 \section{Porting \hpbcg}
 
@@ -61,6 +124,20 @@ Porting \hpbcg to a new architecture should be as simple than the
 architectural model you plan to target.
 
 \subsection{Architecture description}
+
+The actual version contain processor description for 
+\begin{description}
+\item[cell.isa] This file contain all SPU instruction description
+\item[ia64.isa] This file contain all instruction set description
+\end{description}
+
+A processor description file should contain
+\begin{description}
+\item[Comments] A comments line is a line starting with \#
+\item[Arch length] A line containing the architecture name and the bit
+  lenght of one instruction
+\item[Instruction description] This part
+\end{description}
 
 \subsection{HPBCG Parser}
 
@@ -76,6 +153,7 @@ This part is devoted to different assembly langaguages that \hpbcg
   \item \verb|$lr|, \verb|$sp|
   \item \verb|$0| .. \verb|$32|
   \end{itemize}
+\item[Calling convention] 
 \end{description}
 
 \subsection{cell-ppu}
@@ -85,6 +163,7 @@ This part is devoted to different assembly langaguages that \hpbcg
   \begin{itemize}
   \item \verb|0| .. \verb|32|
   \end{itemize}
+\item[Calling convention] 
 \end{description}
 
 \subsection{power}
@@ -93,8 +172,12 @@ This part is devoted to different assembly langaguages that \hpbcg
   \begin{itemize}
   \item \verb|r0| .. \verb|r32|
   \end{itemize}
+\item[Calling convention] 
 \end{description}
 
+\section{Reporting bug}
+
+Please mail your comments to \url{mailto:hpc@prism.uvsq.fr}
 
 \end{document}
 
