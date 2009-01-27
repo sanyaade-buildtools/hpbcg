@@ -13,17 +13,5 @@ static insn *asm_pc;
 
 static void iflush(register insn *addr, register insn *last)
 {
-  
-  register insn *dptr= addr;
-  (void) printf("Flush !\n");
-  while (dptr < last) {
-    asm volatile ("dcbst 0,%0": :"r"(dptr));
-    ++dptr;
-  }
-  asm volatile ("sync");
-  while (addr < last) {
-    asm volatile ("icbi 0,%0": :"r"(addr));
-    ++addr;
-  }
-  asm volatile ("sync;isync");  
+  (void) printf("Flush data cache from %p to %p\n", addr, last);  
 }

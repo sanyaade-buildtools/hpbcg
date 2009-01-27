@@ -638,7 +638,7 @@ int main(int argc, char * argv[])
       break;
 #endif
     case MACROS:
-      printf("#ifdef WITH_HPBCG_MACROS\n");
+      printf("#ifndef WITHOUT_HPBCG_MACROS\n");
       for (itmp = racineDeListe; itmp->next; itmp = itmp->next)
 	{
 	  syntax = itmp->syntaxpart;

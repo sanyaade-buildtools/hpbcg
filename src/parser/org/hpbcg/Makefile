@@ -9,7 +9,7 @@
 
 
 JFILES = C.java Cell.java Ia64.java
-CFILES = Main.java Insn.java InsnCell.java 
+CFILES = Main.java Insn.java InsnCell.java InsnIa64.java 
 D = org/hpbcg
 all: ${JFILES} class
 

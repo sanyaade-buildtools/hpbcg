@@ -58,6 +58,8 @@ ia64 44
 
 # OP  ?      S     i_9,    i_5,    R3,    i_7,  R1,  QP
 001  1001  i1_21  i1_15-7 i1_20-16 r3_2  i1_6-0 r1_7 QP  | addl r1=i1,r3
+# Alias addl
+001  1001  i1_21  i1_15-7 i1_20-16 00    i1_6-0 r1_7 QP  | mov  r1=i1
 
 #A6
 # OP  ?   Tb X2 Ta  P2   R3,  R2,   C  P1   QP
@@ -1758,10 +1760,12 @@ ia64 44
 
 #F2
 
-# OP ?    X  X2   F4    F3    F2    F1    QP
-101  1110 1  00   f4_7  f3_7  f2_7  f1_7  QP    | xma.l  f1 = f3,f4,f2
-101  1110 1  11   f4_7  f3_7  f2_7  f1_7  QP    | xma.h  f1 = f3,f4,f2
-101  1110 1  10   f4_7  f3_7  f2_7  f1_7  QP    | xma.hu f1 = f3,f4,f2
+# OP ?    X  X2   F4    F3    F2       F1    QP
+101  1110 1  00   f4_7  f3_7  f2_7     f1_7  QP    | xma.l  f1 = f3,f4,f2
+101  1110 1  11   f4_7  f3_7  f2_7     f1_7  QP    | xma.h  f1 = f3,f4,f2
+101  1110 1  10   f4_7  f3_7  f2_7     f1_7  QP    | xma.hu f1 = f3,f4,f2
+# Alias
+101  1110 1  00   f4_7  f3_7  0000000  f1_7  QP    | xmpy.l f1 = f3,f4
 
 #F3
 # OP ?     X    F4    F3    F2    F1    QP
