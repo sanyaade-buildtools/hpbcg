@@ -13,8 +13,20 @@ pifi multiplyCompile(int multiplyValue)
   #[
 	.org	code
 	.proc   code+16, 0
-	mov	r34 = (multiplyValue)  
-	xmpy.l  f33 = f34, f33 
+	mov	r33 = (multiplyValue)  
+	nop.i 22
+	nop.i 22 ;;
+
+	setf.sig f32 = r32
+	setf.sig f33 = r33
+	nop.i 22 ;;
+
+	nop.m 22
+	xmpy.l  f32 = f32, f33 
+	nop.i 22
+
+	nop.m 22
+	getf.sig r8= f32
 	br.ret.sptk.many b0 ;;
   ]#;
   iflush (code, asm_pc);

@@ -183,6 +183,7 @@ char getLetterFromToken(YYSTYPE *t)
     case REGDs: 
     case REGDb: 
       {
+	if (0 == strcmp ("ar.pfs", t->name))  break;
 	switch (t->name[0])
 	  {
 	  case 'r': case 'R':  l = 'R';  break;
@@ -345,6 +346,8 @@ void printInsnMacro(YYSTYPE *i)
 	  break;
 	case REGDb: 
 	case PRED: 
+	  if (0 == strcmp ("ar.pfs", j->name))
+	    break;
 	  if (j != i){ 
 	    printf("<< %d | ", j->len);
 	  }
@@ -437,6 +440,7 @@ void printIa64InsnMacroDesc(YYSTYPE *syntax, YYSTYPE *bin)
 	{
 	case REGDs: 
 	case INTb:  
+	  if (0 == strcmp ("ar.pfs", i->name))	    break;
 	  if (isFirst) isFirst = 0; else printf(" ,");
 	  printf("%s", i->name); 
 	  break;
@@ -471,6 +475,7 @@ void printIa64InsnFunctDesc(YYSTYPE *syntax, YYSTYPE *bin)
 	{
 	case REGDs: 
 	case INTb:  
+	  if (0 == strcmp ("ar.pfs", i->name))	    break;
 	  if (isFirst) isFirst = 0; else printf(" ,");
 	  printf("int %s", i->name); 
 	  break;

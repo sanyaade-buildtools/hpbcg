@@ -6,6 +6,8 @@
 High Performance Binary Code Generation}
 \author{Henri-Pierre Charles}
 \newcommand{\hpbcg}{\textbf{HPBCG}\ }
+\newcommand{\Image}[2][10]{\includegraphics[width=#1cm]{Img/#2}}
+\newcommand{\Fig}[2]{\includegraphics[width=#2cm]{Img/#1}}
 \begin{document}
 \maketitle
 \tableofcontents{}
@@ -13,6 +15,21 @@ High Performance Binary Code Generation}
 \section{Introduction}
 
 \hpbcg is a tool which help to build binary code generator.
+
+\subsection{What is it ?}
+
+A binary code generator is a tool which can generate binary code
+(runnable), at run-time, without using assembly (textual)
+representation.
+
+It can be usefull in a lot of situations :
+\begin{itemize}
+\item For vector code generation
+\item For multimedia code generation
+\item For code optimization at run-time using data as optimizing parameter
+\end{itemize}
+
+\subsection{Motivation}
 
 Actually (january 2009) computer architecture reach a complexity
 point which leed to
@@ -26,14 +43,50 @@ point which leed to
   compile time.
 \end{itemize}
 
+\subsection{Related projects}
+
+\begin{description}
+\item[ccg] C Code Generator \cite{2001Piumarta} is the direct
+  predecessor of \hpbcg. \hpbcg differ from ccg on many points :
+  \begin{itemize}
+  \item The architecture description has been simplified to the strict
+    minimal binary description.
+  \item The source parser has been rewrited using antlr, which greatly
+    simplify the porting process
+  \end{itemize}
+\item[lightning] \url{http://www.gnu.org/software/lightning/} is an
+  other tool (which has take the architecture description from ccg),
+  but it does not allow a full use of the large register set, the
+  vector instructions or the special multimedia instructions.
+\end{description}
+
 \section{Actual status}
 
 \begin{description}
 \item[Cell spu] Working draft 
-  \begin{itemize}
-  \item simple-multiply fonctionnal
-  \end{itemize}
-\item[Itanium]  Preliminar
+\item[Itanium]  Working draft.
+\end{description}
+
+Working demo / architecture :
+
+\begin{tabular}{|l | c c|} \hline
+  Demo name       & Cell-spu & Itanium  \\ \hline
+  simple-multiply & ok & ok \\ \hline
+\end{tabular}
+
+
+\section{To do}
+
+\begin{description}
+\item[itanium] Things to be done
+  \begin{enumerate}
+  \item Fill the intruction tabuled scheduler in \texttt{ia64-utils.h}
+  \end{enumerate}
+\item[cell] Things to be done
+  \begin{enumerate}
+  \item Add more working examples
+  \item Hide the worker communication somewhere
+  \end{enumerate}
 \end{description}
 
 \section{Using \hpbcg}
@@ -52,11 +105,19 @@ requirements are :
 \begin{description}
 \item[Architecture description] contains the architecture description
   and the parser used to generate the macro instructions. This part is
-  in the \texttt{src/isatobcg} directory
+  in the \texttt{src/isatobcg} directory.
+
+  \begin{figure}
+    \centering
+    \Fig{IsaToHPBCGChain.pdf}{6}
+    \caption{Installation scheme}
+    \label{fig:Install}
+  \end{figure}
 \item[Parser] contains the parser in charge of the translation from
   the \texttt{.hg} file to the \texttt{.c} file. This par is in the
   \texttt{src/parser} directory.
 \end{description}
+
 
 \subsection{Using hpbcg}
 
@@ -94,6 +155,15 @@ int multiply (int a)
 }
 \end{verbatim}
 
+This specialized version shoud be faster than the previous one because
+\begin{itemize}
+\item the code is less specialized (Well, for a 1 instruction
+  function, it's not so evident, but you get the idea)
+\item the function contain less parameter, which use less memory and
+  less register
+\end{itemize}
+
+
 \subsubsection{Cell version}
 
 Use the command \texttt{make cell} to build the program.
@@ -116,7 +186,7 @@ The \texttt{cell} version contain 2 files :
 
 \subsubsection{Itanium version}
 
-Use the command \texttt{make ia64} to build the program.
+Use the command \texttt{make ia64} to build the program \texttt{simple-multiply-ia64}.
 
 \section{Porting \hpbcg}
 
@@ -135,9 +205,40 @@ A processor description file should contain
 \begin{description}
 \item[Comments] A comments line is a line starting with \#
 \item[Arch length] A line containing the architecture name and the bit
-  lenght of one instruction
-\item[Instruction description] This part
+  lenght of one instruction. For instance the first lone of the 
+\verb|cell.isa| containing the cell description contain :
+\begin{verbatim}
+cell 32
+\end{verbatim}
+\item[Instruction description] Each line of this part describe one
+  machine instruction. Each line is divided in two part separated by a
+  \verb-|-. The general for is :
+
+\begin{verbatim}
+Binary description | Syntax description
+\end{verbatim}
+
+For instance the \verb|cell.isa| description contain a line with :
+\begin{verbatim}
+ 00011000000  r3_7 r2_7  r1_7   | a   r1,r2,r3
+\end{verbatim}
+  \begin{description}
+  \item[The Binary description] contains bits fields describing the
+    instruction. In the previous example we have 4 bit fields
+    \begin{description}
+      \item[00011000000] witch is the opcode of the instruction
+        comming from the manual\cite{SPU1} page 55.
+      \item[Registers description] \verb|r3_7| which mean that the 3nd
+        register should be encoded on 7 bits.
+    \end{description}
+  \item[Syntax description] contains the instruction syntax allowed to
+    be used in compilettes.
+  \end{description}
+
 \end{description}
+
+\subsection{isatobcg Parser}
+
 
 \subsection{HPBCG Parser}
 
@@ -175,9 +276,34 @@ This part is devoted to different assembly langaguages that \hpbcg
 \item[Calling convention] 
 \end{description}
 
+\subsection{ia64}
+\begin{description}
+\item[Registers name] one of
+  \begin{itemize}
+  \item \verb|r0| .. \verb|r128|, \verb|f0| .. \verb|f0| are floating
+    point or multimedia registers
+  \item \verb|r0| is always 0
+  \item \verb|r1| is always 1
+  \item \verb|f0| is always 0.0
+  \end{itemize}
+\item[Calling convention] depending on the used datatype, differents
+  register can be used :
+  \begin{itemize}
+  \item \verb|r32| is the first integer parameter, \verb|r33| the
+    second, etc.
+  \item \verb|f8| is the first floating point parameter, \verb|f9| the
+    second, etc.
+  \item \verb|r8| or \verb|f8| is the return value depending on the
+    used data type.
+  \end{itemize}
+\end{description}
+
 \section{Reporting bug}
 
 Please mail your comments to \url{mailto:hpc@prism.uvsq.fr}
+
+\bibliographystyle{plain}
+\bibliography{HPBCG.bib}
 
 \end{document}
 

@@ -70,10 +70,10 @@ static const char ia64_tmpl[14][14][14] =
       /*         0   a   i   m   b   f  x    0   A   I   M   B   F   X */
     /* 00. */ {{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
     /* aa. */  {-1,  0,  0, -1, 17, 14, -1, -1, -1, -1, -1, -1, -1, -1},
-    /* ai. */  {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
+    /* ai. */  {-1, -1,  1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
     /* am. */  {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
     /* ab. */  {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    /* af. */  {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
+    /* af. */  {-1, -1, -1, -1, 28, -1, -1, -1, -1, -1, -1, -1, -1, -1},
     /* ax. */  {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
     /* 00. */  {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
     /* aA. */  {-1,  0,  0, -1, 17, 14, -1, -1, -1, -1, -1, -1, -1, -1},
@@ -101,9 +101,9 @@ static const char ia64_tmpl[14][14][14] =
     /* 00. */ {{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
     /* ma. */  {-1, -1, -1, -1, 17, -1, -1, -1, -1, -1, -1, -1, -1, -1},
     /* mi. */  {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    /* mm. */  {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
+    /* mm. */  {-1, -1,  9, -1, 24, -1, -1, -1, -1, -1, -1, -1, -1, -1},
     /* mb. */  {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    /* mf. */  {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
+    /* mf. */  {-1, -1, 13, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
     /* mx. */  {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
     /* 00. */  {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
     /* mA. */  {-1, -1, -1, -1, 17, -1, -1, -1, -1, -1, -1, -1, -1, -1},
@@ -327,6 +327,11 @@ static int ia64_slotCount = 0;
 
 void isAsserted()
 {
+#if 0
+  (void) printf("sizeof ui64_t %d bits\n", 8*sizeof (ui64_t));
+  (void) printf("sizeof ui32_t %d bits\n", 8*sizeof (ui32_t));
+  (void) printf("sizeof insn   %d bits\n", 8*sizeof (insn));
+#endif
   assert(8 == sizeof (ui64_t));
   assert(4 == sizeof (ui32_t));
   hasBeenAsserted = 1;
@@ -358,7 +363,7 @@ static void pInsn(ui64_t insn, char type)
 static int ia64_emitInsn()
 {
   char tmplate[4];
-  char tmplval;
+  unsigned char tmplval;
   int i;
 
   if (!hasBeenAsserted)
@@ -373,18 +378,19 @@ static int ia64_emitInsn()
   tmplval = ia64_tmpl[(int) ia64_slots[0].ia64_insnType]
                      [(int) ia64_slots[1].ia64_insnType]
                      [(int) ia64_slots[2].ia64_insnType];
+#ifdef ASM_DEBUG
   printf("%s %d\n", tmplate, tmplval);
-
+#endif
    {
      bundle b =
       {
-	  (ia64_slots[1].ia64_insn << 46) 
-	| (ia64_slots[0].ia64_insn <<  5) 
-	| tmplval,
-	  (ia64_slots[2].ia64_insn << 23) 
-	| (ia64_slots[1].ia64_insn >> 18)
+	  (ia64_slots[1].ia64_insn << 46) | (ia64_slots[0].ia64_insn <<  5) | tmplval,
+	  (ia64_slots[2].ia64_insn << 23) | (ia64_slots[1].ia64_insn >> 18)
       };
      _GEN(b); asm_pc++;
+#ifdef ASM_DEBUG
+     printf("asm_pc = %p\n", asm_pc);
+#endif
   }
  return 0;
 }
