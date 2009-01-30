@@ -1,8 +1,34 @@
 #!/bin/csh
 
-setenv HPBCGHOME ${HOME}/Travail/Prog/HPBCG/src/parser/
-setenv CLASSPATH ${HPBCGHOME}/HPBCG.jar:${HPBCGHOME}/antlr-3.1.1-runtime.jar:$CLASSPATH
+# setenv HPBCGHOME ${HOME}/Travail/Prog/HPBCG/src/parser/
+if (! $?HPBCGHOME) then
+    echo "Please set HPBCGHOME to a more realistic value"
+    exit
+endif
+setenv D ${HPBCGHOME}/src/parser/
+if (! -e ${D}/HPBCG.jar) then
+    echo "Installation problem. HPBCG.jar is missing"
+    echo "Please build HPBCG.jar"
+    exit
+endif
 
+setenv CLASSPATH ${D}/HPBCG.jar:${D}/antlr-3.1.1-runtime.jar:$CLASSPATH
 # echo $CLASSPATH
 
-java org.hpbcg.Main $*
+foreach P (java gij)
+    foreach D (/usr/local/bin/ /usr/bin/)
+	echo $D/$P
+	if (-e $D/$P) then
+	    setenv JAVA $D/$P
+	    break
+	endif
+    end
+    if ($?JAVA) break
+end
+echo "--" $JAVA
+if (! $?JAVA) then
+    echo "Please provide a runnable jdk"
+    exit
+endif
+
+${JAVA} org.hpbcg.Main $*

@@ -4,6 +4,7 @@ package org.hpbcg;
 
 class InsnIa64 extends Insn
 {
+    boolean stopBit = false;
     public InsnIa64()
     {
 	super(4);
@@ -18,6 +19,10 @@ class InsnIa64 extends Insn
     public void setInsn (String name)
     {
 	insnName = name.replace(".", "_");
+    }
+    public void setStop ()
+    {
+	stopBit = true;
     }
     public void setParam (String name, int TYPE)
     {
@@ -48,10 +53,13 @@ class InsnIa64 extends Insn
 	for (i = 0; i < currentRegister - 1;  i++)
 	{
 	    tmp += registers[i] +',';
-
 	}
 	if (currentRegister > 0) tmp += registers[i];
-	tmp += ", 0, 0);";
+	tmp += ", 0";		// predicat 
+	if (stopBit)
+	    tmp += ", 1);";
+	else
+	    tmp += ", 0);";
 	return tmp;
     }
 }

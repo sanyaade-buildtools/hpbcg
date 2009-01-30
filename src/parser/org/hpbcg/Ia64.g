@@ -3,7 +3,7 @@ options { k = 2; }
 @header{package org.hpbcg;}
 @members{
 //   lexer class members
-    Insn currentInsn = null;
+    InsnIa64 currentInsn = null;
     boolean debug;
     public void myParse(boolean debug) throws antlr.TokenStreamException
     {
@@ -57,6 +57,7 @@ options { k = 2; }
                 break;
             case STOPBIT:
                 Debug("STOP ");
+                currentInsn.setStop();
                 break;
 	    case PROC:
 		tmp = a.getText();

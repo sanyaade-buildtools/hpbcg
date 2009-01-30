@@ -23,7 +23,7 @@ pifi multiplyCompile(int multiplyValue)
 
 	nop.m 22
 	xmpy.l  f32 = f32, f33 
-	nop.i 22
+	nop.i 22 ;;
 
 	nop.m 22
 	getf.sig r8= f32

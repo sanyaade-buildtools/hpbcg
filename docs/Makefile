@@ -2,8 +2,8 @@
 
 .tex.pdf:
 	pdflatex $<
-	pdflatex $<
 	bibtex 	`basename $< .tex`
+	pdflatex $<
 	pdflatex $<
 
 all: images doc
@@ -17,4 +17,4 @@ doc: HPBCG.pdf
 clean:
 	(cd Img; make clean)
 	cleantex -a HPBCG.tex
-
+	-rm HPBCG.pdf
