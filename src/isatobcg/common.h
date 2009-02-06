@@ -2,7 +2,7 @@
 
 
 
-enum LISTARCHID {ARCH0 = 0, ARCHia64, ARCHcell, ARCHarmthumb};
+enum LISTARCHID {ARCH0 = 0, ARCHia64, ARCHcell, ARCHpower4, ARCHarmthumb};
 #define ARCHITEM(NAME) {ARCH##NAME, #NAME}
 typedef struct 
   {

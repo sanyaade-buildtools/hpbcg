@@ -51,15 +51,17 @@ ia64 44
 
 #A4
 # OP  ?    S     X2a  Ve   i_6,  R3,  i_7,   R1,  QP
-001  1000 i1_13  10   0  i1_12-7 r3_7 i1_6-0 r1_7 QP  | adds   r1=i1,r3
-001  1000 i1_13  11   0  i1_12-7 r3_7 i1_6-0 r1_7 QP  | addp4  r1=i1,r3
+001  1000 i1_13  10   0  i1_12-7 r3_7 i1_6-0 r1_7 QP  | adds   r1 = i1,r3
+# Alias
+001  1000 0      10   0  000000  r3_7 0000000 r1_7 QP  | mov   r1 = r3
+001  1000 i1_13  11   0  i1_12-7 r3_7 i1_6-0 r1_7 QP  | addp4  r1 = i1,r3
 
 #A5
 
 # OP  ?      S     i_9,    i_5,    R3,    i_7,  R1,  QP
-001  1001  i1_21  i1_15-7 i1_20-16 r3_2  i1_6-0 r1_7 QP  | addl r1=i1,r3
+001  1001  i1_21  i1_15-7 i1_20-16 r3_2  i1_6-0 r1_7 QP  | addl r1 = i1,r3
 # Alias addl
-001  1001  i1_21  i1_15-7 i1_20-16 00    i1_6-0 r1_7 QP  | mov  r1=i1
+001  1001  i1_21  i1_15-7 i1_20-16 00    i1_6-0 r1_7 QP  | mov  r1 = i1
 
 #A6
 # OP  ?   Tb X2 Ta  P2   R3,  R2,   C  P1   QP
@@ -248,7 +250,7 @@ ia64 44
 
 #I9
 # OP   ?   Za X2a Zb Ve  X2c X2b    R3   0    R1    QP
-010  0111  0  01  1  0   10  01  0 r3_7 r0_7  r1_7  QP  | popcnt r1=r3
+010  0111  0  01  1  0   10  01  0 r3_7 0000000  r1_7  QP  | popcnt r1=r3
 
 #I10
 # OP   ?      X2  X  I1_6    R3   R2   R1   QP
@@ -1369,7 +1371,9 @@ ia64 44
 
 #M34
 #   OP   ?  X3  ?   SOR    SOL    SOF    R1   QP
-011 0001 0  110 00  i1_3-0 i2_6-0 i3_6-0 r1_7 QP  		| alloc2  r1 = ar.pfs, i1, i2, i3
+# Why ar.pfs has to be specify ? -- hpc
+# Because it can be set with a mov
+011 0001 0  110 00  i1_3-0 i2_6-0 i3_6-0 r1_7 QP  	| alloc  r1 = r2, i1, i2, i3, i4 
 
 #M35
 # OP ?       X3   X6             R2            QP
@@ -1583,30 +1587,30 @@ ia64 44
 
 # B4
 # OP ?      D  Wh  X6                  B2    P      Btype  QP
-100  0000 0 0  00  100000 00000000000  b2_3  0  000 000    QP  | br.cond.sptk.few                    b2
-100  0000 0 0  00  100000 00000000000  b2_3  0  000 001    QP  | br.ia.sptk.few                      b2
-100  0000 0 0  00  100001 00000000000  b2_3  0  000 100    QP  | br.ret.sptk.few                     b2
-100  0000 0 0  01  100000 00000000000  b2_3  0  000 000    QP  | br.cond.spnt.few                    b2
-100  0000 0 0  01  100000 00000000000  b2_3  0  000 001    QP  | br.ia.spnt.few                      b2
-100  0000 0 0  01  100001 00000000000  b2_3  0  000 100    QP  | br.ret.spnt.few                     b2
-100  0000 0 0  10  100000 00000000000  b2_3  0  000 000    QP  | br.cond.dptk.few                    b2
-100  0000 0 0  10  100000 00000000000  b2_3  0  000 001    QP  | br.ia.dptk.few                      b2
-100  0000 0 0  10  100001 00000000000  b2_3  0  000 100    QP  | br.ret.dptk.few                     b2
-100  0000 0 0  11  100000 00000000000  b2_3  0  000 000    QP  | br.cond.dpnt.few                    b2
-100  0000 0 0  11  100000 00000000000  b2_3  0  000 001    QP  | br.ia.dpnt.few                      b2
-100  0000 0 0  11  100001 00000000000  b2_3  0  000 100    QP  | br.ret.dpnt.few                     b2
-100  0000 0 0  00  100000 00000000000  b2_3  1  000 000    QP  | br.cond.sptk.many                   b2
-100  0000 0 0  00  100000 00000000000  b2_3  1  000 001    QP  | br.ia.sptk.many                     b2
-100  0000 0 0  00  100001 00000000000  b2_3  1  000 100    QP  | br.ret.sptk.many                    b2
-100  0000 0 0  01  100000 00000000000  b2_3  1  000 000    QP  | br.cond.spnt.many                   b2
-100  0000 0 0  01  100000 00000000000  b2_3  1  000 001    QP  | br.ia.spnt.many                     b2
-100  0000 0 0  01  100001 00000000000  b2_3  1  000 100    QP  | br.ret.spnt.many                    b2
-100  0000 0 0  10  100000 00000000000  b2_3  1  000 000    QP  | br.cond.dptk.many                   b2
-100  0000 0 0  10  100000 00000000000  b2_3  1  000 001    QP  | br.ia.dptk.many                     b2
-100  0000 0 0  10  100001 00000000000  b2_3  1  000 100    QP  | br.ret.dptk.many                    b2
-100  0000 0 0  11  100000 00000000000  b2_3  1  000 000    QP  | br.cond.dpnt.many                   b2
-100  0000 0 0  11  100000 00000000000  b2_3  1  000 001    QP  | br.ia.dpnt.many                     b2
-100  0000 0 0  11  100001 00000000000  b2_3  1  000 100    QP  | br.ret.dpnt.many                    b2
+100  0000 0 0  00  100000 00000000000  b2_3  0  000 000    QP  | br.cond.sptk.few b2
+100  0000 0 0  00  100000 00000000000  b2_3  0  000 001    QP  | br.ia.sptk.few   b2
+100  0000 0 0  00  100001 00000000000  b2_3  0  000 100    QP  | br.ret.sptk.few  b2
+100  0000 0 0  01  100000 00000000000  b2_3  0  000 000    QP  | br.cond.spnt.few b2
+100  0000 0 0  01  100000 00000000000  b2_3  0  000 001    QP  | br.ia.spnt.few   b2
+100  0000 0 0  01  100001 00000000000  b2_3  0  000 100    QP  | br.ret.spnt.few  b2
+100  0000 0 0  10  100000 00000000000  b2_3  0  000 000    QP  | br.cond.dptk.few b2
+100  0000 0 0  10  100000 00000000000  b2_3  0  000 001    QP  | br.ia.dptk.few   b2
+100  0000 0 0  10  100001 00000000000  b2_3  0  000 100    QP  | br.ret.dptk.few  b2
+100  0000 0 0  11  100000 00000000000  b2_3  0  000 000    QP  | br.cond.dpnt.few b2
+100  0000 0 0  11  100000 00000000000  b2_3  0  000 001    QP  | br.ia.dpnt.few   b2
+100  0000 0 0  11  100001 00000000000  b2_3  0  000 100    QP  | br.ret.dpnt.few  b2
+100  0000 0 0  00  100000 00000000000  b2_3  1  000 000    QP  | br.cond.sptk.many b2
+100  0000 0 0  00  100000 00000000000  b2_3  1  000 001    QP  | br.ia.sptk.many  b2
+100  0000 0 0  00  100001 00000000000  b2_3  1  000 100    QP  | br.ret.sptk.many  b2
+100  0000 0 0  01  100000 00000000000  b2_3  1  000 000    QP  | br.cond.spnt.many  b2
+100  0000 0 0  01  100000 00000000000  b2_3  1  000 001    QP  | br.ia.spnt.many  b2
+100  0000 0 0  01  100001 00000000000  b2_3  1  000 100    QP  | br.ret.spnt.many b2
+100  0000 0 0  10  100000 00000000000  b2_3  1  000 000    QP  | br.cond.dptk.many b2
+100  0000 0 0  10  100000 00000000000  b2_3  1  000 001    QP  | br.ia.dptk.many  b2
+100  0000 0 0  10  100001 00000000000  b2_3  1  000 100    QP  | br.ret.dptk.many b2
+100  0000 0 0  11  100000 00000000000  b2_3  1  000 000    QP  | br.cond.dpnt.many b2
+100  0000 0 0  11  100000 00000000000  b2_3  1  000 001    QP  | br.ia.dpnt.many  b2
+100  0000 0 0  11  100001 00000000000  b2_3  1  000 100    QP  | br.ret.dpnt.many b2
 
 100  0000 0 1  00  100000 00000000000  b2_3  0  000 000    QP  | br.cond.sptk.few.clr                b2
 100  0000 0 1  00  100000 00000000000  b2_3  0  000 001    QP  | br.ia.sptk.few.clr                  b2
@@ -1694,82 +1698,84 @@ ia64 44
 #F1
 
 # OP  ?    X  Sf   F4   F3   F2   F1   QP
-101  1000  0  00  f4_7 f3_7 f2_7 f1_7  QP  | fma	  f1 = f3,f4,f2
-101  1000  1  00  f4_7 f3_7 f2_7 f1_7  QP  | fma.s	  f1 = f3,f4,f2
-101  1001  0  00  f4_7 f3_7 f2_7 f1_7  QP  | fma.d	  f1 = f3,f4,f2
+101  1000  0  00  f4_7 f3_7 f2_7     f1_7  QP  | fma	  f1 = f3,f4,f2
+101  1000  1  00  f4_7 f3_7 f2_7     f1_7  QP  | fma.s	  f1 = f3,f4,f2
+101  1001  0  00  f4_7 f3_7 f2_7     f1_7  QP  | fma.d	  f1 = f3,f4,f2
 
-101  1100  0  00  f4_7 f3_7 f2_7 f1_7  QP  | fnma     f1 = f3,f4,f2
-101  1100  1  00  f4_7 f3_7 f2_7 f1_7  QP  | fnma.s   f1 = f3,f4,f2
-101  1101  0  00  f4_7 f3_7 f2_7 f1_7  QP  | fnma.d   f1 = f3,f4,f2
+101  1100  0  00  f4_7 f3_7 f2_7     f1_7  QP  | fnma     f1 = f3,f4,f2
+101  1100  1  00  f4_7 f3_7 f2_7     f1_7  QP  | fnma.s   f1 = f3,f4,f2
+101  1101  0  00  f4_7 f3_7 f2_7     f1_7  QP  | fnma.d   f1 = f3,f4,f2
 
-101  1001  1  00  f4_7 f3_7 f2_7 f1_7  QP  | fpma        f1 = f3,f4,f2
+101  1001  1  00  f4_7 f3_7 f2_7     f1_7  QP  | fpma        f1 = f3,f4,f2
 
-101  1010  0  00  f4_7 f3_7 f2_7 f1_7  QP  | fms         f1 = f3,f4,f2
+101  1010  0  00  f4_7 f3_7 f2_7     f1_7  QP  | fms         f1 = f3,f4,f2
 
-101  1000  0  00  f4_7 f3_7 f2_7 f1_7  QP  | fma.s0	  f1 = f3,f4,f2
-101  1000  1  00  f4_7 f3_7 f2_7 f1_7  QP  | fma.s.s0    f1 = f3,f4,f2
-101  1001  0  00  f4_7 f3_7 f2_7 f1_7  QP  | fma.d.s0    f1 = f3,f4,f2
-101  1001  1  00  f4_7 f3_7 f2_7 f1_7  QP  | fpma.s0     f1 = f3,f4,f2
-101  1010  0  00  f4_7 f3_7 f2_7 f1_7  QP  | fms.s0      f1 = f3,f4,f2
-101  1010  1  00  f4_7 f3_7 f2_7 f1_7  QP  | fms.s.s0    f1 = f3,f4,f2
-101  1011  0  00  f4_7 f3_7 f2_7 f1_7  QP  | fms.d.s0    f1 = f3,f4,f2
-101  1011  1  00  f4_7 f3_7 f2_7 f1_7  QP  | fpms.s0     f1 = f3,f4,f2
-101  1100  0  00  f4_7 f3_7 f2_7 f1_7  QP  | fnma.s0     f1 = f3,f4,f2
-101  1100  1  00  f4_7 f3_7 f2_7 f1_7  QP  | fnma.s.s0   f1 = f3,f4,f2
-101  1101  0  00  f4_7 f3_7 f2_7 f1_7  QP  | fnma.d.s0   f1 = f3,f4,f2
-101  1101  1  00  f4_7 f3_7 f2_7 f1_7  QP  | fpnma.s0    f1 = f3,f4,f2
+101  1000  0  00  f4_7 f3_7 f2_7     f1_7  QP  | fma.s0	  f1 = f3,f4,f2
+101  1000  1  00  f4_7 f3_7 f2_7     f1_7  QP  | fma.s.s0    f1 = f3,f4,f2
+101  1001  0  00  f4_7 f3_7 f2_7     f1_7  QP  | fma.d.s0    f1 = f3,f4,f2
+101  1001  1  00  f4_7 f3_7 f2_7     f1_7  QP  | fpma.s0     f1 = f3,f4,f2
+101  1010  0  00  f4_7 f3_7 f2_7     f1_7  QP  | fms.s0      f1 = f3,f4,f2
+101  1010  1  00  f4_7 f3_7 f2_7     f1_7  QP  | fms.s.s0    f1 = f3,f4,f2
+101  1011  0  00  f4_7 f3_7 f2_7     f1_7  QP  | fms.d.s0    f1 = f3,f4,f2
+101  1011  1  00  f4_7 f3_7 f2_7     f1_7  QP  | fpms.s0     f1 = f3,f4,f2
+101  1100  0  00  f4_7 f3_7 f2_7     f1_7  QP  | fnma.s0     f1 = f3,f4,f2
+101  1100  1  00  f4_7 f3_7 f2_7     f1_7  QP  | fnma.s.s0   f1 = f3,f4,f2
+101  1101  0  00  f4_7 f3_7 f2_7     f1_7  QP  | fnma.d.s0   f1 = f3,f4,f2
+101  1101  1  00  f4_7 f3_7 f2_7     f1_7  QP  | fpnma.s0    f1 = f3,f4,f2
 
-101  1000  0  01  f4_7 f3_7 f2_7 f1_7  QP  | fma.s1      f1 = f3,f4,f2
-101  1000  1  01  f4_7 f3_7 f2_7 f1_7  QP  | fma.s.s1    f1 = f3,f4,f2
-101  1001  0  01  f4_7 f3_7 f2_7 f1_7  QP  | fma.d.s1    f1 = f3,f4,f2
-101  1001  1  01  f4_7 f3_7 f2_7 f1_7  QP  | fpma.s1     f1 = f3,f4,f2
-101  1010  0  01  f4_7 f3_7 f2_7 f1_7  QP  | fms.s1      f1 = f3,f4,f2
-101  1010  1  01  f4_7 f3_7 f2_7 f1_7  QP  | fms.s.s1    f1 = f3,f4,f2
-101  1011  0  01  f4_7 f3_7 f2_7 f1_7  QP  | fms.d.s1    f1 = f3,f4,f2
-101  1011  1  01  f4_7 f3_7 f2_7 f1_7  QP  | fpms.s1     f1 = f3,f4,f2
-101  1100  0  01  f4_7 f3_7 f2_7 f1_7  QP  | fnma.s1     f1 = f3,f4,f2
-101  1100  1  01  f4_7 f3_7 f2_7 f1_7  QP  | fnma.s.s1   f1 = f3,f4,f2
-101  1101  0  01  f4_7 f3_7 f2_7 f1_7  QP  | fnma.d.s1   f1 = f3,f4,f2
-101  1101  1  01  f4_7 f3_7 f2_7 f1_7  QP  | fpnma.s1    f1 = f3,f4,f2
+101  1000  0  01  f4_7 f3_7 f2_7     f1_7  QP  | fma.s1      f1 = f3,f4,f2
+# Alias 
+101  1000  0  01  f4_7 f3_7 0000000  f1_7  QP  | fmpy.s1      f1 = f3,f4
+101  1000  1  01  f4_7 f3_7 f2_7     f1_7  QP  | fma.s.s1    f1 = f3,f4,f2
+101  1001  0  01  f4_7 f3_7 f2_7     f1_7  QP  | fma.d.s1    f1 = f3,f4,f2
+101  1001  1  01  f4_7 f3_7 f2_7     f1_7  QP  | fpma.s1     f1 = f3,f4,f2
+101  1010  0  01  f4_7 f3_7 f2_7     f1_7  QP  | fms.s1      f1 = f3,f4,f2
+101  1010  1  01  f4_7 f3_7 f2_7     f1_7  QP  | fms.s.s1    f1 = f3,f4,f2
+101  1011  0  01  f4_7 f3_7 f2_7     f1_7  QP  | fms.d.s1    f1 = f3,f4,f2
+101  1011  1  01  f4_7 f3_7 f2_7     f1_7  QP  | fpms.s1     f1 = f3,f4,f2
+101  1100  0  01  f4_7 f3_7 f2_7     f1_7  QP  | fnma.s1     f1 = f3,f4,f2
+101  1100  1  01  f4_7 f3_7 f2_7     f1_7  QP  | fnma.s.s1   f1 = f3,f4,f2
+101  1101  0  01  f4_7 f3_7 f2_7     f1_7  QP  | fnma.d.s1   f1 = f3,f4,f2
+101  1101  1  01  f4_7 f3_7 f2_7     f1_7  QP  | fpnma.s1    f1 = f3,f4,f2
 
-101  1000  0  10  f4_7 f3_7 f2_7 f1_7  QP  | fma.s2      f1 = f3,f4,f2
-101  1000  1  10  f4_7 f3_7 f2_7 f1_7  QP  | fma.s.s2    f1 = f3,f4,f2
-101  1001  0  10  f4_7 f3_7 f2_7 f1_7  QP  | fma.d.s2    f1 = f3,f4,f2
-101  1001  1  10  f4_7 f3_7 f2_7 f1_7  QP  | fpma.s2     f1 = f3,f4,f2
-101  1010  0  10  f4_7 f3_7 f2_7 f1_7  QP  | fms.s2      f1 = f3,f4,f2
-101  1010  1  10  f4_7 f3_7 f2_7 f1_7  QP  | fms.s.s2    f1 = f3,f4,f2
-101  1011  0  10  f4_7 f3_7 f2_7 f1_7  QP  | fms.d.s2    f1 = f3,f4,f2
-101  1011  1  10  f4_7 f3_7 f2_7 f1_7  QP  | fpms.s2     f1 = f3,f4,f2
-101  1100  0  10  f4_7 f3_7 f2_7 f1_7  QP  | fnma.s2     f1 = f3,f4,f2
-101  1100  1  10  f4_7 f3_7 f2_7 f1_7  QP  | fnma.s.s2   f1 = f3,f4,f2
-101  1101  0  10  f4_7 f3_7 f2_7 f1_7  QP  | fnma.d.s2   f1 = f3,f4,f2
-101  1101  1  10  f4_7 f3_7 f2_7 f1_7  QP  | fpnma.s2    f1 = f3,f4,f2
+101  1000  0  10  f4_7 f3_7 f2_7     f1_7  QP  | fma.s2      f1 = f3,f4,f2
+101  1000  1  10  f4_7 f3_7 f2_7     f1_7  QP  | fma.s.s2    f1 = f3,f4,f2
+101  1001  0  10  f4_7 f3_7 f2_7     f1_7  QP  | fma.d.s2    f1 = f3,f4,f2
+101  1001  1  10  f4_7 f3_7 f2_7     f1_7  QP  | fpma.s2     f1 = f3,f4,f2
+101  1010  0  10  f4_7 f3_7 f2_7     f1_7  QP  | fms.s2      f1 = f3,f4,f2
+101  1010  1  10  f4_7 f3_7 f2_7     f1_7  QP  | fms.s.s2    f1 = f3,f4,f2
+101  1011  0  10  f4_7 f3_7 f2_7     f1_7  QP  | fms.d.s2    f1 = f3,f4,f2
+101  1011  1  10  f4_7 f3_7 f2_7     f1_7  QP  | fpms.s2     f1 = f3,f4,f2
+101  1100  0  10  f4_7 f3_7 f2_7     f1_7  QP  | fnma.s2     f1 = f3,f4,f2
+101  1100  1  10  f4_7 f3_7 f2_7     f1_7  QP  | fnma.s.s2   f1 = f3,f4,f2
+101  1101  0  10  f4_7 f3_7 f2_7     f1_7  QP  | fnma.d.s2   f1 = f3,f4,f2
+101  1101  1  10  f4_7 f3_7 f2_7     f1_7  QP  | fpnma.s2    f1 = f3,f4,f2
 
-101  1000  0  11  f4_7 f3_7 f2_7 f1_7  QP  | fma.s3      f1 = f3,f4,f2
-101  1000  1  11  f4_7 f3_7 f2_7 f1_7  QP  | fma.s.s3    f1 = f3,f4,f2
-101  1001  0  11  f4_7 f3_7 f2_7 f1_7  QP  | fma.d.s3    f1 = f3,f4,f2
-101  1001  1  11  f4_7 f3_7 f2_7 f1_7  QP  | fpma.s3     f1 = f3,f4,f2
-101  1010  0  11  f4_7 f3_7 f2_7 f1_7  QP  | fms.s3      f1 = f3,f4,f2
-101  1010  1  11  f4_7 f3_7 f2_7 f1_7  QP  | fms.s.s3    f1 = f3,f4,f2
-101  1011  0  11  f4_7 f3_7 f2_7 f1_7  QP  | fms.d.s3    f1 = f3,f4,f2
-101  1011  1  11  f4_7 f3_7 f2_7 f1_7  QP  | fpms.s3     f1 = f3,f4,f2
-101  1100  0  11  f4_7 f3_7 f2_7 f1_7  QP  | fnma.s3     f1 = f3,f4,f2
-101  1100  1  11  f4_7 f3_7 f2_7 f1_7  QP  | fnma.s.s3   f1 = f3,f4,f2
-101  1101  0  11  f4_7 f3_7 f2_7 f1_7  QP  | fnma.d.s3   f1 = f3,f4,f2
-101  1101  1  11  f4_7 f3_7 f2_7 f1_7  QP  | fpnma.s3    f1 = f3,f4,f2
+101  1000  0  11  f4_7 f3_7 f2_7     f1_7  QP  | fma.s3      f1 = f3,f4,f2
+101  1000  1  11  f4_7 f3_7 f2_7     f1_7  QP  | fma.s.s3    f1 = f3,f4,f2
+101  1001  0  11  f4_7 f3_7 f2_7     f1_7  QP  | fma.d.s3    f1 = f3,f4,f2
+101  1001  1  11  f4_7 f3_7 f2_7     f1_7  QP  | fpma.s3     f1 = f3,f4,f2
+101  1010  0  11  f4_7 f3_7 f2_7     f1_7  QP  | fms.s3      f1 = f3,f4,f2
+101  1010  1  11  f4_7 f3_7 f2_7     f1_7  QP  | fms.s.s3    f1 = f3,f4,f2
+101  1011  0  11  f4_7 f3_7 f2_7     f1_7  QP  | fms.d.s3    f1 = f3,f4,f2
+101  1011  1  11  f4_7 f3_7 f2_7     f1_7  QP  | fpms.s3     f1 = f3,f4,f2
+101  1100  0  11  f4_7 f3_7 f2_7     f1_7  QP  | fnma.s3     f1 = f3,f4,f2
+101  1100  1  11  f4_7 f3_7 f2_7     f1_7  QP  | fnma.s.s3   f1 = f3,f4,f2
+101  1101  0  11  f4_7 f3_7 f2_7     f1_7  QP  | fnma.d.s3   f1 = f3,f4,f2
+101  1101  1  11  f4_7 f3_7 f2_7     f1_7  QP  | fpnma.s3    f1 = f3,f4,f2
 
 #F2
 
 # OP ?    X  X2   F4    F3    F2       F1    QP
-101  1110 1  00   f4_7  f3_7  f2_7     f1_7  QP    | xma.l  f1 = f3,f4,f2
-101  1110 1  11   f4_7  f3_7  f2_7     f1_7  QP    | xma.h  f1 = f3,f4,f2
-101  1110 1  10   f4_7  f3_7  f2_7     f1_7  QP    | xma.hu f1 = f3,f4,f2
+101  1110 1  00   f4_7  f3_7  f2_7    f1_7  QP    | xma.l  f1 = f3,f4,f2
+101  1110 1  11   f4_7  f3_7  f2_7    f1_7  QP    | xma.h  f1 = f3,f4,f2
+101  1110 1  10   f4_7  f3_7  f2_7    f1_7  QP    | xma.hu f1 = f3,f4,f2
 # Alias
-101  1110 1  00   f4_7  f3_7  0000000  f1_7  QP    | xmpy.l f1 = f3,f4
+101  1110 1  00   f4_7  f3_7  0000000 f1_7  QP    | xmpy.l f1 = f3,f4
 
 #F3
 # OP ?     X    F4    F3    F2    F1    QP
-101  1110  0 00 f4_7  f3_7  f2_7  f1_7  QP    | fselect          f1 = f3,f4,f2
+101  1110  0 00 f4_7  f3_7  f2_7      f1_7  QP    | fselect          f1 = f3,f4,f2
 
 #F4
 # OP ?    Rb  Sf  Ra  P2    F3   F2   Ta P1   QP
@@ -1815,26 +1821,26 @@ ia64 44
 101  0101 00  i1_8-7  p2_6  i1_6-0 f2_7 1   p1_6  QP  | fclass.m.unc       p1,p2=f2,i1
 
 #F6
-# OP ?     Q  Sf  X  P2   F3    F2    F1   QP
-101  0000  0  00  1  p2_6 f3_7  f2_7  f1_7 QP  | frcpa.s0                  f1,p2=f2,f3
-101  0001  0  00  1  p2_6 f3_7  f2_7  f1_7 QP  | fprcpa.s0                 f1,p2=f2,f3
-101  0000  0  01  1  p2_6 f3_7  f2_7  f1_7 QP  | frcpa.s1                  f1,p2=f2,f3
-101  0001  0  01  1  p2_6 f3_7  f2_7  f1_7 QP  | fprcpa.s1                 f1,p2=f2,f3
-101  0000  0  10  1  p2_6 f3_7  f2_7  f1_7 QP  | frcpa.s2                  f1,p2=f2,f3
-101  0001  0  10  1  p2_6 f3_7  f2_7  f1_7 QP  | fprcpa.s2                 f1,p2=f2,f3
-101  0000  0  11  1  p2_6 f3_7  f2_7  f1_7 QP  | frcpa.s3                  f1,p2=f2,f3
-101  0001  0  11  1  p2_6 f3_7  f2_7  f1_7 QP  | fprcpa.s3                 f1,p2=f2,f3
+# OP ?     Q  Sf  X  P2    F3    F2    F1   QP
+101  0000  0  00  1  p2_6  f3_7  f2_7     f1_7   QP  | frcpa.s0    f1,p2=f2,f3
+101  0001  0  00  1  p2_6  f3_7  f2_7     f1_7   QP  | fprcpa.s0   f1,p2=f2,f3
+101  0000  0  01  1  p2_6  f3_7  f2_7     f1_7   QP  | frcpa.s1    f1,p2=f2,f3
+101  0001  0  01  1  p2_6  f3_7  f2_7     f1_7   QP  | fprcpa.s1   f1,p2=f2,f3
+101  0000  0  10  1  p2_6  f3_7  f2_7     f1_7   QP  | frcpa.s2    f1,p2=f2,f3
+101  0001  0  10  1  p2_6  f3_7  f2_7     f1_7   QP  | fprcpa.s2   f1,p2=f2,f3
+101  0000  0  11  1  p2_6  f3_7  f2_7     f1_7   QP  | frcpa.s3    f1,p2=f2,f3
+101  0001  0  11  1  p2_6  f3_7  f2_7     f1_7   QP  | fprcpa.s3   f1,p2=f2,f3
 
 #F7
-# OP  ?    Q Sf X P2    F3            F1     QP
-101  0000  1 00 1 p2_6  f3_7 0000000  f1_7   QP | frsqrta.s0
-101  0001  1 00 1 p2_6  f3_7 0000000  f1_7   QP | fprsqrta.s0
-101  0000  1 01 1 p2_6  f3_7 0000000  f1_7   QP | frsqrta.s1
-101  0001  1 01 1 p2_6  f3_7 0000000  f1_7   QP | fprsqrta.s1
-101  0000  1 10 1 p2_6  f3_7 0000000  f1_7   QP | frsqrta.s2
-101  0001  1 10 1 p2_6  f3_7 0000000  f1_7   QP | fprsqrta.s2
-101  0000  1 11 1 p2_6  f3_7 0000000  f1_7   QP | frsqrta.s3
-101  0001  1 11 1 p2_6  f3_7 0000000  f1_7   QP | fprsqrta.s3
+# OP  ?    Q  Sf  X  P2    F3             F1     QP
+101  0000  1  00  1  p2_6  f3_7  0000000  f1_7   QP | frsqrta.s0  f1,p2=f3  
+101  0001  1  00  1  p2_6  f3_7  0000000  f1_7   QP | fprsqrta.s0 f1,p2=f3  
+101  0000  1  01  1  p2_6  f3_7  0000000  f1_7   QP | frsqrta.s1  f1,p2=f3  
+101  0001  1  01  1  p2_6  f3_7  0000000  f1_7   QP | fprsqrta.s1 f1,p2=f3  
+101  0000  1  10  1  p2_6  f3_7  0000000  f1_7   QP | frsqrta.s2  f1,p2=f3  
+101  0001  1  10  1  p2_6  f3_7  0000000  f1_7   QP | fprsqrta.s2 f1,p2=f3  
+101  0000  1  11  1  p2_6  f3_7  0000000  f1_7   QP | frsqrta.s3  f1,p2=f3  
+101  0001  1  11  1  p2_6  f3_7  0000000  f1_7   QP | fprsqrta.s3 f1,p2=f3  
 
 #F8
 # OP ?      SF  X  X6     F3     F2    F1    QP

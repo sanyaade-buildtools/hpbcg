@@ -8,8 +8,8 @@ lexer grammar  Cell;  // -*- java -*-
     {
         boolean inAsm = true;        
         Token a;
-        Debug("/* Cell parser */");
         this.debug = debug;
+        Debug("/* Cell parser */");
         while (inAsm) 
         {
             a = nextToken();

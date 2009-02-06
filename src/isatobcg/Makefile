@@ -9,13 +9,12 @@ YACCFLAGS = -d 		# FreeBSD make
 YFLAGS = ${YACCFLAGS} 	# Needed on linux
 # LEX =lex  -d 		# Pour debuggage token lexer
 YACCFLAGS = -d -t 	# Pour debuggage token parser
-ISAFILES  = ia64.isa cellPTX.isa 
 FILESISA = isatobcg-p.o isatobcg-l.o common.o
 CFLAGS = -Wall -g -I../common
 TARGETS = \
-	ia64.lst ia64.h \
-	cell.lst cell.h 
-
+	ia64.lst   ia64.h \
+	cell.lst   cell.h \
+	power4.lst power4.h
 all: isatobcg ${TARGETS}
 
 isatobcg : ${FILESISA}

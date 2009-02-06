@@ -6,8 +6,8 @@
 #include <asm-common.h>
 #include <assert.h>
 
+static int ia64_addInsn(ui64_t insn, char stop);
 
-#define QP 0
 #define ADDINSN(VAL, STOP) ia64_addInsn((ui64_t) (VAL), STOP)
 #define ORG(PTR) 	(asm_pc = (insn *) PTR)
 #define PROC(PTR, DATA) ({ bundle b = {(ui64_t) PTR, (ui64_t) DATA}; _GEN(b); asm_pc++;})
@@ -385,7 +385,7 @@ static int ia64_emitInsn()
   s1 = (int) ia64_slots[1].ia64_insnType + (ia64_slots[1].ia64_stop?7:0);
   s2 = (int) ia64_slots[2].ia64_insnType + (ia64_slots[2].ia64_stop?7:0);
   tmplval = ia64_tmpl[s0][s1][s2];
-  assert (-1 != tmplval);
+  /*   assert (-1 != tmplval); */
 #ifdef ASM_DEBUG
   printf("%s %d\n", tmplate, tmplval);
 #endif

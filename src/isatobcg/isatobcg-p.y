@@ -176,28 +176,27 @@ void printQuoi(int quoi)
 
 char getLetterFromToken(YYSTYPE *t)
 {
-  char l = 'X';
   switch (t->quoi)
     {
-    case INSN:  l = 'i';  break;
+    case INSN:  return 'i';  break;
     case REGDs: 
     case REGDb: 
       {
-	if (0 == strcmp ("ar.pfs", t->name))  break;
 	switch (t->name[0])
 	  {
-	  case 'r': case 'R':  l = 'R';  break;
-	  case 'b': case 'B':  l = 'B';  break;
-	  case 'f': case 'F':  l = 'F';  break;
-	  default: l = 'R';  break;
+	  case 'r': case 'R':  return 'R';  break;
+	  case 'p': case 'P':  return 'P';  break;
+	  case 'b': case 'B':  return 'B';  break;
+	  case 'f': case 'F':  return 'F';  break;
+	  default: return 'R';  break;
 	  }      
       }
       break;
-    case INTb:  l = 'I'; break;
-    case VAL:   l = 'V'; break;
+    case INTb:  return 'I'; break;
+    case VAL:   return 'V'; break;
     default: break;
     }
-  return l;
+  return 'X';
 }
 
 char * buildDescRegFromSyntax(YYSTYPE *l)
@@ -248,7 +247,7 @@ char * buildDescRegFromBin(YYSTYPE *l)
   *tmp = '_';
   tmp++;
   for (i = l; i ; i = i->next)
-      *(tmp++)  = getLetterFromToken(i);
+    *(tmp++)  = getLetterFromToken(i);
   *tmp = '\0';
   return desc;
 }
@@ -346,8 +345,6 @@ void printInsnMacro(YYSTYPE *i)
 	  break;
 	case REGDb: 
 	case PRED: 
-	  if (0 == strcmp ("ar.pfs", j->name))
-	    break;
 	  if (j != i){ 
 	    printf("<< %d | ", j->len);
 	  }
@@ -425,6 +422,13 @@ void printArmThumbInsnDesc(YYSTYPE *syntax, YYSTYPE *bin)
 
 } /* printArmThumbInsnDesc */
 
+void printDebug(char * name, char * desc)
+{
+  printf("#ifdef ASM_DEBUG\n");
+  printf("printf(\"%%p : %%s%%s 0x%%X\\n\", asm_pc, \"%s\", \"%s\", *(asm_pc-1));\n", name, desc);
+  printf("#endif /* ASM_DEBUG */\n");
+} /* printDebug */
+
 void printIa64InsnMacroDesc(YYSTYPE *syntax, YYSTYPE *bin)
 {
   char * desc;
@@ -440,7 +444,6 @@ void printIa64InsnMacroDesc(YYSTYPE *syntax, YYSTYPE *bin)
 	{
 	case REGDs: 
 	case INTb:  
-	  if (0 == strcmp ("ar.pfs", i->name))	    break;
 	  if (isFirst) isFirst = 0; else printf(" ,");
 	  printf("%s", i->name); 
 	  break;
@@ -475,7 +478,6 @@ void printIa64InsnFunctDesc(YYSTYPE *syntax, YYSTYPE *bin)
 	{
 	case REGDs: 
 	case INTb:  
-	  if (0 == strcmp ("ar.pfs", i->name))	    break;
 	  if (isFirst) isFirst = 0; else printf(" ,");
 	  printf("int %s", i->name); 
 	  break;
@@ -486,11 +488,14 @@ void printIa64InsnFunctDesc(YYSTYPE *syntax, YYSTYPE *bin)
 	default: break;
 	}
     }
-  printf("%c int QP, int STOP){\t", (isFirst)?' ':',');
   printInsnMacro(bin);
-  printf(";\t}\n");
+  printf("%c int QP, int STOP)\n{\n", (isFirst)?' ':',');
+
+
+
+  printf(";\t\n}\n");
   free(desc);
-} /* printIa64InsnMacroDesc */
+} /* printIa64InsnFunctionDesc */
 
 
 /* Define a cell instruction as a macro instruction */
@@ -557,12 +562,87 @@ void printCellInsnFunctDesc(YYSTYPE *syntax, YYSTYPE *bin)
 	default: break;
 	}
     }
-  printf("){\t");
-  /* printInsn(bin); */
+  printf("){\n");
   printInsnFunction(bin);
-  printf(";\t}\n");
+  printf(";\n");
+  printDebug(syntax->name, desc);
+  printf("\n}\n");
   free(desc);
 } /* printCellInsnFunctDesc */
+
+
+/* Define a power4 instruction as a macro instruction */
+void printPower4InsnMacroDesc(YYSTYPE *syntax, YYSTYPE *bin)
+{
+  char * desc;
+  YYSTYPE *i;
+  int isFirst = 1;
+  /* printInsn(syntax); */
+  desc = buildDescRegFromSyntax(syntax);
+  changeDotByUnder(syntax->name);
+  printf("#define %s%s(", syntax->name, desc);
+  for (i = syntax; i ; i = i->next)
+    {
+      if (! isFirst)
+	{
+	  printf(",");
+        }
+      switch (i->quoi)
+	{
+	case REGDs: 
+	case INTb:  
+	  isFirst = 0;
+	  printf("%s", i->name); 
+	  break;
+	case VAL:  
+	  isFirst = 0;
+	  printf("V"); 
+	  break;
+	default: break;
+	}
+    }
+  printf(")\t");
+  printInsnMacro(bin);
+  printf("\n");
+  free(desc);
+} /* printPower4InsnMacroDesc */
+
+/* Define a power4 instruction as a function */
+void printPower4InsnFunctDesc(YYSTYPE *syntax, YYSTYPE *bin)
+{
+  char * desc;
+  YYSTYPE *i;
+  int isFirst = 1;
+  /* printInsn(syntax); */
+  desc = buildDescRegFromSyntax(syntax);
+  changeDotByUnder(syntax->name);
+  printf("void %s%s\t(", syntax->name, desc);
+  for (i = syntax; i ; i = i->next)
+    {
+      if (! isFirst)
+	printf(",");
+      switch (i->quoi)
+	{
+	case REGDs: 
+	case INTb:  
+	  isFirst = 0;
+	  printf("int %s", i->name); 
+	  break;
+	case VAL:  
+	  isFirst = 0;
+	  printf("int V"); 
+	  break;
+	default: break;
+	}
+    }
+  printf("){\n");
+  printInsnFunction(bin);
+  printf(";\n");
+  printDebug(syntax->name, desc);
+  printf("\n}\n");
+  free(desc);
+} /* printPower4InsnFunctDesc */
+
 
 /* What the bits lenght of an INSN */
 int getLen(YYSTYPE *l)
@@ -643,7 +723,7 @@ int main(int argc, char * argv[])
       break;
 #endif
     case MACROS:
-      printf("#ifndef WITHOUT_HPBCG_MACROS\n");
+      printf("#ifndef WITH_HPBCG_FUNCTIONS\n\n");
       for (itmp = racineDeListe; itmp->next; itmp = itmp->next)
 	{
 	  syntax = itmp->syntaxpart;
@@ -652,11 +732,12 @@ int main(int argc, char * argv[])
 	    {
 	    case ARCHia64: printIa64InsnMacroDesc(syntax, bin); break;
 	    case ARCHcell: printCellInsnMacroDesc(syntax, bin); break;
+	    case ARCHpower4:printPower4InsnMacroDesc(syntax, bin); break;
 	    default: fprintf(stderr, "Arch %d not known\n", IsaType);  
 	      exit (-1); break;
 	    }
 	}
-      printf("#else /* WITH_HPBCG_MACROS */\n");
+      printf("#else /* WITH_HPBCG_FUNCTIONS */\n\n");
       for (itmp = racineDeListe; itmp->next; itmp = itmp->next)
 	{
 	  syntax = itmp->syntaxpart;
@@ -665,11 +746,12 @@ int main(int argc, char * argv[])
 	    {
 	    case ARCHcell:  printCellInsnFunctDesc(syntax, bin); break;
 	    case ARCHia64:  printIa64InsnFunctDesc(syntax, bin); break;
+	    case ARCHpower4:  printPower4InsnFunctDesc(syntax, bin); break;
 	    default: fprintf(stderr, "Arch %d not known\n", IsaType);  
 	      	exit (-1); break;
 	    }
 	}
-      printf("#endif /* WITH_HPBCG_MACROS */\n");
+      printf("#endif /* WITH_HPBCG_FUNCTIONS */\n\n");
       break;
     case LIST: 
       for (itmp = racineDeListe; itmp->next; itmp = itmp->next)

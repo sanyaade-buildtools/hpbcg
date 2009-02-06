@@ -62,33 +62,59 @@ point which leed to
 
 \section{Actual status}
 
+
+\subsection{Working targets}
+
 \begin{description}
 \item[Cell spu] Working draft 
 \item[Itanium]  Working draft.
+\item[Power4]  Initial stage
 \end{description}
 
 Working demo / architecture :
 
-\begin{tabular}{|l | c c|} \hline
-  Demo name       & Cell-spu & Itanium  \\ \hline
-  simple-multiply & ok & ok \\ \hline
+\begin{tabular}{|l | c c c|} \hline
+  Demo name       & Cell-spu & Itanium  & Power4\\ \hline
+  simple-multiply & ok       & ok       & ok \\ \hline
+  rpn             & ok \footnote{Divide precision problem to be solved}      & compile  & ok \\ \hline
 \end{tabular}
 
+\subsection{Tested platforms}
+
+\begin{description}
+\item[cell-spu] Playstation 3 / linux yellow dog
+\item[power4]   Playstation 3 / linux yellow dog
+\item[itanium]  Bull ia64 platform / linux 
+\end{description}
 
 \section{Todo}
 
 \begin{description}
-\item[itanium] Things to be done
+\item[All targets] Things to be done
+  \begin{itemize}
+  \item Write a .isa verifyer, to check the insn coherency, the opcode
+    usage, ...
+  \item Include expression in the binary description.
+  \item Find a way to hangle instructions aliases
+  \end{itemize}
+\item[itanium] Things to be done :
   \begin{enumerate}
   \item Verify the intruction tabuled scheduler in \texttt{ia64-utils.h}
   \item Add a mini scheduler which allow to break bundle into
     sub-bundle if a schedule does not exist
+  \item Look at the L+X instruction : how to choose the template value ?
+  \item How to choose between two possible templates ?
   \end{enumerate}
-\item[cell] Things to be done
+\item[cell] Things to be done :
   \begin{enumerate}
   \item Add more working examples
   \item Hide the worker communication somewhere
+  \item Solve the divide problem
   \end{enumerate}
+\item[power4]  Things to be done :
+  \begin{itemize}
+  \item Complete the .isa file
+  \end{itemize}
 \end{description}
 
 \section{Using \hpbcg}
@@ -188,7 +214,13 @@ The \texttt{cell} version contain 2 files :
 
 \subsubsection{Itanium version}
 
-Use the command \texttt{make ia64} to build the program \texttt{simple-multiply-ia64}.
+Use the command \texttt{make ia64} to build the program
+\texttt{simple-multiply-ia64}. Run it !
+
+\subsubsection{Power4 version}
+
+Use the command \texttt{make power4} to build the program
+\texttt{simple-multiply-power4}. Run it !
 
 \section{Porting \hpbcg}
 
@@ -201,6 +233,7 @@ The actual version contain processor description for
 \begin{description}
 \item[cell.isa] This file contain all SPU instruction description
 \item[ia64.isa] This file contain all instruction set description
+\item[power4.isa] This file contain all instruction set description
 \end{description}
 
 A processor description file should contain
@@ -254,26 +287,21 @@ This part is devoted to different assembly langaguages that \hpbcg
 \item[Integer register names] one of
   \begin{itemize}
   \item \verb|$lr|, \verb|$sp|
-  \item \verb|$0| .. \verb|$32|
+  \item \verb|$0| : link register, \verb|$1| : stack pointer,
+    \verb|$2| : volatile
+  \item \verb|$3| .. \verb|$79| function arguments \& return value, volatile
+  \item \verb|$80| .. \verb|$127| local variables, non-volatile
   \end{itemize}
 \item[Calling convention] 
 \end{description}
 
-\subsection{cell-ppu}
+\subsection{power and cell-ppu }
 
-\begin{description}
-\item[Integer register name]  one of
-  \begin{itemize}
-  \item \verb|0| .. \verb|32|
-  \end{itemize}
-\item[Calling convention] 
-\end{description}
-
-\subsection{power}
 \begin{description}
 \item[Integer register name]  one of
   \begin{itemize}
   \item \verb|r0| .. \verb|r32|
+  \item \verb|r3| 1st function argument \& return value
   \end{itemize}
 \item[Calling convention] 
 \end{description}

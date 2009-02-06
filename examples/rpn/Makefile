@@ -3,27 +3,40 @@
 .hg.c:
 	../../src/parser/hpbcg $< > $@
 
-HPBCGHOME=${HOME}/Travail/Prog/HPBCG/src
-CFLAGS=-I${HPBCGHOME}/isatobcg/
+HPBCGHOME=../../
+CFLAGS=-Wall -I${HPBCGHOME}/src/isatobcg/ -g ${ADDCFLAGS} # -DASM_DEBUG -g -DWITH_HPBCG_FUNCTIONS
+CDIR = /opt/cell/sdk/usr/
 
-
+CELLFILES = rpn-cell.c rpn-cell simple-worker-cell
+CDIR = /opt/cell/sdk/usr/
+IAFILES = rpn-ia64.c rpn-ia64
+POWERFILES = rpn-power4.c rpn-power4
 quoi:
 	@echo -n "make what ?     "
-	@echo "make [cell|ia64]"
+	@echo "make [cell|ia64|power4]"
 
 all: ${FILES}
 
+send: rpn-cell.c rpn-power4.c
+	rsync -rv . turner:HPBCG/examples/rpn/
+
 cell:
-	make FILES="rpn-cell.c rpn-cell" all
+	make FILES="${CELLFILES}"  ADDCFLAGS="-I${CDIR}/include -lspe2" all
+
+power4:
+	make FILES="${POWERFILES}"  all
+
+simple-worker-cell: simple-worker-cell.c
+	spu-gcc -I${CDIR}/include -g -o simple-worker-cell simple-worker-cell.c 
+
 
 ia64:
-	make FILES="rpn-ia64.c rpn-ia64" all
+	make FILES="${IAFILES}" all
 
 clean:
-	make FILES="rpn-cell.c rpn-cell" real-clean
-	make FILES="rpn-ia64.c rpn-ia64" real-clean
+	make FILES="${CELLFILES}" real-clean
+	make FILES="${IAFILES}" real-clean
+	make FILES="${POWERFILES}" real-clean
 
 real-clean:
 	-rm ${FILES}
-
-

@@ -6,12 +6,13 @@ import java.io.*;
 
 class Insn
 {
-    public static final int TYPEIREG = 1;
-    public static final int TYPEFREG = 2;
-    public static final int TYPEBREG = 3;
-    public static final int TYPEPREG = 4;
-    public static final int TYPEIDXREG = 5;
-    public static final int TYPEINT =  6;
+    public static final int TYPEIREG   = 1; // Integer register
+    public static final int TYPEFREG   = 2; // Floatin point register
+    public static final int TYPEBREG   = 3; // Boolean register
+    public static final int TYPEPREG   = 4; // Predicate register
+    public static final int TYPEIDXREG = 5; // Index register
+    public static final int TYPEINT    = 6; // Int value
+    public static final int TYPEARREG  = 7; // Application register
 
     String [] insnList;
     String insnName;
@@ -58,8 +59,9 @@ class Insn
 		{
 		case TYPEIREG: tmp += "R"; break;
 		case TYPEFREG: tmp += "F"; break;
-		case TYPEBREG: tmp += "B"; break;
 		case TYPEPREG: tmp += "P"; break;
+		case TYPEARREG:tmp += "R";  break;
+		case TYPEBREG: tmp += "B";  break;
 		case TYPEINT: 
 		case TYPEIDXREG: tmp += "I"; break;
 		default:  System.out.println ("Unknown register type");

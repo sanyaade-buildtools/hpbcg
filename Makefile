@@ -8,4 +8,4 @@ dist:
 	(cd src/isatobcg; make clean)
 	(cd src/parser/org/hpbcg; make clean)
 	(cd examples; make clean)
-	(cd ../; tar cvfz HPBCG-`date +"%Y.%M.%d"`.tgz HPBCG/*)
+	(cd ../; tar cvfz HPBCG-`date +"%Y.%m.%d"`.tgz HPBCG/*)

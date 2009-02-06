@@ -1,6 +1,9 @@
 lexer grammar Ia64;   // -*- java -*-
 options { k = 2; }
-@header{package org.hpbcg;}
+@header{
+    package org.hpbcg;
+    import java.util.regex.*;
+}
 @members{
 //   lexer class members
     InsnIa64 currentInsn = null;
@@ -10,7 +13,8 @@ options { k = 2; }
 	boolean inAsm = true;
 	String tmp;
 	Token a, b;
-	System.out.print("/* Ia64 parser */");
+        this.debug = debug;
+	Debug("/* Ia64 parser */");
 	while (inAsm) 
 	{
 	    a = nextToken();
@@ -23,9 +27,34 @@ options { k = 2; }
                 ejectInsn();
                 Out("\n");
                 break;
+            case PAROPEN:         
+		if (! Pattern.matches("\\(p[0-9]+\\)", a.getText()))
+		{
+		    Debug("PAROPEN :"+a.getText());
+		    currentInsn.setParam(a.getText(), Insn.TYPEINT);
+		}
+		else
+		{
+		    Debug("Predicate :"+a.getText());
+		    ejectInsn();
+		    b = nextToken();
+		    b = nextToken();
+		    Debug("MNEMO :"+b.getText());
+		    currentInsn = new InsnIa64(b.getText(), a.getText());
+		}
+		break;
             case MNEMO:
-                ejectInsn();
-                currentInsn = new InsnIa64(a.getText());
+		if (a.getText().equals("ar.pfs"))
+		{
+		    Debug ("REG ar.pfs : " + a.getText());
+		    currentInsn.setParam(a.getText(), Insn.TYPEARREG);
+		}
+		else
+		{
+		    Debug ("MNEMO : " + a.getText());
+		    ejectInsn();
+		    currentInsn = new InsnIa64(a.getText());
+		}
                 break;
             case ENDMULTI: 
                 ejectInsn();
@@ -40,19 +69,27 @@ options { k = 2; }
             case SEP:                 break;
             case WS:                  break;
             case INTREG:
-                Debug("REGISTER I ");
-                currentInsn.setParam(a.getText(), Insn.TYPEIREG);
+                Debug("REGISTER I :" + a.getText());
+		currentInsn.setParam(a.getText(), Insn.TYPEIREG);
+                break;
+            case IAREGOPEN:
+                Debug("REGISTER IOPEN :" + a.getText());
+		currentInsn.setParam(a.getText(), Insn.TYPEIREG);
                 break;
             case FLTREG:
-                Debug("REGISTER F");
+                Debug("REGISTER F :" + a.getText());
                 currentInsn.setParam(a.getText(), Insn.TYPEFREG);
                 break;
             case BOOREG:
-                Debug("REGISTER B");
+                Debug("REGISTER B :" + a.getText());
+                currentInsn.setParam(a.getText(), Insn.TYPEPREG);
+                break;
+            case BRREG:
+                Debug("REGISTER Br :" + a.getText());
                 currentInsn.setParam(a.getText(), Insn.TYPEBREG);
                 break;
             case INT:
-                Debug("INTEGER ");
+                Debug("INTEGER :" + a.getText());
                 currentInsn.setParam(a.getText(), Insn.TYPEINT);
                 break;
             case STOPBIT:
@@ -60,6 +97,7 @@ options { k = 2; }
                 currentInsn.setStop();
                 break;
 	    case PROC:
+		Debug ("Proc :"+ a.getText());
 		tmp = a.getText();
 		tmp = new String (tmp.getBytes(), 5, tmp.length() - 6);
 		Out ("PROC("+tmp+");\n");
@@ -67,11 +105,8 @@ options { k = 2; }
 	    case ORG:
 		a = nextToken();
 		a = nextToken();
+		Debug ("Org :"+ a.getText());
 		Out ("ORG("+a.getText()+");");
-		break;
-            case PAROPEN:         
-                Debug("PAROPEN");
-                currentInsn.setParam(a.getText(), Insn.TYPEINT);
 		break;
             default : 
                 System.out.println("Surprising token  :!"+a.getText()+"!");
@@ -96,7 +131,7 @@ options { k = 2; }
     }        
     public void Debug(String a)
     {
-        if (debug)System.out.println(a);
+        if (debug) System.out.println(a);
     }
     public void Out(String a)
     {
@@ -109,14 +144,17 @@ STOPBIT	: ';;';
 PROC    : '.proc' ( options {greedy=false;} : . )* '\n' ;
 ORG     : '.org' ;
 SEP 	: (',' | '=' );
-INT     : ('+' | '-') ? (NUMBER)+;
+INT     : (('+' | '-') ? (NUMBER)+ | '0x' (HEXNUMBER)+ );
 WS 	: (' ' |'\t')+;
 EOL     : '\n' ;
-MNEMO 	: (LETTER) (LETTER | '.')+;
-INTREG	: 'r' (NUMBER)+;
-BOOREG	: 'b' (NUMBER)+;
+MNEMO 	: (LETTER) (LETTER | '.')+ (NUMBER)?;
+INTREG	: 'r' (NUMBER)+ ;
+BRREG	: 'b' (NUMBER)+;
+BOOREG	: 'p' (NUMBER)+;
 FLTREG	: 'f' (NUMBER)+;
+IAREGOPEN:'r('  ( options {greedy=false;} : . )* ')' ;
 PAROPEN : '('  ( options {greedy=false;} : . )* ')' ;
 
 fragment LETTER : ('a'..'z' | 'A'..'Z');
 fragment NUMBER : ('0'..'9');
+fragment HEXNUMBER : ('0'..'9' | 'A' .. 'F' | 'a' .. 'f' );

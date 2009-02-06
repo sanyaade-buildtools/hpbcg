@@ -14,16 +14,18 @@ class Main
         try 
 	{
 	    in = getInput (args);
-	    C lexerC = new C(in);
-	    Cell  lexerCell  =  new Cell(in);
-	    Ia64  lexerIa64  =  new Ia64(in);
-
+	    C      lexerC = new C(in);
+	    Cell   lexerCell  =  new Cell(in);
+	    Ia64   lexerIa64  =  new Ia64(in);
+	    Power4 lexerPower4  =  new Power4(in);
+	    if (debug) 	System.out.println("/* Debug mode */");
 	    while (true)
 	    {
 		tmp = lexerC.myParse(debug);
 		if (null != tmp)currentArch = tmp;
-		if (currentArch.equals("cell")) lexerCell.myParse(debug);
-		else if (currentArch.equals("ia64")) lexerIa64.myParse(debug);
+		if (currentArch.equals("cell"))        lexerCell.myParse(debug);
+		else if (currentArch.equals("ia64"))   lexerIa64.myParse(debug);
+		else if (currentArch.equals("power4")) lexerPower4.myParse(debug);
 		else
 		    {
 			System.err.println("No #cpu defined ("+currentArch+")");

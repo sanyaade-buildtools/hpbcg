@@ -8,8 +8,8 @@
 	jikes --emacs $<
 
 
-JFILES = C.java Cell.java Ia64.java
-CFILES = Main.java Insn.java InsnCell.java InsnIa64.java 
+JFILES = C.java Cell.java Ia64.java Power4.java
+CFILES = Main.java Insn.java InsnCell.java InsnIa64.java  InsnPower4.java
 D = org/hpbcg
 all: ${JFILES} class
 

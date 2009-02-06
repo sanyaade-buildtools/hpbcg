@@ -23,6 +23,7 @@ static sArchItem archList[] =
    {
      ARCHITEM(cell),
      ARCHITEM(ia64),
+     ARCHITEM(power4),
      ARCHITEM(armthumb),
      ARCHITEM(0)
    };

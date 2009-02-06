@@ -22,10 +22,10 @@ sep [\[\] \t]
 nl  \n
 regb [bBpPrRfF][0-9]_[0-9]+(-[0-9]+)?
 int [iI][0-9]+(_[0-9]+(-[0-9]+)?)?
-regs [bBrRpPfF][0-9]|"pc"|"sp"|"ar.pfs"
+regs [bBrRpPfF][0-9]|"pc"|"sp"
 insn [a-zA-Z][.a-zA-Z0-9]*
 nb   [0-9]+
-procname "cell"|"ia64"|"ppc"|"armthumb"|"arm"|"sparc"
+procname "cell"|"ia64"|"power4"|"armthumb"|"arm"|"sparc"
 %%
 {com}		{ yylineno++; eatComm(); }
 {sep}+		{ ; }
@@ -70,7 +70,7 @@ procname "cell"|"ia64"|"ppc"|"armthumb"|"arm"|"sparc"
 		  return REGDb; 
 		}
 {regs}		{ 
-  		  yylval.name = strdup (yytext); 
+                  yylval.name = strdup (yytext); 
 		  yylval.quoi = REGDs;
 		  return REGDs; 
 		}
