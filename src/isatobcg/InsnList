@@ -10,7 +10,7 @@ if (! -e $1) then
     exit -1
 endif
 
-setenv PSEUDO `basename $1 .isa`-pseudo.h
+setenv PSEUDO `basename $1 .isa`-utils.h
 
 if (-f ${PSEUDO}) then 
     (./isatobcg -l $1; awk '/#define/{print $2}' ${PSEUDO} | sed 's/(.*$//' ) | sort

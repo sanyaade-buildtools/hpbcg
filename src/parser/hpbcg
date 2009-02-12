@@ -13,10 +13,10 @@ if (! -e ${D}/HPBCG.jar) then
 endif
 
 setenv CLASSPATH ${D}/HPBCG.jar:${D}/antlr-3.1.1-runtime.jar:$CLASSPATH
-# echo $CLASSPATH
+echo $CLASSPATH
 
 foreach P (java gij)
-    foreach D (/usr/local/bin/ /usr/bin/)
+    foreach D (/home/hpc/bin /usr/local/bin/ /usr/bin/)
 	# echo $D/$P
 	if (-e $D/$P) then
 	    setenv JAVA $D/$P
@@ -25,7 +25,7 @@ foreach P (java gij)
     end
     if ($?JAVA) break
 end
-# echo "--" $JAVA
+echo "--" $JAVA
 if (! $?JAVA) then
     echo "Please provide a runnable jdk"
     exit
