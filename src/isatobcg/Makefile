@@ -15,6 +15,8 @@ TARGETS = \
 	ia64.lst   ia64.h \
 	cell.lst   cell.h \
 	power4.lst power4.h
+UTILS = cell-utils.h ia64-utils.h power4-utils.h asm-common.h
+
 all: isatobcg ${TARGETS}
 
 isatobcg : ${FILESISA}
@@ -23,6 +25,7 @@ isatobcg : ${FILESISA}
 install: isatobcg
 	install -d ${PREFIX}/include/
 	install ${TARGETS} ${PREFIX}/include/
+	install ${UTILS} ${PREFIX}/include/
 clean:
 	-rm ${FILESISA}
 	-rm ${TARGETS}

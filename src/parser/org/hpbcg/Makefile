@@ -20,6 +20,13 @@ class:
 jar: all
 	(cd ../.. ; jar cvfm HPBCG.jar ${D}/MonManifest.txt ${D}/*.g ${D}/*.class ${D}/*.java)
 
+install: 
+	install -d ${PREFIX}/share/java
+	install ../../HPBCG.jar ${PREFIX}/share/java
+	install ../../antlr-3.1.1-runtime.jar ${PREFIX}/share/java
+	install -d ${PREFIX}/bin
+	install ../../hpbcg ${PREFIX}/bin
+
 clean:
 	-rm ${JFILES} *.class
 	-rm *.tokens

@@ -1,10 +1,10 @@
 .SUFFIXES : .hg
 
 .hg.c:
-	${HPBCGHOME}/src/parser/hpbcg $< > $@
+	hpbcg $< > $@
 
-HPBCGHOME=../../
-CFLAGS=-I${HPBCGHOME}/src/isatobcg/ -g ${ADDCFLAGS}
+# HPBCGHOME=../../
+CFLAGS=-Wall -I${HPBCGHOME}/include/ -g ${ADDCFLAGS}
 CDIR = /opt/cell/sdk/usr/
 CELLFILES = simple-multiply-cell.c simple-multiply-cell simple-worker-cell
 IAFILES = simple-multiply-ia64.c simple-multiply-ia64 

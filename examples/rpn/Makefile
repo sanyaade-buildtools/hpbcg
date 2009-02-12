@@ -3,8 +3,8 @@
 .hg.c:
 	../../src/parser/hpbcg $< > $@
 
-HPBCGHOME=../../
-CFLAGS=-Wall -I${HPBCGHOME}/src/isatobcg/ -g ${ADDCFLAGS} # -DASM_DEBUG -g -DWITH_HPBCG_FUNCTIONS
+# HPBCGHOME=../../
+CFLAGS=-Wall -I${HPBCGHOME}/include/ -g ${ADDCFLAGS} # -DASM_DEBUG -g -DWITH_HPBCG_FUNCTIONS
 CDIR = /opt/cell/sdk/usr/
 
 CELLFILES = rpn-cell.c rpn-cell simple-worker-cell
