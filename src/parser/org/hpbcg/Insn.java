@@ -84,27 +84,37 @@ class Insn
 
     public String [] loadInsnList(String name) 
     {
-	String repDir [] = {"/users/prism/arpa/coca/hpc/Travail/Prog/HPBCG/src/isatobcg/", 
-			    "/usr/local/include", "/usr/include"};
+	String repDir [] = {"/usr/local/include", "/usr/include"};
 	String tmp [] = null;
 	String fileName = null;
+	String hpbcghome;
 	boolean ok = false;
 	BufferedReader in;
 	int nline = 0;
 	try
         {
-	    for (int i = 0; i < repDir.length; i++)
-	    {
-		fileName = repDir[i]+"/"+name+".lst";
-		File f = new File (fileName);
-		if (! f.exists())
-		    fatalErrorMsg("File "+fileName+" doesn't exist");
-		else
+	    hpbcghome = System.getenv ("HPBCGHOME");
+	    if (null != hpbcghome)
 		{
+		    fileName = hpbcghome+"/src/isatobcg/"+name+".lst";
+		    File f = new File (fileName);
+		    if (! f.exists())
+			fatalErrorMsg("File "+fileName+" doesn't exist");
 		    ok = true;
-		    break;
 		}
-	    }
+	    else
+		for (int i = 0; i < repDir.length; i++)
+		    {
+			fileName = repDir[i]+"/"+name+".lst";
+			File f = new File (fileName);
+			if (! f.exists())
+			    fatalErrorMsg("File "+fileName+" doesn't exist");
+			else
+			    {
+				ok = true;
+				break;
+			    }
+		    }
 	    if (ok)
 	    {
 		in = new BufferedReader(new FileReader(fileName));
