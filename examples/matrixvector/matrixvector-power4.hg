@@ -1,5 +1,5 @@
 /* -*- c -*- */
-#cpu ppc
+#cpu power4
 
 #include "matrix-utils.h"
 

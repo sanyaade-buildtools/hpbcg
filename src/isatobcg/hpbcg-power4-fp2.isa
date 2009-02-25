@@ -1,0 +1,105 @@
+# Initial author Henri-Pierre Charles hpc@hpch.net
+# Versailles university
+#	rezikalife@gmail.com
+#	guellal.ali@gmail.com
+#
+power4fp2  32
+
+# Add intructions
+000000    r1_5  r2_5   r3_5   00000     01100  0 |  fpadd      r1,r2,r3 
+000000    r1_5  r2_5   r3_5   00000     01101  0 |  fpsub      r1,r2,r3
+
+# Estimate instructions
+000000    r1_5  00000  r3_5   00000     01110  0 |  fpre       r1,r3
+000000    r1_5  00000  r3_5   00000     01111  0 |  fpsqrte    r1,r
+
+# Multiply instructions
+000000    r1_5  r2_5   00000  r4_5      01000  0 |  fpmul      r1,r2,r4 
+000000    r1_5  r2_5   00000  r4_5      01001  0 |  fxmul      r1,r2,r4
+000000    r1_5  r2_5   00000  r4_5      01010  0 |  fxpmul     r1,r2,r4
+000000    r1_5  r2_5   00000  r4_5      01011  0 |  fxsmul     r1,r2,r4
+
+# Multiply-Add instructions
+000000    r1_5   r2_5   r3_5  r4_5      10000  0 |  fpmadd     r1,r2,r3,r4
+000000    r1_5   r2_5   r3_5  r4_5      10100  0 |  fpnmadd    r1,r2,r3,r4
+000000    r1_5   r2_5   r3_5  r4_5      11000  0 |  fpmsub     r1,r2,r3,r4
+000000    r1_5   r2_5   r3_5  r4_5      11100  0 |  fpnmsub    r1,r2,r3,r4
+000000    r1_5   r2_5   r3_5  r4_5      10001  0 |  fxmadd     r1,r2,r3,r4
+000000    r1_5   r2_5   r3_5  r4_5      10101  0 |  fxnmadd    r1,r2,r3,r4
+000000    r1_5   r2_5   r3_5  r4_5      11001  0 |  fxmsub     r1,r2,r3,r4
+000000    r1_5   r2_5   r3_5  r4_5      11101  0 |  fxnmsub    r1,r2,r3,r4
+000000    r1_5   r2_5   r3_5  r4_5      10010  0 |  fxcpmadd   r1,r2,r3,r4
+000000    r1_5   r2_5   r3_5  r4_5      10011  0 |  fxcsmadd   r1,r2,r3,r4
+000000    r1_5   r2_5   r3_5  r4_5      10110  0 |  fxcpnmadd  r1,r2,r3,r4
+000000    r1_5   r2_5   r3_5  r4_5      10111  0 |  fxcsnmadd  r1,r2,r3,r4
+000000    r1_5   r2_5   r3_5  r4_5      11010  0 |  fxcpmsub   r1,r2,r3,r4
+000000    r1_5   r2_5   r3_5  r4_5      11011  0 |  fxcsmsub   r1,r2,r3,r4
+000000    r1_5   r2_5   r3_5  r4_5      11110  0 |  fxcpnmsub  r1,r2,r3,r4
+000000    r1_5   r2_5   r3_5  r4_5      11111  0 |  fxcsnmsub  r1,r2,r3,r4
+
+# Asymetric multiply-add instructions
+000100    r1_5   r2_5   r3_5  r4_5      11000  0 |  fxcpnpma   r1,r2,r3,r4
+000100    r1_5   r2_5   r3_5  r4_5      11001  0 |  fxcsnpma   r1,r2,r3,r4
+000100    r1_5   r2_5   r3_5  r4_5      11010  0 |  fxcpnsma   r1,r2,r3,r4
+000100    r1_5   r2_5   r3_5  r4_5      11011  0 |  fxcsnsma   r1,r2,r3,r4
+
+# Complex multiply-add instructions
+000100    r1_5   r2_5   r3_5  r4_5      11101  0 |  fxcxnpma   r1,r2,r3,r4
+000100    r1_5   r2_5   r3_5  r4_5      11110  0 |  fxcxnsma   r1,r2,r3,r4
+000100    r1_5   r2_5   r3_5  r4_5      11100  0 |  fxcxma     r1,r2,r3,r4
+000100    r1_5   r2_5   r3_5  r4_5      11111  0 |  fxcxnms    r1,r2,r3,r4
+
+# Select instruction
+000000    r1_5   r2_5   r3_5  r4_5      00101  0 |  fpsel      r1,r2,r3,r4
+
+# Convert and Round instructions
+000000    r1_5   00000   r3_5      1001000000  0 |  fpctiw     r1,r3
+000000    r1_5   00000   r3_5      1011000000  0 |  fpctiwz    r1,r3
+000000    r1_5   00000   r3_5      0011000000  0 |  fprsp      r1,r3
+
+# Compare instruction
+000000    r1_3   00  r2_5  r3_5    0101000000  0 |  fscmp      r1,r2,r3
+
+# Move instructions
+000000    r1_5   00000   r3_5      0000100000  0 |  fpmr       r1,r3
+000000    r1_5   00000   r3_5      0010100000  0 |  fpneg      r1,r3
+000000    r1_5   00000   r3_5      0001100000  0 |  fpabs      r1,r3
+000000    r1_5   00000   r3_5      0011100000  0 |  fpnabs     r1,r3
+000000    r1_5   00000   r3_5      0100100000  0 |  fsmr       r1,r3
+000000    r1_5   00000   r3_5      0110100000  0 |  fsneg      r1,r3
+000000    r1_5   00000   r3_5      0101100000  0 |  fsabs      r1,r3
+000000    r1_5   00000   r3_5      0111100000  0 |  fsnabs     r1,r3
+000000    r1_5   00000   r3_5      1000100000  0 |  fxmr       r1,r3
+000000    r1_5   00000   r3_5      1110100000  0 |  fsmfp      r1,r3
+000000    r1_5   00000   r3_5      1100100000  0 |  fsmtp      r1,r3
+
+# Load/Store indexed instructions
+011111    r1_5   r2_5   r3_5       1110011100  0 |  lfpdx      r1,r2,r3
+011111    r1_5   r2_5   r3_5       0111101110  0 |  lfpdux     r1,r2,r3
+011111    r1_5   r2_5   r3_5       0110001110  0 |  lfpsx      r1,r2,r3
+011111    r1_5   r2_5   r3_5       0110101110  0 |  lfpsux     r1,r2,r3
+011111    r1_5   r2_5   r3_5       0011001110  0 |  lfsdx      r1,r2,r3
+011111    r1_5   r2_5   r3_5       0011011100  0 |  lfsdux     r1,r2,r3
+011111    r1_5   r2_5   r3_5       0010001110  0 |  lfssx      r1,r2,r3
+011111    r1_5   r2_5   r3_5       0010101110  0 |  lfssux     r1,r2,r3
+011111    r1_5   r2_5   r3_5       0101001110  0 |  lfxdx      r1,r2,r3
+011111    r1_5   r2_5   r3_5       0101101110  0 |  lfxdux     r1,r2,r3
+011111    r1_5   r2_5   r3_5       0100001110  0 |  lfxsx      r1,r2,r3
+011111    r1_5   r2_5   r3_5       0100101110  0 |  lfxsux     r1,r2,r3
+
+# FP2 Store instructions
+011111    r1_5   r2_5   r3_5       1111001110  0 |  stfpdx     r1,r2,r3
+011111    r1_5   r2_5   r3_5       1111101110  0 |  stfpdux    r1,r2,r3
+011111    r1_5   r2_5   r3_5       1110001110  0 |  stfpsx     r1,r2,r3
+011111    r1_5   r2_5   r3_5       1110101110  0 |  stfpsux    r1,r2,r3
+011111    r1_5   r2_5   r3_5       1000001110  0 |  stfpiwx    r1,r2,r3
+011111    r1_5   r2_5   r3_5       1011001110  0 |  stfsdx     r1,r2,r3
+011111    r1_5   r2_5   r3_5       1011101110  0 |  stfsdux    r1,r2,r3
+011111    r1_5   r2_5   r3_5       1010001110  0 |  stfssx     r1,r2,r3
+011111    r1_5   r2_5   r3_5       1010101110  0 |  stfssux    r1,r2,r3
+011111    r1_5   r2_5   r3_5       1101001110  0 |  stfxdx     r1,r2,r3
+011111    r1_5   r2_5   r3_5       1101101110  0 |  stfxdux    r1,r2,r3
+011111    r1_5   r2_5   r3_5       1100001110  0 |  stfxsx     r1,r2,r3
+011111    r1_5   r2_5   r3_5       1100101110  0 |  stfxsux    r1,r2,r3
+
+

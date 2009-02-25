@@ -1,15 +1,6 @@
 #!/bin/csh
 
-# setenv HPBCGHOME ${HOME}/Travail/Prog/HPBCG/src/parser/
-
-if (! $?HPBCGHOME) then
-    if (-e /usr/local/share/java/HPBCG.jar) then
-	setenv HPBCGHOME /usr/local
-    else
-	echo "Please set HPBCGHOME to a more realistic value"
-	exit
-    endif
-endif
+setenv HPBCGHOME %%HOME%%
 setenv D ${HPBCGHOME}/share/java
 if (! -e ${D}/HPBCG.jar) then
     echo "Installation problem. HPBCG.jar is missing"

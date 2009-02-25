@@ -96,7 +96,7 @@ class Insn
 	    hpbcghome = System.getenv ("HPBCGHOME");
 	    if (null != hpbcghome)
 		{
-		    fileName = hpbcghome+"/include/"+name+".lst";
+		    fileName = hpbcghome+"/include/hpbcg-"+name+".lst";
 		    File f = new File (fileName);
 		    if (! f.exists())
 			fatalErrorMsg("File "+fileName+" doesn't exist");

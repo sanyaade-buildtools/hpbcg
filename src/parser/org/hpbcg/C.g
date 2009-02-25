@@ -4,7 +4,7 @@ options { k = 2; }
 @members{
     public void pCpu (String a)
     {
-        System.out.print("#include <"+a+".h> /* #cpu "+a+"*/");
+        System.out.print("#include <hpbcg-"+a+".h> /* #cpu "+a+"*/");
     }
     public String myParse (boolean debug) throws antlr.TokenStreamException
     {

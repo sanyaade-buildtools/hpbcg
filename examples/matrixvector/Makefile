@@ -1,13 +1,14 @@
 .SUFFIXES : .hg
 
 .hg.c:
-	../../src/parser/hpbcg $< > $@
+	hpbcg $< > $@
 
 # HPBCGHOME=../../
 CFLAGS=-Wall -I${HPBCGHOME}/include/ -g ${ADDCFLAGS} # -DASM_DEBUG -g -DWITH_HPBCG_FUNCTIONS
 CDIR = /opt/cell/sdk/usr/
 COMMON = matrix matrix-utils.o
 POWERFILES = matrixvector-power4.c matrixvector-power4 ${COMMON}
+
 quoi:
 	@echo -n "make what ?     "
 	@echo "make [power4]"

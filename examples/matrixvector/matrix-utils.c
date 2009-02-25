@@ -3,23 +3,6 @@
 /***
    NOM
      matrix-utils
-   UTILITE
-     
-   NOTES
-     $Revision: 1.1 $
-     
-   HISTOIRE
-          hpc - Jan 12, 2004: Created.
-     $Log: matrix-utils.c,v $
-     Revision 1.1  2004/04/21 11:22:14  hpc
-     Oubli matrix-utils.*
-
-     Revision 1.2  2004/01/13 14:21:37  hpc
-     ajouts asm-*.h
-
-     Revision 1.1  2004/01/13 09:55:23  hpc
-     Factorisation matrix-utils
-
 ***/
 
 #include <stdio.h>

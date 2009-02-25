@@ -1,6 +1,6 @@
 # Home makefile 
 
-WHERE = /usr/local
+# WHERE = /usr/local
 
 all:
 	@echo "make what [dist|install] ?"
@@ -13,5 +13,5 @@ dist:
 	(cd ../; tar cvfz -X HPBCG/excludeList.txt HPBCG-`date +"%Y.%m.%d"`.tgz HPBCG/*)
 
 install: 
-	(cd src/isatobcg; 	  sudo make install PREFIX=${WHERE})
-	(cd src/parser/org/hpbcg; sudo make install PREFIX=${WHERE})
+	(cd src/isatobcg; 	  make install PREFIX=${WHERE})
+	(cd src/parser/org/hpbcg; make install PREFIX=${WHERE})

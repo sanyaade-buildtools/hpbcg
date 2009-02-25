@@ -12,10 +12,10 @@ YACCFLAGS = -d -t 	# Pour debuggage token parser
 FILESISA = isatobcg-p.o isatobcg-l.o common.o
 CFLAGS = -Wall -g -I../common
 TARGETS = \
-	ia64.lst   ia64.h \
-	cell.lst   cell.h \
-	power4.lst power4.h
-UTILS = cell-utils.h ia64-utils.h power4-utils.h asm-common.h
+	hpbcg-ia64.lst   hpbcg-ia64.h \
+	hpbcg-cell.lst   hpbcg-cell.h \
+	hpbcg-power4.lst hpbcg-power4.h
+UTILS = hpbcg-cell-utils.h hpbcg-ia64-utils.h hpbcg-power4-utils.h hpbcg-asm-common.h
 
 all: isatobcg ${TARGETS}
 
@@ -23,9 +23,11 @@ isatobcg : ${FILESISA}
 	${CC} ${CFLAGS} ${LDLIBS} ${FILESISA} -o $@
 
 install: isatobcg
+	../../CheckPrefix
 	install -d ${PREFIX}/include/
 	install ${TARGETS} ${PREFIX}/include/
 	install ${UTILS} ${PREFIX}/include/
+
 clean:
 	-rm ${FILESISA}
 	-rm ${TARGETS}
