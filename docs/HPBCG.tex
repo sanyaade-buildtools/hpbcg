@@ -22,17 +22,17 @@ A binary code generator is a tool which can generate binary code
 (runnable), at run-time, without using assembly (textual)
 representation.
 
-It can be usefull in a lot of situations :
+It can be useful in a lot of situations :
 \begin{itemize}
+\item For code optimization at run-time using data as optimizing parameter
 \item For vector code generation
 \item For multimedia code generation
-\item For code optimization at run-time using data as optimizing parameter
 \end{itemize}
 
 \subsection{Motivation}
 
 Actually (january 2009) computer architecture reach a complexity
-point which leed to
+point which lead to
 \begin{itemize}
 \item compiler which are unable to vectorize or use multimedia
   instructions easily
@@ -51,7 +51,7 @@ point which leed to
   \begin{itemize}
   \item The architecture description has been simplified to the strict
     minimal binary description.
-  \item The source parser has been rewrited using antlr, which greatly
+  \item The source parser has been rewrote using antlr, which greatly
     simplify the porting process
   \end{itemize}
 \item[lightning] \url{http://www.gnu.org/software/lightning/} is an
@@ -62,13 +62,17 @@ point which leed to
 
 \section{Actual status}
 
-
 \subsection{Working targets}
 
 \begin{description}
-\item[Cell spu] Working draft 
 \item[Itanium]  Working draft.
-\item[Power4]  Initial stage
+\item[Power4]  
+  \begin{itemize}
+    \item Basic power4 instruction set : Working draft
+    \item Cell spu : Working draft 
+    \item FP2 extension : Working draft
+    \item Altivec extension : To be done
+  \end{itemize}
 \end{description}
 
 Working demo / architecture :
@@ -84,7 +88,7 @@ Working demo / architecture :
 \begin{description}
 \item[cell-spu] Playstation 3 / linux yellow dog
 
-\url{http://www.ibm.com/developerworks/java/jdk/linux/} could be usefull
+\url{http://www.ibm.com/developerworks/java/jdk/linux/} could be useful
 
 \item[power4]   Playstation 3 / linux yellow dog
 \item[itanium]  Bull ia64 platform / linux 
@@ -98,11 +102,11 @@ Working demo / architecture :
   \item Write a .isa verifyer, to check the insn coherency, the opcode
     usage, ...
   \item Include expression in the binary description.
-  \item Find a way to hangle instructions aliases
+  \item Find a way to handle instructions aliases
   \end{itemize}
 \item[itanium] Things to be done :
   \begin{enumerate}
-  \item Verify the intruction tabuled scheduler in \texttt{ia64-utils.h}
+  \item Verify the instruction tabulated scheduler in \texttt{ia64-utils.h}
   \item Add a mini scheduler which allow to break bundle into
     sub-bundle if a schedule does not exist
   \item Look at the L+X instruction : how to choose the template value ?
@@ -112,11 +116,12 @@ Working demo / architecture :
   \begin{enumerate}
   \item Add more working examples
   \item Hide the worker communication somewhere
-  \item Solve the divide problem
+  \item Solve the precision divide problem
   \end{enumerate}
 \item[power4]  Things to be done :
   \begin{itemize}
   \item Complete the .isa file
+  \item Test  FP2 on bluegene
   \end{itemize}
 \end{description}
 
@@ -124,20 +129,20 @@ Working demo / architecture :
 
 \subsection{Installing \hpbcg}
 
-\hpbcg sould work on any reasonnable unix like target. The
+\hpbcg should work on any reasonable unix like target. The
 requirements are :
+
+\begin{tabular}{|l | l |}\hline
+Install time & yacc/lex \\
+Static compile time & java and antlr 3.x\\
+Run-time & nothing \\
 \begin{description}
-\item[antlr] The parser is implemented with \url{antlr.org}
-\item[java] As antlr is writed in java. But java is not needed at
-  run-time, only at static compile time.
-\end{description}
 
 \hpbcg contain two parts :
 \begin{description}
 \item[Architecture description] contains the architecture description
   and the parser used to generate the macro instructions. This part is
   in the \texttt{src/isatobcg} directory.
-
   \begin{figure}
     \centering
     \Fig{IsaToHPBCGChain.pdf}{6}
@@ -145,10 +150,12 @@ requirements are :
     \label{fig:Install}
   \end{figure}
 \item[Parser] contains the parser in charge of the translation from
-  the \texttt{.hg} file to the \texttt{.c} file. This par is in the
+  the \texttt{.hg} file to the \texttt{.c} file. This parser is in the
   \texttt{src/parser} directory.
-\end{description}
 
+  This parser translate pseudo assembly file into fast binary code
+  generator.
+\end{description}
 
 \subsection{Using hpbcg}
 
@@ -186,7 +193,10 @@ int multiply (int a)
 }
 \end{verbatim}
 
-This specialized version shoud be faster than the previous one because
+Pleas not that the value 42 is choos by the user and can not be
+include into the code before run-time.
+
+This specialized version should be faster than the previous one because
 \begin{itemize}
 \item the code is less specialized (Well, for a 1 instruction
   function, it's not so evident, but you get the idea)
@@ -265,7 +275,7 @@ For instance the \verb|cell.isa| description contain a line with :
     instruction. In the previous example we have 4 bit fields
     \begin{description}
       \item[00011000000] witch is the opcode of the instruction
-        comming from the manual\cite{SPU1} page 55.
+        coming from the manual\cite{SPU1} page 55.
       \item[Registers description] \verb|r3_7| which mean that the 3nd
         register should be encoded on 7 bits.
     \end{description}
@@ -282,7 +292,7 @@ For instance the \verb|cell.isa| description contain a line with :
 
 \section{Assembly languages}
 
-This part is devoted to different assembly langaguages that \hpbcg
+This part is devoted to different assembly languages that \hpbcg
 
 \subsection{cell-spu}
 
@@ -319,7 +329,7 @@ This part is devoted to different assembly langaguages that \hpbcg
   \item \verb|r1| is always 1
   \item \verb|f0| is always 0.0
   \end{itemize}
-\item[Calling convention] depending on the used datatype, differents
+\item[Calling convention] depending on the used datatype, different
   register can be used :
   \begin{itemize}
   \item \verb|r32| is the first integer parameter, \verb|r33| the

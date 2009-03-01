@@ -3,15 +3,21 @@
 # WHERE = /usr/local
 
 all:
-	@echo "make what [dist|install] ?"
+	@echo "${MAKE} what [dist|install] ?"
 
-dist:
-	(cd docs; 		make clean)
-	(cd src/isatobcg; 	make clean)
-	(cd src/parser/org/hpbcg; make clean)
-	(cd examples; 		make clean)
+dist: clean
 	(cd ../; tar cvfz -X HPBCG/excludeList.txt HPBCG-`date +"%Y.%m.%d"`.tgz HPBCG/*)
 
-install: 
-	(cd src/isatobcg; 	  make install PREFIX=${WHERE})
-	(cd src/parser/org/hpbcg; make install PREFIX=${WHERE})
+build:  clean
+	${MAKE} -C src/isatobcg
+	${MAKE} -C src/parser/org/hpbcg jar
+
+install: build
+	${MAKE} -C src/isatobcg install PREFIX=${WHERE}
+	${MAKE} -C src/parser/org/hpbcg install PREFIX=${WHERE}
+
+clean:
+	${MAKE} -C docs clean
+	${MAKE} -C src/isatobcg clean
+	${MAKE} -C src/parser/org/hpbcg clean
+	${MAKE} -C examples clean

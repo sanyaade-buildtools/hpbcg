@@ -4,21 +4,21 @@ all:
 	@echo "make what ?  [ ${PROC} ] "
 
 clean:	
-	(cd simple-multiply; 	make clean)
-	(cd rpn; 		make clean)
-	(cd matrix-vector;	make clean)
+	${MAKE} -C simple-multiply clean
+	${MAKE} -C rpn clean
+	${MAKE} -C matrixvector clean
 
 cell:
-	(cd simple-multiply; 	make cell)
-	(cd rpn; 		make cell)
-	(cd matrix-vector;	make cell)
+	${MAKE} -C simple-multiply cell
+	${MAKE} -C rpn cell
+	${MAKE} -C matrixvector cell
 
 power4:
-	(cd simple-multiply; 	make power4)
-	(cd rpn; 		make power4)
-	(cd matrix-vector;	make power4)
+	${MAKE} -C simple-multiply power4
+	${MAKE} -C rpn power4
+	${MAKE} -C matrixvector power4
 
 ia64:
-	(cd simple-multiply; 	make ia64)
-	(cd rpn; 		make ia64)
-	(cd matrix-vector;	make ia64)
+	${MAKE} -C simple-multiply ia64
+	${MAKE} -C rpn ia64
+	${MAKE} -C matrixvector ia64

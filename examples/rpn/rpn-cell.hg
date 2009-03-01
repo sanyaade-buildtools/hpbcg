@@ -61,27 +61,22 @@ pifi rpnCompile(char *expr)
 	{ --top; #[ sf  $(top), $(top), $(top+1) ]# }
       else if (*expr == '*')
 	{ --top; #[ mpy $(top), $(top), $(top+1) ]# }
-      else if (*expr == '/')
-	{ int y0, y1, y2, t1, one; --top; 
-	  y0  = top + 2;
-	  y1  = top + 3;
-	  y2  = top + 4;
-	  t1  = top + 5;
-	  one = top + 6;
+      else if (*expr == '/') /* gcc-4.3.2/gcc/config/spu/spu.md (div<mode>3_fast */
+	{ int y0  = top + 1;
+	  int y1  = top + 2;
+	  --top; 
 	  #[ 
-	    	   il $(one), 1
 		   csflt $(top),   $(top),   0
 		   csflt $(top+1), $(top+1), 0
-		   csflt $(one),   $(one),   0
 
 		   frest $(y0),    $(top+1) 
-		   fi    $(y1),    $(top+1), $(y0)
-		   fnms  $(t1),    $(top+1), $(y1), $(one)
-		   fma   $(y2),    $(t1),    $(y1), $(y1)
+		   fi    $(y0),    $(top+1), $(y0)
+		   fnms  $(top),   $(y1),    $(top+1), $(top)
+		   fma   $(top),   $(top), $(y0), $(y1)
 
-		   fm    $(top),   $(top), $(y2)
 		   cflts $(top),   $(top), 0
-		  ]# }
+	  ]# 
+	}
       else
 	{
 	  fprintf(stderr, "cannot compile: %s\n", expr);
@@ -89,13 +84,11 @@ pifi rpnCompile(char *expr)
 	}
       ++expr;
     }
-
   if (3 != top)
     {
       fprintf(stderr, "stack error : %d\n", top);
       abort();
     }
-
   #[  bi $lr  ]#;
   iflush(code, asm_pc);
   if ((int)(asm_pc - code) >= 64)
@@ -132,23 +125,25 @@ int main(int argc, char * argv[])
 
   c2f= rpnCompile("9*5/32+");
   ctx = spe_context_create(0, NULL);	 /* Send it to worker */
+  if (NULL == ctx) perror("create_context\n");
   pthread_create(&pthread, NULL, &waitingThread, &ctx);
   printf("\nC:");
   for (i = 0; i <= 100; i+= 10) printf("%3d ", i);
   printf("\nF:");
   for (i = 0; i <= 100; i+= 10) printf("%3d ", getResultat(ctx, i));
   printf("\n");
-  spe_context_destroy(ctx);
+  assert(0 == spe_context_destroy(ctx));
 
   f2c = rpnCompile("9*5/32+");
   ctx = spe_context_create(0, NULL);	 /* Send it to worker */
+  if (NULL == ctx) perror("create_context\n");
   pthread_create(&pthread, NULL, &waitingThread, &ctx);
   printf("\nF:");
   for (i = 32; i <= 212; i+= 10) printf("%3d ", i);
   printf("\nC:");
   for (i = 32; i <= 212; i+= 10) printf("%3d ", getResultat(ctx, i));
   printf("\n");
-  /* Cleanup */
-  spe_context_destroy(ctx);
+  assert(0 == spe_context_destroy(ctx));
+
   return 0;
 }
