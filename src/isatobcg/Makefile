@@ -5,6 +5,7 @@
 .isa.h:
 	./isatobcg -m $< > $@
 
+JAVAC = jikes # javac
 YACCFLAGS = -d 		# FreeBSD make
 YFLAGS = ${YACCFLAGS} 	# Needed on linux
 # LEX =lex  -d 		# Pour debuggage token lexer
@@ -18,6 +19,15 @@ TARGETS = \
 UTILS = hpbcg-cell-utils.h hpbcg-ia64-utils.h hpbcg-power4-utils.h hpbcg-asm-common.h
 
 all: isatobcg ${TARGETS}
+
+IsaToBCG: IsaToBCG.g
+	antlr IsaToBCG.g
+	${JAVAC} IsaToBCGParser.java IsaToBCGLexer.java
+
+test: IsaToBCG
+	java IsaToBCGParser < hpbcg-power4.isa 
+debug: IsaToBCG
+	java org.antlr.works.IDE IsaToBCG.g
 
 isatobcg : ${FILESISA}
 	${CC} ${CFLAGS} ${LDLIBS} ${FILESISA} -o $@
