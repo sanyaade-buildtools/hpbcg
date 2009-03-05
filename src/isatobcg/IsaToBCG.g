@@ -1,4 +1,8 @@
 grammar IsaToBCG; // -*- java -*-
+@header
+{
+    import java.io.*;
+}
 @members{
     static boolean OptionDebug;
     static int OptionAction;
@@ -11,25 +15,28 @@ grammar IsaToBCG; // -*- java -*-
     {
         try 
 	{
-	    ANTLRInputStream input = new ANTLRInputStream (System.in);
-	    IsaToBCGLexer l = new IsaToBCGLexer(input);
+	    ANTLRInputStream  input  = getInput (args);
+	    IsaToBCGLexer     l      = new IsaToBCGLexer(input);
 	    CommonTokenStream tokens = new CommonTokenStream(l);
-	    IsaToBCGParser p = new IsaToBCGParser(tokens);
+	    IsaToBCGParser    p      = new IsaToBCGParser(tokens);
 	    p.isafile();
 	}
-        catch (Exception e)
+	catch (FileNotFoundException e)
+	{
+	    System.err.println("File not found");
+        }
+	catch (Exception e)
 	{
 	    e.printStackTrace(System.out);
 	}
     }
-    public static CharStream getInput(String argv[]) 
+    public static ANTLRInputStream getInput(String argv[]) 
 	throws java.io.FileNotFoundException,
 	java.io.IOException
     {
-	int i;
-	CharStream inFile = null;
+	ANTLRInputStream  inFile = null;
 	
-	for (i = 0; i < argv.length; i++)
+	for (int i = 0; i < argv.length; i++)
 	{
 	    if ('-' == argv[i].charAt(0))
 		switch (argv[i].charAt(1))
@@ -42,7 +49,7 @@ grammar IsaToBCG; // -*- java -*-
 		    System.exit(0);
 		}
 	    else
-		inFile = new ANTLRFileStream(argv[i]);
+		inFile = new ANTLRInputStream(new FileInputStream(argv[i]));
 	}
 	if (null == inFile) 
 	    return new ANTLRInputStream(System.in);
@@ -68,21 +75,25 @@ grammar IsaToBCG; // -*- java -*-
     } /* btoi */
 }
 
-isafile 	: 	isaline* EOF;
-isaline 	: 	isabinpart CUT isaasmpart ;
-isabinpart 	: 	(BINNUM | INTDESC | REGDESC )+;
-isaasmpart 	: 	INSNNAME reglist;
-reglist 	: 	REGNAME | REGNAME reglist;
-fragment REGNAME:	('r'| 'f') (INT)	{System.out.println("REGNAME");};
-fragment INTNAME:	'i_' (INT) 		{System.out.println("INTNAME");};
-fragment INTDESC :	'i' INT '_' INT '-' INT {System.out.println("INTDESC");};
-fragment REGDESC :	'r' INT '_' INT 	{System.out.println("REGDESC");} ;
-fragment INSNNAME:  	(LETTER)+ 		{System.out.println("INSNNAME");};
-fragment LETTER	: 	('a'..'z'|'A'..'Z') 	{System.out.println("LETTER");};
-fragment ARCHNAME : 	('power4' | 'sparc' | 'ia64') {System.out.println("ARCHNAME");};
-fragment BINNUM :	('0' | '1')+ 		{System.out.println("BinNum");};
-fragment INT 	: 	('0'..'9')+ 		{System.out.println("INT");};
-fragment SPACE 	: 	(' ' | '\t') 		{System.out.println("SPACE"); skip();};
-fragment NL 	:   	('\n' | '\r')		;
-fragment COMMENT: 	'#' (~(NL))* 		{System.out.println("COMMENT"); skip();};
-fragment CUT    :	'|' 			{System.out.println("CUT");};
+isafile 	: isaline* EOF;
+isaline 	: (isaarchlen | isalinedesc | COMMENT | ) NL;
+isalinedesc	: isabinpart CUT isaasmpart {	System.out.println("isalinedesc");};
+isaarchlen	: ARCHNAME INT 		{System.out.println("archlen");};
+isabinpart 	: (BINNUM | INTDESC | REGDESC )+;
+isaasmpart 	: INSNNAME paramlist;
+paramlist 	: (param)*; 
+param 		: (INTNAME | REGNAME);
+REGNAME		: REGLETTER (INT)	{System.out.println("REGNAME");};
+INTNAME		: 'i' (INT) 		{System.out.println("INTNAME");};
+INTDESC         :'i' INT '_' INT '-' INT {System.out.println("INTDESC");};
+REGDESC 	:REGLETTER INT '_' INT 	{System.out.println("REGDESC");} ;
+INSNNAME	:(LETTER)+ 		{System.out.println("INSNNAME");};
+fragment LETTER	: ('a'..'z'|'A'..'Z' | '.') 	{System.out.println("LETTER");};
+fragment REGLETTER: ('r' | 'f');
+ARCHNAME : 	('power4' | 'sparc' | 'ia64') {System.out.println("ARCHNAME");};
+BINNUM :	('0' | '1')+ 		{System.out.println("BINNUM");};
+INT 	: 	('0'..'9')+ 		{System.out.println("INT");};
+SPACE 	: 	(',' | ' ' | '\t')+ 	{System.out.println("SPACE"); skip();};
+NL 	:   	('\n' | '\r')	;
+COMMENT: 	'#' (~(NL))*		{System.out.println("COMMENT"); };
+CUT    :	'|' 			{System.out.println("CUT");};
