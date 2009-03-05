@@ -9,14 +9,11 @@ grammar IsaToBCG; // -*- java -*-
     int ArchLength;
     public static void main(String[] args) 
     {
-	String tmp;
-	CharStream in;
         try 
 	{
-	    in = getInput (args);
-	    IsaToBCGLexer l = new IsaToBCGLexer(in);
-	    CommonTokenStream tokens = new CommonTokenStream();
-	    tokens.setTokenSource(l);
+	    ANTLRInputStream input = new ANTLRInputStream (System.in);
+	    IsaToBCGLexer l = new IsaToBCGLexer(input);
+	    CommonTokenStream tokens = new CommonTokenStream(l);
 	    IsaToBCGParser p = new IsaToBCGParser(tokens);
 	    p.isafile();
 	}
@@ -71,21 +68,21 @@ grammar IsaToBCG; // -*- java -*-
     } /* btoi */
 }
 
-isafile 	: 	isaline+ EOF;
+isafile 	: 	isaline* EOF;
 isaline 	: 	isabinpart CUT isaasmpart ;
 isabinpart 	: 	(BINNUM | INTDESC | REGDESC )+;
 isaasmpart 	: 	INSNNAME reglist;
 reglist 	: 	REGNAME | REGNAME reglist;
-fragment REGNAME:	('r'| 'f') (INT);
-fragment INTNAME:	'i_' (INT);
-fragment INTDESC :	'i' INT '_' INT '-' INT;
-fragment REGDESC :	'r' INT '_' INT; 
-fragment INSNNAME:  	(LETTER)+;
-fragment LETTER	: 	('a'..'z'|'A'..'Z');
-fragment ARCHNAME : 	('power4' | 'sparc' | 'ia64');
-fragment BINNUM :	('0' | '1')+ {System.out.println("BinNum"); };
-fragment INT 	: 	('0'..'9')+;
-fragment SPACE 	: 	(' ' | '\t') {skip();} ;
-fragment NL 	:   	('\n' | '\r');
-fragment COMMENT: 	'#' (~(NL))* {	System.out.println("Comment");skip();} ;
-fragment CUT    :	'|';
+fragment REGNAME:	('r'| 'f') (INT)	{System.out.println("REGNAME");};
+fragment INTNAME:	'i_' (INT) 		{System.out.println("INTNAME");};
+fragment INTDESC :	'i' INT '_' INT '-' INT {System.out.println("INTDESC");};
+fragment REGDESC :	'r' INT '_' INT 	{System.out.println("REGDESC");} ;
+fragment INSNNAME:  	(LETTER)+ 		{System.out.println("INSNNAME");};
+fragment LETTER	: 	('a'..'z'|'A'..'Z') 	{System.out.println("LETTER");};
+fragment ARCHNAME : 	('power4' | 'sparc' | 'ia64') {System.out.println("ARCHNAME");};
+fragment BINNUM :	('0' | '1')+ 		{System.out.println("BinNum");};
+fragment INT 	: 	('0'..'9')+ 		{System.out.println("INT");};
+fragment SPACE 	: 	(' ' | '\t') 		{System.out.println("SPACE"); skip();};
+fragment NL 	:   	('\n' | '\r')		;
+fragment COMMENT: 	'#' (~(NL))* 		{System.out.println("COMMENT"); skip();};
+fragment CUT    :	'|' 			{System.out.println("CUT");};
