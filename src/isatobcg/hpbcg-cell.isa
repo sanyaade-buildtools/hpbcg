@@ -5,8 +5,8 @@
 #	Tamar ELOCHVILI	tamar_eloshvili@yahoo.fr 
 #
 cell 32
+
 # Memory_Load/Store Instuctions
-#
  00110100          i1_9-0     r2_7      r1_7   |   lqd        r1,i1,r2	
  00111000100       r3_7       r2_7      r1_7   |   lqx        r1,r2,r3
  001100001         i1_15-0    r1_7             |   lqa        r1,i1
@@ -24,7 +24,6 @@ cell 32
  00111110111       i1_6-0     r2_7      r1_7   |   cdd        r1,i1,r2
  00111010111       r3_7       r2_7      r1_7   |   cdx        r1,r2,r3
 
-
 # Constant_Formation Instructions
  010000011         i1_15-0    r1_7             |   ilh        r1,i1  
  010000010         i1_15-0    r1_7             |   ilhu       r1,i1
@@ -32,7 +31,6 @@ cell 32
  0100001           i1_17-0    r1_7             |   ila        r1,i1
  011000001         i1_15-0    r1_7             |   iohl       r1,i1
  001100101         i1_15-0    r1_7             |   fsmbi      r1,i1
- 
           
 # Integer and Logical  Instructions
 #01234567890123456789

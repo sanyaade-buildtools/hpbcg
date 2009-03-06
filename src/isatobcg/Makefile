@@ -22,10 +22,12 @@ all: isatobcg ${TARGETS}
 
 IsaToBCG: IsaToBCG.g
 	antlr IsaToBCG.g
-	${JAVAC} IsaToBCGParser.java IsaToBCGLexer.java
+	${JAVAC} IsaToBCGParser.java IsaToBCGLexer.java InstructionsList.java Instruction.java
 
 test: IsaToBCG
 	java IsaToBCGParser < hpbcg-power4.isa 
+#	java IsaToBCGParser < hpbcg-cell.isa 
+
 debug: IsaToBCG
 	java org.antlr.works.IDE IsaToBCG.g
 

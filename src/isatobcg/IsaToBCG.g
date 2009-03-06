@@ -10,7 +10,8 @@ grammar IsaToBCG; // -*- java -*-
     static int LIST = 2;
     static int VALID = 3;
     String ArchName;
-    int ArchLength;
+    int ArchLenght;
+    InstructionsList iList;
     public static void main(String[] args) 
     {
         try 
@@ -56,44 +57,36 @@ grammar IsaToBCG; // -*- java -*-
 	else
 	    return inFile;
     }
-    public int btoi(String chaine)
+    void errMsg(String msg)
     {
-	int tmp = 0;
-	for (int i = 1; i < chaine.length(); i++)
-	    {
-		tmp <<= 1;
-		switch (chaine.charAt(i))
-		    {
-		    case '0': 		break;
-		    case '1': tmp += 1; 	break;
-		    default: System.out.println("Error : char not in [01] :"+chaine.charAt(i));
-			System.exit(-1);
-			break;
-		    }
-	    }
-	return tmp;
-    } /* btoi */
+	System.err.println(msg);
+    } /* errMsg */
 }
 
-isafile 	: isaline* EOF;
+isafile 	: isaline* EOF {System.out.println(iList);;};
 isaline 	: (isaarchlen | isalinedesc | COMMENT | ) NL;
-isalinedesc	: isabinpart CUT isaasmpart {	System.out.println("isalinedesc");};
-isaarchlen	: ARCHNAME INT 		{System.out.println("archlen");};
-isabinpart 	: (BINNUM | INTDESC | REGDESC )+;
-isaasmpart 	: INSNNAME paramlist;
-paramlist 	: (param)*; 
-param 		: (INTNAME | REGNAME);
-REGNAME		: REGLETTER (INT)	{System.out.println("REGNAME");};
-INTNAME		: 'i' (INT) 		{System.out.println("INTNAME");};
-INTDESC         :'i' INT '_' INT '-' INT {System.out.println("INTDESC");};
-REGDESC 	:REGLETTER INT '_' INT 	{System.out.println("REGDESC");} ;
-INSNNAME	:(LETTER)+ 		{System.out.println("INSNNAME");};
-fragment LETTER	: ('a'..'z'|'A'..'Z' | '.') 	{System.out.println("LETTER");};
-fragment REGLETTER: ('r' | 'f');
-ARCHNAME : 	('power4' | 'sparc' | 'ia64') {System.out.println("ARCHNAME");};
-BINNUM :	('0' | '1')+ 		{System.out.println("BINNUM");};
-INT 	: 	('0'..'9')+ 		{System.out.println("INT");};
-SPACE 	: 	(',' | ' ' | '\t')+ 	{System.out.println("SPACE"); skip();};
-NL 	:   	('\n' | '\r')	;
-COMMENT: 	'#' (~(NL))*		{System.out.println("COMMENT"); };
-CUT    :	'|' 			{System.out.println("CUT");};
+isalinedesc	: isabinpart CUT isaasmpart  {iList.addInstruction();};
+isaarchlen	: ARCHNAME INT 	{iList = new InstructionsList($ARCHNAME.getText(), Integer.parseInt($INT.getText()));};
+isabinpart 	: (binnum | intdesc | regdesc)+;
+binnum 		: BINNUM  		{ iList.addBinaryNumber  ( $BINNUM.getText());		};
+intdesc 	: INTDESC 		{ iList.addBinaryIntDescr($INTDESC.getText());		};
+regdesc 	: REGDESC 		{ iList.addBinaryRegDescr($REGDESC.getText());		};
+isaasmpart 	: INSNNAME paramlist 	{ iList.addName($INSNNAME.getText());			};
+paramlist 	: (param)*			;
+param 		: (intname | regname)		;
+regname		: REGNAME		{ iList.addAsmReg($REGNAME.getText());};
+intname		: INTNAME		{ iList.addAsmInt($INTNAME.getText());			};
+REGNAME		: REGLETTER (INT) ;
+INTNAME		: 'i' (INT);
+INTDESC         : 'i' INT '_' INT '-' INT 	;
+REGDESC 	: REGLETTER INT '_' INT 	;
+INSNNAME	: (LETTER)+ ;
+fragment LETTER	: ('a'..'z'|'A'..'Z' | '.') 	;
+fragment REGLETTER: ('r' | 'f')			;
+ARCHNAME 	: ('power4' | 'sparc' | 'ia64' | 'cell') ;
+BINNUM 		: ('0' | '1')+ 			;
+INT 		: ('0'..'9')+ 			;
+SPACE 		: (',' | ' ' | '\t')+ 	{ skip(); 	};
+NL 		: ('\n' | '\r')			;
+COMMENT		: '#' (~(NL))*			;
+CUT    		: '|' 				;
