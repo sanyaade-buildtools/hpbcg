@@ -3,15 +3,6 @@ grammar IsaToBCG; // -*- java -*-
 {
     import java.io.*;
 }
-@lexer::members
-{
-    InstructionsList iList;
-    IsaToBCGLexer(ANTLRInputStream s, InstructionsList l)
-	{
-	    super(s);
-	    iList = l;
-	} /* IsaToBCGLexer() */
-}
 @members{
     static boolean OptionDebug;
     static int OptionAction;
@@ -26,7 +17,7 @@ grammar IsaToBCG; // -*- java -*-
         try 
 	{
 	    ANTLRInputStream  input  = getInput (args);
-	    IsaToBCGLexer     l      = new IsaToBCGLexer(input, iList);
+	    IsaToBCGLexer     l      = new IsaToBCGLexer(input);
 	    CommonTokenStream tokens = new CommonTokenStream(l);
 	    IsaToBCGParser    p      = new IsaToBCGParser(tokens);
 	    p.isafile();
@@ -76,10 +67,10 @@ isafile 	: isaline* EOF {System.out.println(iList);};
 isaline 	: (isaarchlen | isalinedesc | COMMENT | ) NL;
 isalinedesc	: isabinpart CUT isaasmpart  {iList.addInstruction();};
 isaarchlen	: ARCHNAME INT 	{iList.setNameAndLenght($ARCHNAME.getText(), Integer.parseInt($INT.getText()));		};
-isabinpart 	: (binnum | INTDESC | REGDESC)+;
+isabinpart 	: (binnum | intdesc | regdesc)+;
 binnum 		: BINNUM  		{ iList.addBinaryNumber  ( $BINNUM.getText());					};
-INTDESC 	: 'i' l=INT '_' s=INT '-' e=INT { iList.addBinaryIntDescr($l.getText(), $s.getText(), $e.getText());	};
-REGDESC 	: REGLETTER n=INT '_' s=INT 	{ iList.addBinaryRegDescr($REGLETTER.getText(), $n.getText(), $s.getText());		};
+intdesc 	: 'i' l=INT '_' s=INT '-' e=INT { iList.addBinaryIntDescr($l.getText(), $s.getText(), $e.getText());	};
+regdesc 	: REGLETTER n=INT '_' s=INT 	{ iList.addBinaryRegDescr($REGLETTER.getText(), $n.getText(), $s.getText());		};
 isaasmpart 	: INSNNAME paramlist 	{ iList.addName($INSNNAME.getText());			};
 paramlist 	: (param)*			;
 param 		: (intname | regname)		;

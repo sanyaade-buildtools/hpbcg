@@ -5,7 +5,7 @@
 .isa.h:
 	./isatobcg -m $< > $@
 
-JAVAC = jikes # javac
+JAVAC = jikes +E # javac
 YACCFLAGS = -d 		# FreeBSD make
 YFLAGS = ${YACCFLAGS} 	# Needed on linux
 # LEX =lex  -d 		# Pour debuggage token lexer
@@ -22,7 +22,7 @@ all: isatobcg ${TARGETS}
 
 IsaToBCG: IsaToBCG.g
 	antlr IsaToBCG.g
-	${JAVAC} IsaToBCGParser.java IsaToBCGLexer.java InstructionsList.java Instruction.java
+	${JAVAC} IsaToBCGParser.java IsaToBCGLexer.java InstructionsList.java Instruction.java InstructionBinPart.java
 
 test: IsaToBCG
 	java IsaToBCGParser < hpbcg-power4.isa 
