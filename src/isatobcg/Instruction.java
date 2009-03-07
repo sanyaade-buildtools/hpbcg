@@ -16,15 +16,15 @@ class Instruction
     } /* addName */
     void addBinaryNumber(int n, int l)
     {
-	binPart.add (" B:"+n+"("+l+") ");
+	binPart.add (new InstructionBinPart(n, l));
     } /* addBinaryNumber */
-    void addBinaryIntDescr(String n)
+    void addBinaryIntDescr(int number, int start, int end )
     {
-	binPart.add (" I:"+n+" ");
+	binPart.add (new InstructionBinPart(number, start, end));
     } /* addIntDescr */
-    void addBinaryRegDescr(String n)
+    void addBinaryRegDescr(String n, int number, int size)
     {
-	binPart.add (" R:"+n+" ");
+	binPart.add (new InstructionBinPart (n, number, size));
     } /* addRegDescr */
 
     void addAsmReg(String letter)
@@ -35,19 +35,18 @@ class Instruction
     {
 	asmPart.add ("I("+number+")");
     } /* addAsmInt */
-    public String toString()
+    public String toMacro()
     {
-	String tmp = name;
-
-	for (int i = 0; i < binPart.size(); ++i)
-	    {
-		tmp += binPart.elementAt(i).toString();
-	    }
+	String tmp = "#define "+name+"(";
 	for (int i = 0; i < asmPart.size(); ++i)
 	    {
 		tmp += asmPart.elementAt(i).toString();
 	    }
-	return tmp;
-    } /* toString */
-
+	tmp += ")";
+	for (int i = 0; i < binPart.size(); ++i)
+	    {
+		tmp += binPart.elementAt(i).toString();
+	    }
+	return tmp+'\n';
+    } /* toMacro */
 }

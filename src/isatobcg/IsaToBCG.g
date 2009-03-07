@@ -3,21 +3,30 @@ grammar IsaToBCG; // -*- java -*-
 {
     import java.io.*;
 }
+@lexer::members
+{
+    InstructionsList iList;
+    IsaToBCGLexer(ANTLRInputStream s, InstructionsList l)
+	{
+	    super(s);
+	    iList = l;
+	} /* IsaToBCGLexer() */
+}
 @members{
     static boolean OptionDebug;
     static int OptionAction;
-    static int MACROS = 1;
-    static int LIST = 2;
-    static int VALID = 3;
+    static int OPTMACROS = 1;
+    static int OPTLIST = 2;
+    static int OPTVALID = 3;
     String ArchName;
     int ArchLenght;
-    InstructionsList iList;
+    static InstructionsList iList = new InstructionsList();
     public static void main(String[] args) 
     {
         try 
 	{
 	    ANTLRInputStream  input  = getInput (args);
-	    IsaToBCGLexer     l      = new IsaToBCGLexer(input);
+	    IsaToBCGLexer     l      = new IsaToBCGLexer(input, iList);
 	    CommonTokenStream tokens = new CommonTokenStream(l);
 	    IsaToBCGParser    p      = new IsaToBCGParser(tokens);
 	    p.isafile();
@@ -43,9 +52,9 @@ grammar IsaToBCG; // -*- java -*-
 		switch (argv[i].charAt(1))
 		{
 		case 'd': OptionDebug = true; break;
-		case 'm': OptionAction = MACROS; break;
-		case 'l': OptionAction = LIST; break;
-		case 'v': OptionAction = VALID;  break;
+		case 'm': OptionAction = OPTMACROS; break;
+		case 'l': OptionAction = OPTLIST; break;
+		case 'v': OptionAction = OPTVALID;  break;
 		default:  System.out.println("IsaToBCG -[m|v|d] [File.isa]\n");
 		    System.exit(0);
 		}
@@ -63,14 +72,14 @@ grammar IsaToBCG; // -*- java -*-
     } /* errMsg */
 }
 
-isafile 	: isaline* EOF {System.out.println(iList);;};
+isafile 	: isaline* EOF {System.out.println(iList);};
 isaline 	: (isaarchlen | isalinedesc | COMMENT | ) NL;
 isalinedesc	: isabinpart CUT isaasmpart  {iList.addInstruction();};
-isaarchlen	: ARCHNAME INT 	{iList = new InstructionsList($ARCHNAME.getText(), Integer.parseInt($INT.getText()));};
-isabinpart 	: (binnum | intdesc | regdesc)+;
-binnum 		: BINNUM  		{ iList.addBinaryNumber  ( $BINNUM.getText());		};
-intdesc 	: INTDESC 		{ iList.addBinaryIntDescr($INTDESC.getText());		};
-regdesc 	: REGDESC 		{ iList.addBinaryRegDescr($REGDESC.getText());		};
+isaarchlen	: ARCHNAME INT 	{iList.setNameAndLenght($ARCHNAME.getText(), Integer.parseInt($INT.getText()));		};
+isabinpart 	: (binnum | INTDESC | REGDESC)+;
+binnum 		: BINNUM  		{ iList.addBinaryNumber  ( $BINNUM.getText());					};
+INTDESC 	: 'i' l=INT '_' s=INT '-' e=INT { iList.addBinaryIntDescr($l.getText(), $s.getText(), $e.getText());	};
+REGDESC 	: REGLETTER n=INT '_' s=INT 	{ iList.addBinaryRegDescr($REGLETTER.getText(), $n.getText(), $s.getText());		};
 isaasmpart 	: INSNNAME paramlist 	{ iList.addName($INSNNAME.getText());			};
 paramlist 	: (param)*			;
 param 		: (intname | regname)		;
@@ -78,8 +87,6 @@ regname		: REGNAME		{ iList.addAsmReg($REGNAME.getText());};
 intname		: INTNAME		{ iList.addAsmInt($INTNAME.getText());			};
 REGNAME		: REGLETTER (INT) ;
 INTNAME		: 'i' (INT);
-INTDESC         : 'i' INT '_' INT '-' INT 	;
-REGDESC 	: REGLETTER INT '_' INT 	;
 INSNNAME	: (LETTER)+ ;
 fragment LETTER	: ('a'..'z'|'A'..'Z' | '.') 	;
 fragment REGLETTER: ('r' | 'f')			;
