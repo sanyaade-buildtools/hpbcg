@@ -44,3 +44,5 @@ clean:
 	-rm ${FILESISA}
 	-rm ${TARGETS}
 	-rm y.tab.h
+	-rm IsaToBCG*.class
+	-rm IsaToBCG*.java

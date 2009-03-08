@@ -11,6 +11,7 @@ class InstructionAsmPart
     {
 	type = REGNAME;
 	typeLetter = register.charAt(0);
+	regName = register;
     }
 
     public InstructionAsmPart(int number)
@@ -27,12 +28,12 @@ class InstructionAsmPart
 	String tmp = "";
 	switch (type)
 	    {
-	    case REGNAME:   tmp = regName;	break;
+	    case REGNAME:   tmp = regName;		break;
 	    case INTNAME:   tmp = ""+intNumber;  	break;
 	    default: System.err.println ("Error InstructionAsmPart not known"); 
 		System.exit(0);
 		break;
 	    }
-	return tmp+"\n";
+	return tmp;
     } /* toString */
 }

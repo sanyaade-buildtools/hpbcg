@@ -70,18 +70,38 @@ class InstructionsList
 	cI.addBinaryNumber(Integer.parseInt(n, 2), n.length());
     } /* addBinaryNumber */
 
-    void addBinaryIntDescr(String n, String s, String e)
+    void addBinaryIntDescr(String n)
     {
+	int i;
+	String intNumber = "", intEnd = "" , intStart = "";
 	Verify();
-	cI.addBinaryIntDescr(Integer.parseInt(n), 
-		       Integer.parseInt(s), 
-		       Integer.parseInt(e));
+	// Number has this form iN_E-S
+	for (i = 1; '_' != n.charAt(i) ; ++i)
+		intNumber += n.charAt(i);
+	for (i++; '-' != n.charAt(i) ; ++i)
+		intEnd += n.charAt(i);
+	for (; i < n.length(); ++i)
+	    {
+		intStart += n.charAt(i);
+ 	    }
+	cI.addBinaryIntDescr(Integer.parseInt(intNumber), 
+		       Integer.parseInt(intStart), 
+		       Integer.parseInt(intEnd));
     } /* addBinaryIntDescr */
 
-    void addBinaryRegDescr(String letter, String number, String size)
+    void addBinaryRegDescr(String descr)
     {
+	int i;
+	String letter;
+	String number = "", size = "";
 	Verify();
-	cI.addBinaryRegDescr(letter, Integer.parseInt (number), Integer.parseInt (size));
+	// L I1 _ I2
+	letter = ""+ descr.charAt(0);
+	for (i = 1; '_' != descr.charAt(i) ; ++i)
+		number += descr.charAt(i);
+	for (; i < descr.length(); ++i)
+		size += descr.charAt(i);
+	cI.addBinaryRegDescr(letter, Integer.parseInt ("1"), Integer.parseInt ("1"));
     } /* addBinaryRegDescr */
 
     void addAsmReg(String r)

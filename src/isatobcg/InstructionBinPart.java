@@ -46,7 +46,7 @@ class InstructionBinPart
 		System.exit(0);
 		break;
 	    }
-	return tmp+"\n";
+	return tmp;
     } /* toString */
 
 }

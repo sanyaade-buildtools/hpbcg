@@ -55,15 +55,20 @@ class Instruction
     }
     public String toMacro()
     {
+	int end;
 	String tmp = "#define "+name+"_"+insnFormat()+"(";
-	for (int i = 0; i < asmPart.size(); ++i)
+	end = asmPart.size();
+	for (int i = 0; i < end; ++i)
 	    {
 		tmp += ((InstructionAsmPart) asmPart.elementAt(i)).toString();
+		if (i != (end - 1)) tmp += ", ";
 	    }
 	tmp += ")";
-	for (int i = 0; i < binPart.size(); ++i)
+	end = binPart.size();
+	for (int i = 0; i < end; ++i)
 	    {
 		tmp += ((InstructionBinPart) binPart.elementAt(i)).toString();
+		if (i != (end - 1)) tmp += ", ";
 	    }
 	return tmp+'\n';
     } /* toMacro */
