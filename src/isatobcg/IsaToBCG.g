@@ -66,7 +66,7 @@ grammar IsaToBCG; // -*- java -*-
 	    switch (OptionAction)
 	    {
 		case OPTMACROS:   System.out.println(iList);   			break;
-		case OPTLIST: 	  System.out.println("Not yet implemented");	break;
+	    case OPTLIST: 	  System.out.println(iList.getInsnList());	break;
 		case OPTVALID: 	  System.out.println("Not yet implemented");	break;
 	    }
     }
@@ -97,7 +97,7 @@ fragment REGLETTER: ('r' | 'f')					;
 
 BINNUM 		: ('0' | '1')+ 					;
 INT 		: ('0'..'9')+ 					;
-SPACE 		: ( ',' | ' ' | '\t')+ 	{ skip(); 	}	;
+SPACE 		: ('=' | ',' | ' ' | '\t')+ 	{ skip(); 	}	;
 NL 		: ('\n' | '\r')					;
 COMMENT		: '#' (~(NL))*					;
 CUT    		: '|' 						;

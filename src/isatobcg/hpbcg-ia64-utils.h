@@ -3,7 +3,7 @@
  *
  */
 
-#include <asm-common.h>
+#include <hpbcg-asm-common.h>
 #include <assert.h>
 
 static int ia64_addInsn(ui64_t insn, char stop);

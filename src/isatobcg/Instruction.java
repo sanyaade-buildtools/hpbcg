@@ -18,6 +18,11 @@ class Instruction
 	name = n.replace('.', '_');
     } /* addName */
 
+    String getName()
+    {
+	return name+"_"+insnFormat();
+    } /* addName */
+
     void addBinaryNumber(int n, int l)
     {
 	InstructionBinPart last;
@@ -41,7 +46,7 @@ class Instruction
     } /*  */
     void addBinaryIntExpr(String expr, int start, int end )
     {
- 	binPart.add (new InstructionBinPart(expr, start, end));
+ 	binPart.add (new InstructionBinPart(expr, start, end, 0));
     } /*  */
     void addBinaryRegDescr(String n, int number, int size)
     {
@@ -69,7 +74,7 @@ class Instruction
     public String toMacro()
     {
 	int end;
-	String tmp = "#define "+name+"_"+insnFormat()+"(";
+	String tmp = "#define "+getName()+"(";
 	InstructionBinPart ibp;
 	end = asmPart.size();
 	for (int i = 0; i < end; ++i)
@@ -97,7 +102,7 @@ class Instruction
     public String toFunction()
     {
 	int end;
-	String tmp = "void "+name+"_"+insnFormat()+"(";
+	String tmp = "void "+getName()+"(";
 	InstructionBinPart ibp;
 	end = asmPart.size();
 	for (int i = 0; i < end; ++i)
@@ -119,7 +124,7 @@ class Instruction
 		tmp += (ibp).toString()+")";
 	    }
 	tmp += "\n#ifdef ASM_DEBUG\n";
-	tmp += "\tprintf(\"%p : %s%s 0x%X\\n\", asm_pc, \""+name+"_"+insnFormat()+"\", *(asm_pc-1));\n";
+	tmp += "\tprintf(\"%p : %s%s 0x%X\\n\", asm_pc, \""+getName()+"\", *(asm_pc-1));\n";
 	tmp += "#endif /* ASM_DEBUG */\n";
 	return tmp+"\n}\n";
     } /* toFunction */

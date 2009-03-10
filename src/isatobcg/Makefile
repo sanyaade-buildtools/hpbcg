@@ -1,33 +1,39 @@
-.SUFFIXES: .isa .lst 
+.SUFFIXES: .isa .lst  .g .java .class
 
 .isa.lst:
 	./InsnList $< > $@
 .isa.h:
-	./isatobcg -m $< > $@
+	java IsaToBCGParser -m $< > $@
+.g.java:
+	antlr $<
+	touch $@
+.java.class:
+	${JAVAC} $<
 
 JAVAC = jikes +E # javac
 YACCFLAGS = -d 		# FreeBSD make
 YFLAGS = ${YACCFLAGS} 	# Needed on linux
 # LEX =lex  -d 		# Pour debuggage token lexer
 YACCFLAGS = -d -t 	# Pour debuggage token parser
-FILESISA = isatobcg-p.o isatobcg-l.o common.o
+FILESISA = 
 CFLAGS = -Wall -g -I../common
 TARGETS = \
-	hpbcg-ia64.lst   hpbcg-ia64.h \
-	hpbcg-cell.lst   hpbcg-cell.h \
-	hpbcg-power4.lst hpbcg-power4.h
+	hpbcg-cell.lst   hpbcg-cell.h 	\
+	hpbcg-power4.lst hpbcg-power4.h # \
+#	hpbcg-ia64.lst   hpbcg-ia64.h
 UTILS = hpbcg-cell-utils.h hpbcg-ia64-utils.h hpbcg-power4-utils.h hpbcg-asm-common.h
+CLASSFILES = IsaToBCGParser.class IsaToBCGLexer.class			\
+InstructionsList.class Instruction.class InstructionBinPart.class
 
-all: isatobcg ${TARGETS}
+all: java isa
 
-IsaToBCG: IsaToBCG.g
-	antlr IsaToBCG.g
-	${JAVAC} IsaToBCGParser.java IsaToBCGLexer.java InstructionsList.java Instruction.java InstructionBinPart.java
+java: ${CLASSFILES}
 
-test: IsaToBCG
-	java IsaToBCGParser -m hpbcg-cell.isa 
+isa: ${TARGETS}
 
-debug: IsaToBCG
+IsaToBCGParser.java IsaToBCGLexer.java: IsaToBCG.java
+
+debug: 
 	java org.antlr.works.IDE IsaToBCG.g
 
 isatobcg : ${FILESISA}
@@ -42,6 +48,5 @@ install: isatobcg
 clean:
 	-rm ${FILESISA}
 	-rm ${TARGETS}
-	-rm y.tab.h
-	-rm IsaToBCG*.class
-	-rm IsaToBCG*.java
+	-rm IsaToBCG*.class IsaToBCG*.java
+	-rm ${CLASSFILES}

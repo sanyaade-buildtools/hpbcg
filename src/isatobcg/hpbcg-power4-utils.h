@@ -3,7 +3,7 @@
  *
  */
 
-#include <asm-common.h>
+#include <hpbcg-asm-common.h>
 
 #define ADDINSN(VAL) (*(asm_pc++) = (VAL))
 #define ORG(PTR) (asm_pc = (insn *) PTR)

@@ -13,7 +13,7 @@ endif
 setenv PSEUDO `basename $1 .isa`-utils.h
 
 if (-f ${PSEUDO}) then 
-    (./isatobcg -l $1; awk '/#define/{print $2}' ${PSEUDO} | sed 's/(.*$//' ) | sort
+    (java IsaToBCGParser -l $1; awk '/#define/{print $2}' ${PSEUDO} | sed 's/(.*$//' ) | sort
 else
-    ./isatobcg -l $1 | sort
+    ./IsaToBCGParser -l $1 | sort
 endif

@@ -18,7 +18,6 @@ class InstructionBinPart
 	binaryValue = n;
 	intBinPartLenght = l;
     }
-
     public void addBinNum(int n, int l)
     {
 	binaryValue 	 <<= l;
@@ -34,9 +33,10 @@ class InstructionBinPart
 	intEnd = end;
 	intBinPartLenght = intEnd-intStart+1;
     }
-    public InstructionBinPart(String expression, int start, int end)
+    public InstructionBinPart(String expression, int start, int end, int zero)
     {
 	type = INTEXPR;
+	intExpr = expression;
 	intStart = start;
 	intEnd = end;
 	intBinPartLenght = intEnd-intStart+1;
@@ -62,10 +62,13 @@ class InstructionBinPart
 	    case INTDESC:  
 		dummy = 0;
 		for (int i = intStart; i <= intEnd ; ++i)
-		    {
 			dummy |= ((long) 1 << i);
-		    }
 		tmp = "i"+intNumber+" & "+ dummy+", "+intBinPartLenght;			break;
+	    case INTEXPR:  
+		dummy = 0;
+		for (int i = intStart; i <= intEnd ; ++i)
+			dummy |= ((long) 1 << i);
+		tmp = "("+intExpr+") & "+ dummy+", "+intBinPartLenght;		break;
 	    case BINNUM:   tmp =  binaryValue+","+intBinPartLenght;  			break;
 	    case REGDESC:  tmp =  regName+regNumber+","+intBinPartLenght;  		break;
 	    default: System.err.println ("Error InstructionBinPart not known"); 
