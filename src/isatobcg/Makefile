@@ -25,8 +25,7 @@ IsaToBCG: IsaToBCG.g
 	${JAVAC} IsaToBCGParser.java IsaToBCGLexer.java InstructionsList.java Instruction.java InstructionBinPart.java
 
 test: IsaToBCG
-	java IsaToBCGParser < hpbcg-power4.isa 
-#	java IsaToBCGParser < hpbcg-cell.isa 
+	java IsaToBCGParser -m hpbcg-cell.isa 
 
 debug: IsaToBCG
 	java org.antlr.works.IDE IsaToBCG.g

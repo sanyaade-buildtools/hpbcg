@@ -6,9 +6,9 @@ grammar IsaToBCG; // -*- java -*-
 @members{
     static boolean OptionDebug;
     static int OptionAction;
-    static int OPTMACROS = 1;
-    static int OPTLIST = 2;
-    static int OPTVALID = 3;
+    final static int OPTMACROS = 1;
+    final static int OPTLIST   = 2;
+    final static int OPTVALID  = 3;
     String ArchName;
     int ArchLenght;
     static InstructionsList iList = new InstructionsList();
@@ -20,7 +20,7 @@ grammar IsaToBCG; // -*- java -*-
 	    IsaToBCGLexer     l      = new IsaToBCGLexer(input);
 	    CommonTokenStream tokens = new CommonTokenStream(l);
 	    IsaToBCGParser    p      = new IsaToBCGParser(tokens);
-	    p.isafile();
+	    p.isafile();	
 	}
 	catch (FileNotFoundException e)
 	{
@@ -61,18 +61,29 @@ grammar IsaToBCG; // -*- java -*-
     {
 	System.err.println(msg);
     } /* errMsg */
+    void dumpResult()
+    {
+	    switch (OptionAction)
+	    {
+		case OPTMACROS:   System.out.println(iList);   			break;
+		case OPTLIST: 	  System.out.println("Not yet implemented");	break;
+		case OPTVALID: 	  System.out.println("Not yet implemented");	break;
+	    }
+    }
 }
 
-isafile 	: isaline* EOF {System.out.println(iList);};
+isafile 	: isaline* EOF {dumpResult();};
 isaline 	: (isaarchlen | isalinedesc | COMMENT | ) NL;
 isalinedesc	: isabinpart CUT isaasmpart  {iList.addInstruction();};
-isaarchlen	: ARCHNAME INT 	 	{ iList.setNameAndLenght($ARCHNAME.getText(), Integer.parseInt($INT.getText()));};
-isabinpart 	: (binnum | intdescr | regdescr)+;
+isaarchlen	: archname=('power4' | 'sparc' | 'ia64' | 'cell')   INT { iList.setNameAndLenght($archname.getText(), Integer.parseInt($INT.getText()));};
+isabinpart 	: (binnum | intdescr | regdescr | paropen)+;
 binnum 		: BINNUM  		{ iList.addBinaryNumber  ($BINNUM.getText());		};
 intdescr 	: INTDESCR 		{ iList.addBinaryIntDescr($INTDESCR.getText());		};
 regdescr 	: REGDESCR	 	{ iList.addBinaryRegDescr($REGDESCR.getText());		};
+paropen		: PAROPEN 		{ iList.addBinaryIntExpr ($PAROPEN.getText());		};
 INTDESCR        : 'i' l=INT '_' s=INT '-' e=INT 						;
 REGDESCR	: REGLETTER n=INT '_' s=INT							;
+PAROPEN		: '(' (~(')'))*	')_' INT '-' INT						;
 isaasmpart 	: INSNNAME paramlist 	{ iList.addName($INSNNAME.getText());			};
 paramlist 	: (param)*									;
 param 		: (intname | regname)								;
@@ -83,10 +94,10 @@ INTNAME		: 'i' (INT)					;
 INSNNAME	: (LETTER)+ 					;
 fragment LETTER	: ('a'..'z'|'A'..'Z' | '.') 			;
 fragment REGLETTER: ('r' | 'f')					;
-ARCHNAME 	: ('power4' | 'sparc' | 'ia64' | 'cell') 	;
+
 BINNUM 		: ('0' | '1')+ 					;
 INT 		: ('0'..'9')+ 					;
-SPACE 		: (',' | ' ' | '\t')+ 	{ skip(); 	}	;
+SPACE 		: ( ',' | ' ' | '\t')+ 	{ skip(); 	}	;
 NL 		: ('\n' | '\r')					;
 COMMENT		: '#' (~(NL))*					;
 CUT    		: '|' 						;

@@ -10,14 +10,14 @@ class InstructionAsmPart
     public InstructionAsmPart(String register)
     {
 	type = REGNAME;
-	typeLetter = register.charAt(0);
+	typeLetter = Character.toUpperCase(register.charAt(0));
 	regName = register;
     }
 
     public InstructionAsmPart(int number)
     {
 	type = INTNAME;
-	typeLetter = 'i';
+	typeLetter = 'I';
 	intNumber = number;
     }
     public char getTypeLetter() { return typeLetter; }

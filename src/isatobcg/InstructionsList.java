@@ -23,36 +23,21 @@ class InstructionsList
     public String toString()
     {
 	String tmp = header();
-	tmp += toMacros();
-	// tmp += toFunctions();
+	tmp += "#if WITH_HPBCG_FUNCTIONS\n";
+	for (int i = 0; i < instructionList.size(); ++i)
+	    tmp += ((Instruction) instructionList.elementAt(i)).toMacro();
+	tmp += "#else /* WITH_HPBCG_FUNCTIONS */\n";
+	for (int i = 0; i < instructionList.size(); ++i)
+	    tmp += ((Instruction) instructionList.elementAt(i)).toFunction();
+	tmp += "#endif /* WITH_HPBCG_FUNCTIONS */\n";
 	return tmp;
     } /* toString() */
-
-    public String toMacros()
-    {
-	String tmp = "";
-	for (int i = 0; i < instructionList.size(); ++i)
-	    {
-		tmp += ((Instruction) instructionList.elementAt(i)).toMacro();
-	    }
-	return tmp;
-    } /* toMacros() */
 
     public void Verify()
     {
 	if (null == cI) 
 	    cI = new Instruction();
     }
-
-    public String toFunctions()
-    {
-	String tmp = "";
-	for (int i = 0; i < instructionList.size(); ++i)
-	    {
-		tmp += ((Instruction) instructionList.elementAt(i)).toMacro();
-	    }
-	return tmp;
-    } /* toFunctions() */
 
     void addInstruction()
     {
@@ -70,6 +55,22 @@ class InstructionsList
 	cI.addBinaryNumber(Integer.parseInt(n, 2), n.length());
     } /* addBinaryNumber */
 
+    void addBinaryIntExpr (String n)
+    {
+	int i; 
+	String expr = "", intEnd = "" , intStart = "";;
+	Verify();
+
+	for (i = 1; ')' != n.charAt(i) ; ++i)
+	    expr += n.charAt(i);
+	for (i++; '-' != n.charAt(i) ; ++i)
+	    intEnd += n.charAt(i);
+	for (; i < n.length(); ++i)
+	    intStart += n.charAt(i);
+	cI.addBinaryIntExpr(expr, 
+			    Integer.parseInt(intStart), 
+			    Integer.parseInt(intEnd));
+    }
     void addBinaryIntDescr(String n)
     {
 	int i;
@@ -77,13 +78,11 @@ class InstructionsList
 	Verify();
 	// Number has this form iN_E-S
 	for (i = 1; '_' != n.charAt(i) ; ++i)
-		intNumber += n.charAt(i);
+	    intNumber += n.charAt(i);
 	for (i++; '-' != n.charAt(i) ; ++i)
-		intEnd += n.charAt(i);
+	    intEnd += n.charAt(i);
 	for (; i < n.length(); ++i)
-	    {
 		intStart += n.charAt(i);
- 	    }
 	cI.addBinaryIntDescr(Integer.parseInt(intNumber), 
 		       Integer.parseInt(intStart), 
 		       Integer.parseInt(intEnd));
@@ -99,9 +98,9 @@ class InstructionsList
 	letter = ""+ descr.charAt(0);
 	for (i = 1; '_' != descr.charAt(i) ; ++i)
 		number += descr.charAt(i);
-	for (; i < descr.length(); ++i)
+	for (i++; i < descr.length(); ++i)
 		size += descr.charAt(i);
-	cI.addBinaryRegDescr(letter, Integer.parseInt ("1"), Integer.parseInt ("1"));
+	cI.addBinaryRegDescr(letter, Integer.parseInt (number), Integer.parseInt (size));
     } /* addBinaryRegDescr */
 
     void addAsmReg(String r)
