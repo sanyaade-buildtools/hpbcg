@@ -11,6 +11,7 @@
 	${JAVAC} $<
 
 JAVAC = jikes +E # javac
+JAVAC = javac
 YACCFLAGS = -d 		# FreeBSD make
 YFLAGS = ${YACCFLAGS} 	# Needed on linux
 # LEX =lex  -d 		# Pour debuggage token lexer

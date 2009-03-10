@@ -73,29 +73,15 @@ class Instruction
     }
     public String toMacro()
     {
-	int end;
 	String tmp = "#define "+getName()+"(";
-	InstructionBinPart ibp;
-	end = asmPart.size();
+	int end = asmPart.size();
 	for (int i = 0; i < end; ++i)
 	    {
 		tmp += ((InstructionAsmPart) asmPart.elementAt(i)).toString();
 		if (i != (end - 1)) tmp += ", ";
 	    }
-
-	tmp += ")\tADDINSN";
-	end = binPart.size();
-	for (int i = 0; i < end; ++i)
-	    {
-
-		tmp += "(";
-	    }
-	for (int i = 0; i < end; ++i)
-	    {
-		ibp = (InstructionBinPart) binPart.elementAt(i);
-		if (0 != i) tmp += "<< "+ibp.getLength()+" | ";
-		tmp += (ibp).toString()+")";
-	    }
+	tmp += ")\t";
+	tmp += toMacroBody();
 	return tmp+'\n';
     } /* toMacro */
 
@@ -103,16 +89,27 @@ class Instruction
     {
 	int end;
 	String tmp = "void "+getName()+"(";
-	InstructionBinPart ibp;
 	end = asmPart.size();
 	for (int i = 0; i < end; ++i)
 	    {
 		tmp += ((InstructionAsmPart) asmPart.elementAt(i)).toString();
 		if (i != (end - 1)) tmp += ", ";
 	    }
-	tmp += ")\t \n{";
-	end = binPart.size();
-	tmp += "\nADDINSN";
+	tmp += ")\t \n{\t";
+	tmp += toMacroBody();
+	tmp += ";";
+	tmp += "\n#ifdef ASM_DEBUG\n";
+	tmp += "\tprintf(\"%p : %s%s 0x%X\\n\", asm_pc, \""+getName()+"\", *(asm_pc-1));\n";
+	tmp += "#endif /* ASM_DEBUG */\n";
+	return tmp+"\n}\n";
+    } /* toFunction */
+    String toMacroBody()
+    {
+	String tmp;
+	InstructionBinPart ibp;
+	int end = binPart.size();
+
+	tmp = "ADDINSN";
 	for (int i = 0; i < end; ++i)
 	    {
 		tmp += "(";
@@ -123,9 +120,7 @@ class Instruction
 		if (0 != i) tmp += "<< "+ibp.getLength()+" | ";
 		tmp += (ibp).toString()+")";
 	    }
-	tmp += "\n#ifdef ASM_DEBUG\n";
-	tmp += "\tprintf(\"%p : %s%s 0x%X\\n\", asm_pc, \""+getName()+"\", *(asm_pc-1));\n";
-	tmp += "#endif /* ASM_DEBUG */\n";
-	return tmp+"\n}\n";
-    } /* toFunction */
+	return tmp;
+    }
+
 }

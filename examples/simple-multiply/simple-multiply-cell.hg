@@ -26,8 +26,7 @@ pifi multiplyCompile(int multiplyValue)
  (void) printf("Code generation for multiply value %d\n", multiplyValue);
   #[
 	.org	code
-	il	$4, (multiplyValue)  
-	mpy     $3, $4, $3 
+	mpyi    $3, $3, (multiplyValue) 
 	bi $lr 
   ]#;
   (void) printf("Code generated\n");
