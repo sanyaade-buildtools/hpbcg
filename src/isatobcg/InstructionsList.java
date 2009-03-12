@@ -46,7 +46,7 @@ class InstructionsList
     public void Verify()
     {
 	if (null == cI) 
-	    cI = new Instruction();
+	    cI = new Instruction(archName);
     }
 
     void addInstruction()

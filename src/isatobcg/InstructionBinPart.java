@@ -68,7 +68,7 @@ class InstructionBinPart
 		dummy = 0;
 		for (int i = intStart; i <= intEnd ; ++i)
 			dummy |= ((long) 1 << i);
-		tmp = "("+intExpr+") & "+ dummy+", "+intBinPartLenght;		break;
+		tmp = "("+intExpr+") & "+ dummy+", "+intBinPartLenght;			break;
 	    case BINNUM:   tmp =  binaryValue+","+intBinPartLenght;  			break;
 	    case REGDESC:  tmp =  regName+regNumber+","+intBinPartLenght;  		break;
 	    default: System.err.println ("Error InstructionBinPart not known"); 

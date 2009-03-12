@@ -2,14 +2,15 @@ import java.util.*;
 
 class Instruction
 {
-    String name;
+    String name, archName;
     Vector binPart, asmPart;
 
-    public Instruction ()
+    public Instruction (String a)
     {
 	// System.out.println ("New instruction\n");
 	binPart = new Vector();
 	asmPart = new Vector();
+	archName = a;
     }
 
     void setName(String n)
@@ -73,54 +74,71 @@ class Instruction
     }
     public String toMacro()
     {
-	String tmp = "#define "+getName()+"(";
+	StringBuffer tmp = new StringBuffer("#define "+getName()+"(");
 	int end = asmPart.size();
 	for (int i = 0; i < end; ++i)
-	    {
-		tmp += ((InstructionAsmPart) asmPart.elementAt(i)).toString();
-		if (i != (end - 1)) tmp += ", ";
-	    }
-	tmp += ")\t";
-	tmp += toMacroBody();
-	return tmp+'\n';
+	{
+	    tmp.append( ((InstructionAsmPart) asmPart.elementAt(i)).toString());
+	    if (i != (end - 1)) tmp.append( ", ");
+	}
+	if (! archName.equals("ia64"))
+	    tmp.append( ")\t");
+	else
+	{
+	    if (end > 0) tmp.append(",");
+	    tmp.append( "QP, STOP)\t");
+	}
+	tmp.append(toMacroBody());
+	tmp.append("\n");
+	return tmp.toString();
     } /* toMacro */
 
     public String toFunction()
     {
 	int end;
-	String tmp = "void "+getName()+"(";
+	StringBuffer tmp = new StringBuffer("void "+getName()+"(");
 	end = asmPart.size();
 	for (int i = 0; i < end; ++i)
 	    {
-		tmp += ((InstructionAsmPart) asmPart.elementAt(i)).toString();
-		if (i != (end - 1)) tmp += ", ";
+		tmp.append( ((InstructionAsmPart) asmPart.elementAt(i)).toString());
+		if (i != (end - 1)) tmp.append( ", ");
 	    }
-	tmp += ")\t \n{\t";
-	tmp += toMacroBody();
-	tmp += ";";
-	tmp += "\n#ifdef ASM_DEBUG\n";
-	tmp += "\tprintf(\"%p : %s%s 0x%X\\n\", asm_pc, \""+getName()+"\", *(asm_pc-1));\n";
-	tmp += "#endif /* ASM_DEBUG */\n";
-	return tmp+"\n}\n";
+	if (! archName.equals("ia64"))
+	    tmp.append( ")\t");
+	else
+	{
+	    if (end > 0) tmp.append(",");
+	    tmp.append( "QP, STOP)\t");
+	}
+	tmp.append( "\n{\t");
+	tmp.append( toMacroBody());
+	tmp.append( ";");
+	tmp.append( "\n#ifdef ASM_DEBUG\n");
+	tmp.append( "\tprintf(\"%p : %s%s 0x%X\\n\", asm_pc, \""+getName()+"\", *(asm_pc-1));\n");
+	tmp.append( "#endif /* ASM_DEBUG */\n}\n");
+	return tmp.toString();
     } /* toFunction */
     String toMacroBody()
     {
-	String tmp;
 	InstructionBinPart ibp;
 	int end = binPart.size();
-
-	tmp = "ADDINSN";
+	StringBuffer tmp = new StringBuffer("ADDINSN(");
 	for (int i = 0; i < end; ++i)
-	    {
-		tmp += "(";
-	    }
+		tmp.append("(");
 	for (int i = 0; i < end; ++i)
 	    {
 		ibp = (InstructionBinPart) binPart.elementAt(i);
-		if (0 != i) tmp += "<< "+ibp.getLength()+" | ";
-		tmp += (ibp).toString()+")";
+		if (0 != i) tmp.append("<< "+ibp.getLength()+" | ");
+		tmp.append((ibp).toString()+")");
 	    }
-	return tmp;
+	if (! archName.equals("ia64"))
+	    tmp.append(")");
+	    else
+	{
+	    if (end > 0) tmp.append(", ");
+	    tmp.append("STOP)");
+	}
+	return tmp.toString();
     }
 
 }
