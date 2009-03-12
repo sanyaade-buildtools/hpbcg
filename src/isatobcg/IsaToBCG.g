@@ -63,12 +63,19 @@ grammar IsaToBCG; // -*- java -*-
     } /* errMsg */
     void dumpResult()
     {
-	    switch (OptionAction)
-	    {
-		case OPTMACROS:   System.out.println(iList);   			break;
-	    case OPTLIST: 	  System.out.println(iList.getInsnList());	break;
-		case OPTVALID: 	  System.out.println("Not yet implemented");	break;
-	    }
+	switch (OptionAction)
+	{
+	case OPTMACROS:   System.out.println(iList);   			break;
+	case OPTLIST: 	  System.out.println(iList.getInsnList());	break;
+	case OPTVALID: 	  
+	    System.out.println("Not yet implemented");	
+	    System.exit(0);
+	    break;
+	default: 
+	    System.out.println("What do you want ? ");	
+	    System.out.println("IsaToBCG -[m|v|d] [File.isa]\n");
+	    System.exit(0);
+	}
     }
 }
 
@@ -76,28 +83,28 @@ isafile 	: isaline* EOF {dumpResult();};
 isaline 	: (isaarchlen | isalinedesc | COMMENT | ) NL;
 isalinedesc	: isabinpart CUT isaasmpart  {iList.addInstruction();};
 isaarchlen	: archname=('power4' | 'sparc' | 'ia64' | 'cell')   INT { iList.setNameAndLenght($archname.getText(), Integer.parseInt($INT.getText()));};
-isabinpart 	: (binnum | intdescr | regdescr | paropen)+;
+isabinpart 	: (binnum | intdescr | regdescr | paropen | 'QP')+;
 binnum 		: BINNUM  		{ iList.addBinaryNumber  ($BINNUM.getText());		};
 intdescr 	: INTDESCR 		{ iList.addBinaryIntDescr($INTDESCR.getText());		};
 regdescr 	: REGDESCR	 	{ iList.addBinaryRegDescr($REGDESCR.getText());		};
 paropen		: PAROPEN 		{ iList.addBinaryIntExpr ($PAROPEN.getText());		};
-INTDESCR        : 'i' l=INT '_' s=INT '-' e=INT 						;
-REGDESCR	: REGLETTER n=INT '_' s=INT							;
+INTDESCR        : 'i' INT '_' INT ('-' INT)? 						;
+REGDESCR	: REGLETTER INT '_' INT								;
 PAROPEN		: '(' (~(')'))*	')_' INT '-' INT						;
 isaasmpart 	: INSNNAME paramlist 	{ iList.addName($INSNNAME.getText());			};
 paramlist 	: (param)*									;
-param 		: (intname | regname)								;
+param 		: (intname | regname | BINNUM)							;
 regname		: REGNAME		{ iList.addAsmReg($REGNAME.getText());			};
 intname		: INTNAME		{ iList.addAsmInt($INTNAME.getText());			};
 REGNAME		: REGLETTER (INT) 				;
 INTNAME		: 'i' (INT)					;
-INSNNAME	: (LETTER)+ 					;
-fragment LETTER	: ('a'..'z'|'A'..'Z' | '.') 			;
-fragment REGLETTER: ('r' | 'f')					;
-
+INSNNAME	: (LETTER)(LETTER | NUM)*			;
 BINNUM 		: ('0' | '1')+ 					;
-INT 		: ('0'..'9')+ 					;
-SPACE 		: ('=' | ',' | ' ' | '\t')+ 	{ skip(); 	}	;
+INT 		: (NUM)+ 					;
+SPACE 		: ( '[' | ']' | '=' | ',' | ' ' | '\t')+  { skip(); 	}		;
 NL 		: ('\n' | '\r')					;
 COMMENT		: '#' (~(NL))*					;
 CUT    		: '|' 						;
+fragment LETTER	: ('a'..'z'|'A'..'Z' | '.') 			;
+fragment REGLETTER: ('r' | 'f' | 'p' | 'b')				;
+fragment NUM 	: ('0'..'9') 					;
