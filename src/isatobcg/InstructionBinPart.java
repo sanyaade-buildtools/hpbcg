@@ -1,3 +1,6 @@
+// This file is part of HPBCG
+// Binary description part of an asm instruction
+
 class InstructionBinPart
 {
     static final int INTDESC = 1;
@@ -8,7 +11,7 @@ class InstructionBinPart
     char typeLetter;
     int binaryValue;
     int intNumber, intStart, intEnd;
-    int intBinPartLenght;
+    int intBinPartLength;
     String regName; int regNumber;
     String intExpr;
 
@@ -16,13 +19,13 @@ class InstructionBinPart
     {
 	type = BINNUM;
 	binaryValue = n;
-	intBinPartLenght = l;
+	intBinPartLength = l;
     }
     public void addBinNum(int n, int l)
     {
 	binaryValue 	 <<= l;
 	binaryValue 	 |= n;
-	intBinPartLenght += l;
+	intBinPartLength += l;
     }
 
     public InstructionBinPart(int number, int start, int end)
@@ -31,7 +34,8 @@ class InstructionBinPart
 	intNumber = number;
 	intStart = start;
 	intEnd = end;
-	intBinPartLenght = intEnd-intStart+1;
+	intBinPartLength = intEnd-intStart+1;
+	// System.out.println("IntDesc : start:"+start+" end:"+end+" len:"+intBinPartLength);
     }
     public InstructionBinPart(String expression, int start, int end, int zero)
     {
@@ -39,7 +43,7 @@ class InstructionBinPart
 	intExpr = expression;
 	intStart = start;
 	intEnd = end;
-	intBinPartLenght = intEnd-intStart+1;
+	intBinPartLength = intEnd-intStart+1;
     }
     public InstructionBinPart (String name, int number, int size)
     {
@@ -47,12 +51,11 @@ class InstructionBinPart
 	type = REGDESC;
 	regName = name;
 	regNumber = number;
-	intBinPartLenght = size;
+	intBinPartLength = size;
     }
 
-
     public int getType() 	{ return type; }
-    public int getLength() 	{ return intBinPartLenght; }
+    public int getLength() 	{ return intBinPartLength; }
     public String toString()
     {
 	String tmp = "";
@@ -63,14 +66,14 @@ class InstructionBinPart
 		dummy = 0;
 		for (int i = intStart; i <= intEnd ; ++i)
 			dummy |= ((long) 1 << i);
-		tmp = "i"+intNumber+" & "+ dummy+", "+intBinPartLenght;			break;
+		tmp = "i"+intNumber+" & "+ dummy+", "+intBinPartLength;			break;
 	    case INTEXPR:  
 		dummy = 0;
 		for (int i = intStart; i <= intEnd ; ++i)
 			dummy |= ((long) 1 << i);
-		tmp = "("+intExpr+") & "+ dummy+", "+intBinPartLenght;			break;
-	    case BINNUM:   tmp =  binaryValue+","+intBinPartLenght;  			break;
-	    case REGDESC:  tmp =  regName+regNumber+","+intBinPartLenght;  		break;
+		tmp = "("+intExpr+") & "+ dummy+", "+intBinPartLength;			break;
+	    case BINNUM:   tmp =  binaryValue+","+intBinPartLength;  			break;
+	    case REGDESC:  tmp =  regName+regNumber+","+intBinPartLength;  		break;
 	    default: System.err.println ("Error InstructionBinPart not known"); 
 		System.exit(0);
 		break;

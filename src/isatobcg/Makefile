@@ -45,13 +45,20 @@ install: isatobcg
 	install -d ${PREFIX}/include/
 	install ${TARGETS} ${PREFIX}/include/
 	install ${UTILS} ${PREFIX}/include/
-test:
-	gcc -I. -E hpbcg-cell.h   -o /dev/null 
-	gcc -I. -E hpbcg-power4.h -o /dev/null 
-	gcc -I. -E hpbcg-ia64.h   -o /dev/null 
-	gcc -I. -c hpbcg-cell.h 
-	gcc -I. -c hpbcg-power4.h 
-	gcc -I. -c hpbcg-ia64.h 
+test: test-v test-e test-c
+
+test-v:
+	java IsaToBCGParser -v hpbcg-cell.isa
+	java IsaToBCGParser -v hpbcg-power4.isa
+	java IsaToBCGParser -v hpbcg-ia64.isa
+test-e:
+	gcc -Wall -I. -E hpbcg-cell.h   -o /dev/null 
+	gcc -Wall -I. -E hpbcg-power4.h -o /dev/null 
+	gcc -Wall -I. -E hpbcg-ia64.h   -o /dev/null 
+test-c:
+	gcc -Wall -I. -c hpbcg-cell.h 
+	gcc -Wall -I. -c hpbcg-power4.h 
+	gcc -Wall -I. -c hpbcg-ia64.h 
 
 clean:
 	-rm ${FILESISA}

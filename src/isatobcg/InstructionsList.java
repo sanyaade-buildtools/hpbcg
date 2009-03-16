@@ -1,3 +1,5 @@
+// This file is part of HPBCG
+// List of asm instructions
 import java.util.*;
 
 class InstructionsList
@@ -33,14 +35,31 @@ class InstructionsList
 	return tmp.toString();
     } /* toString() */
 
-    String getInsnList()
+    public boolean checkLength()
+    {
+	boolean isOk = true;
+	int len;
+	Instruction insn;
+	for (int i = 0; i < instructionList.size(); ++i)
+	{
+	    insn = (Instruction) instructionList.elementAt(i);
+	    len = insn.getLength();
+	    if (isaLen != len)
+	    {
+		isOk = false;
+		System.err.println("Incorrect size "+len+" (should be "+isaLen+") for insn " +insn.getName());
+	    }
+	}
+	return isOk;
+    } /* checkLength */
+
+    public String getInsnList()
     {
 	String tmp = "";
 
 	for (int i = 0; i < instructionList.size(); ++i)
 	    tmp += ((Instruction) instructionList.elementAt(i)).getName()+ "\n";
 	return tmp;
-
     } /* getInsnList */
 
     public void Verify()
@@ -48,7 +67,6 @@ class InstructionsList
 	if (null == cI) 
 	    cI = new Instruction(archName);
     }
-
     void addInstruction()
     {
 	instructionList.add (cI);
@@ -74,10 +92,8 @@ class InstructionsList
 	for (i = 1; ')' != n.charAt(i) ; ++i)
 	    expr += n.charAt(i);
 	// Pass ")_" 
-	for (i+= 2; '-' != n.charAt(i) ; ++i)
-	    intEnd += n.charAt(i);
-	for (i++; i < n.length(); ++i)
-	    intStart += n.charAt(i);
+	for (i+= 2; '-' != n.charAt(i) ; ++i)	    intEnd += n.charAt(i);
+	for (i++; i < n.length(); ++i)		    intStart += n.charAt(i);
 	cI.addBinaryIntExpr(expr, Integer.parseInt(intStart), 
 			    Integer.parseInt(intEnd));
     }
@@ -90,7 +106,7 @@ class InstructionsList
 	try {
 	    for (i = 1; '_' != n.charAt(i) ; ++i) intNumber += n.charAt(i);
 	    for (i++; '-' != n.charAt(i) ; ++i)   intEnd += n.charAt(i);
-	    for (; i < n.length(); ++i)		  intStart += n.charAt(i);
+	    for (i++; i < n.length(); ++i)		  intStart += n.charAt(i);
 	    cI.addBinaryIntDescr(Integer.parseInt(intNumber), 
 				 Integer.parseInt(intStart), 
 				 Integer.parseInt(intEnd));
@@ -98,7 +114,7 @@ class InstructionsList
 	catch (java.lang.StringIndexOutOfBoundsException e)
 	    {
 	cI.addBinaryIntDescr(Integer.parseInt(intNumber), 
-		       0 ,Integer.parseInt(intEnd));
+		       Integer.parseInt(intEnd) ,Integer.parseInt(intEnd));
 
 	    }
     } /* addBinaryIntDescr */
@@ -106,16 +122,13 @@ class InstructionsList
     void addBinaryRegDescr(String descr)
     {
 	int i;
-	String letter;
-	String number = "", size = "";
+	String regName= "", number = "", size = "";
 	Verify();
-	// L I1 _ I2
-	letter = ""+ descr.charAt(0);
-	for (i = 1; '_' != descr.charAt(i) ; ++i)
-		number += descr.charAt(i);
-	for (i++; i < descr.length(); ++i)
-		size += descr.charAt(i);
-	cI.addBinaryRegDescr(letter, Integer.parseInt (number), Integer.parseInt (size));
+	// regName Interger1 _ Interger2
+	for (i = 0; Character.isLetter(descr.charAt(i)) ; ++i)	regName += descr.charAt(i);
+	for (     ; '_' != descr.charAt(i) ; ++i)	number += descr.charAt(i);
+	for (i++; i < descr.length(); ++i)		size += descr.charAt(i);
+	cI.addBinaryRegDescr(regName, Integer.parseInt (number), Integer.parseInt (size));
     } /* addBinaryRegDescr */
 
     void addAsmReg(String r)

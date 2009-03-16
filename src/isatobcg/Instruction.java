@@ -85,14 +85,24 @@ class Instruction
 	    tmp.append( ")\t");
 	else
 	{
-	    if (end > 0) tmp.append(",");
-	    tmp.append( "QP, STOP)\t");
+	    if (end > 0) tmp.append(", ");
+	    tmp.append( "q1, STOP)\t");
 	}
 	tmp.append(toMacroBody());
 	tmp.append("\n");
 	return tmp.toString();
     } /* toMacro */
 
+    public int getLength()
+    {
+	int l, end = binPart.size();
+	l = 0;
+	for (int i = 0; i < end; ++i)
+	{
+	    l += ((InstructionBinPart) binPart.elementAt(i)).getLength();
+	}
+	return l;
+    }
     public String toFunction()
     {
 	int end;
@@ -107,8 +117,8 @@ class Instruction
 	    tmp.append( ")\t");
 	else
 	{
-	    if (end > 0) tmp.append(",");
-	    tmp.append( "QP, STOP)\t");
+	    if (end > 0) tmp.append(", ");
+	    tmp.append( "q1, STOP)\t");
 	}
 	tmp.append( "\n{\t");
 	tmp.append( toMacroBody());

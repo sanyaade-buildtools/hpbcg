@@ -1,3 +1,6 @@
+// This file is part of HPBCG
+// Assembly description part of an asm instruction
+
 class InstructionAsmPart
 {
     static final int REGNAME = 1;
