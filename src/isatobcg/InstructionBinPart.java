@@ -59,19 +59,12 @@ class InstructionBinPart
     public String toString()
     {
 	String tmp = "";
-	long dummy;
 	switch (type)
 	    {
 	    case INTDESC:  
-		dummy = 0;
-		for (int i = intStart; i <= intEnd ; ++i)
-			dummy |= ((long) 1 << i);
-		tmp = "i"+intNumber+" & "+ dummy+", "+intBinPartLength;			break;
+		tmp = "i"+intNumber+", "+intBinPartLength;			break;
 	    case INTEXPR:  
-		dummy = 0;
-		for (int i = intStart; i <= intEnd ; ++i)
-			dummy |= ((long) 1 << i);
-		tmp = "("+intExpr+") & "+ dummy+", "+intBinPartLength;			break;
+		tmp = "("+intExpr+"), "+intBinPartLength;			break;
 	    case BINNUM:   tmp =  binaryValue+","+intBinPartLength;  			break;
 	    case REGDESC:  tmp =  regName+regNumber+","+intBinPartLength;  		break;
 	    default: System.err.println ("Error InstructionBinPart not known"); 
