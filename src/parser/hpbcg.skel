@@ -27,4 +27,4 @@ if (! $?JAVA) then
     exit
 endif
 
-${JAVA} org.hpbcg.Main $*
+${JAVA} -DHPBCGHOME=$HPBCGHOME org.hpbcg.Main $*

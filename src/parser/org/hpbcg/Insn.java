@@ -93,7 +93,8 @@ class Insn
 	int nline = 0;
 	try
         {
-	    hpbcghome = System.getenv ("HPBCGHOME");
+	    //  hpbcghome = System.getenv ("HPBCGHOME");
+	    hpbcghome = System.getProperty ("HPBCGHOME");
 	    if (null != hpbcghome)
 		{
 		    fileName = hpbcghome+"/include/hpbcg-"+name+".lst";

@@ -26,7 +26,7 @@ class InsnIa64 extends Insn
     }
     public void setInsn (String name)
     {
-	insnName = name.replace(".", "_");
+	insnName = name.replace('.', '_');
     }
     public void setStop ()
     {

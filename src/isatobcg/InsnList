@@ -1,4 +1,4 @@
-#!/bin/csh
+#!/usr/bin/env csh
 
 if (! $#) then
     echo "$0 <ArchName>"

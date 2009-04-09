@@ -12,7 +12,7 @@ build:  clean
 	${MAKE} -C src/isatobcg
 	${MAKE} -C src/parser/org/hpbcg jar
 
-install: build
+install: 
 	${MAKE} -C src/isatobcg install PREFIX=${WHERE}
 	${MAKE} -C src/parser/org/hpbcg install PREFIX=${WHERE}
 
