@@ -1,0 +1,61 @@
+#include <stdio.h>  /* -*- c -*- */
+#include <stdlib.h>
+#include <assert.h>
+#include <mpi.h>
+#cpu power4
+
+typedef int (*pifi)(int);
+
+pifi multiplyCompile(int multiplyValue)
+{
+  insn *code= (insn *)calloc(1024, sizeof (insn));
+  #[
+	.org	code
+	mulli r3, r3, (multiplyValue)  
+	blr
+  ]#;
+  iflush (code, asm_pc);
+  return (pifi)code;
+}
+
+#define OUTSIZE 1024
+int main(int argc, char *argv[])
+{
+  int rank, nproc;
+  int i, printed;
+  pifi multiplyFunc; 
+  char outbuffer[OUTSIZE];
+  MPI_Status status;
+#define PRINTF(MSG, ARG) printed += snprintf(outbuffer + printed, OUTSIZE - printed, MSG, ARG)
+  MPI_Init(&argc, &argv);
+  MPI_Comm_size(MPI_COMM_WORLD, &nproc);
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+  multiplyFunc = multiplyCompile(rank); /* Generate code */
+  printed = 0;
+  if (0 == rank)
+    {
+      PRINTF("Proc %d: ", rank);
+      for (i = 1; i < 11; ++i) PRINTF("%4d ", i);
+      PRINTF("\n", 0);
+    }
+  PRINTF("Proc %d: ", rank);
+  for (i = 1; i < 11; ++i) PRINTF("%4d ", multiplyFunc(i));
+  PRINTF("\n", 0);
+
+  if (0 == rank)
+    {
+      printf("%s", outbuffer);
+      for (i = 1; i < nproc; i++)
+	{
+	  MPI_Recv(outbuffer, OUTSIZE, MPI_CHAR, i, 0, MPI_COMM_WORLD, &status);
+	  printf("%s", outbuffer);
+      }
+    }
+  else
+    {
+      MPI_Send(outbuffer, OUTSIZE, MPI_CHAR, 0, 0, MPI_COMM_WORLD);
+    }
+  MPI_Finalize();
+  return 0;
+}

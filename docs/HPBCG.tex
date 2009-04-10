@@ -1,5 +1,7 @@
 \documentclass{article}
 \usepackage{url}
+\usepackage{listings}
+\usepackage{color}
 %\usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \title{HPBCG Documentation\\
@@ -8,6 +10,13 @@ High Performance Binary Code Generation}
 \newcommand{\hpbcg}{\textbf{HPBCG}\ }
 \newcommand{\Image}[2][10]{\includegraphics[width=#1cm]{Img/#2}}
 \newcommand{\Fig}[2]{\includegraphics[width=#2cm]{Img/#1}}
+
+\definecolor{lbcolor}{rgb}{0.9,0.9,0.9}
+\lstset{numbers=left, language=C,
+  backgroundcolor=\color{lbcolor},rulecolor=, frame=tb}
+% \lstset{language=Java, caption=Descriptive Caption Text, label=DescriptiveLabel}
+% \lstset{frame=shadowbox, rulesepcolor=\color{blue}}
+
 \begin{document}
 \maketitle
 \tableofcontents{}
@@ -31,7 +40,7 @@ It can be useful in a lot of situations :
 
 \subsection{Motivation}
 
-Actually (january 2009) computer architecture reach a complexity
+Actually (January 2009) computer architecture reach a complexity
 point which lead to
 \begin{itemize}
 \item compiler which are unable to vectorize or use multimedia
@@ -71,7 +80,8 @@ point which lead to
     \item Basic power4 instruction set : Working draft
     \item Cell spu : Working draft 
     \item FP2 extension : Working draft
-    \item Altivec extension : To be done
+    \item Altivec extension : To be integrated
+    \item Arm : To be integrated
   \end{itemize}
 \end{description}
 
@@ -85,23 +95,21 @@ Working demo / architecture :
 
 \subsection{Tested platforms}
 
-\begin{description}
-\item[cell-spu] Playstation 3 / linux yellow dog
+\begin{tabular}{|r r r|} \hline
+  cell-spu 		& power4 & itanium \\ \hline
+  PS3 linux yellow dog  & Sony/PS3    & Bull ia64 / linux \\
+                        & IBM/BlueGene &	\\ \hline
+\end{tabular}
 
-\url{http://www.ibm.com/developerworks/java/jdk/linux/} could be useful
-
-\item[power4]   Playstation 3 / linux yellow dog
-\item[itanium]  Bull ia64 platform / linux 
-\end{description}
+Java on PS3 :\url{http://www.ibm.com/developerworks/java/jdk/linux/} could be useful
 
 \section{Todo}
 
 \begin{description}
 \item[All targets] Things to be done
   \begin{itemize}
-  \item Write a .isa verifyer, to check the insn coherency, the opcode
-    usage, ...
-  \item Include expression in the binary description.
+  \item Improve the .isa verifyer, to check the insn coherency, the opcode
+    usage.
   \item Find a way to handle instructions aliases
   \end{itemize}
 \item[itanium] Things to be done :
@@ -125,18 +133,17 @@ Working demo / architecture :
   \end{itemize}
 \end{description}
 
-\section{Using \hpbcg}
-
-\subsection{Installing \hpbcg}
+\section{Installing \hpbcg}
 
 \hpbcg should work on any reasonable unix like target. The
 requirements are :
 
 \begin{tabular}{|l | l |}\hline
-Install time & yacc/lex \\
-Static compile time & java and antlr 3.x\\
-Run-time & nothing \\
-\begin{description}
+Build time          & java and antlr 3.x 	\\
+Install time        & nothing 			\\
+Static compile time & java and antlr 3.x 	\\
+Run-time            & nothing 			\\ \hline
+\end{tabular}
 
 \hpbcg contain two parts :
 \begin{description}
@@ -157,7 +164,53 @@ Run-time & nothing \\
   generator.
 \end{description}
 
-\subsection{Using hpbcg}
+\section{Using \hpbcg}
+
+Mainly \hpbcg is a parser which translate C code whith special parts
+to a real C code. The text contain two parts inside compilette block
+or outside
+
+\subsection{Outside parser}
+
+The outside parser only recognize the \verb|#cpu| token
+
+\begin{itemize}
+\item \verb|#cpu| : this allow to define the architecture which will be
+  used in the future compilettes blocks
+\end{itemize}
+
+The actual cpu recognized cpu are 
+\begin{itemize}
+\item \verb|#cpu power4|
+\item \verb|#cpu ia64|
+\item \verb|#cpu cell|
+\end{itemize}
+
+\subsection{Inside parser}
+
+The compilette block is delimited by theses tokens :  
+
+\begin{itemize}
+\item \verb|#[| : beginning of compilette block
+\item \verb|]#| : end of compilette block
+\end{itemize}
+
+Inside a compilette block a programmer can write standard assembler
+instructions. The used syntax for the assembly instructions is defined
+by the previous \verb|#cpu| An example of CELL instruction :
+\begin{verbatim}
+	mpyi    $3, $3, 4
+\end{verbatim}
+
+The special characters \verb|(| and \verb|)| are used to insert C
+expressions inside the assembly code. Please note that these
+expressions wil be evaluated only at run-time.
+
+It allow to write parametrized instruction. An example of CELL
+instruction :
+\begin{verbatim}
+	mpyi    $3, $3, (multiplyValue) 
+\end{verbatim}
 
 \section{Compilettes examples}
 
@@ -193,7 +246,7 @@ int multiply (int a)
 }
 \end{verbatim}
 
-Pleas not that the value 42 is choos by the user and can not be
+Please note that the value 42 is choosed by the user and can not be
 include into the code before run-time.
 
 This specialized version should be faster than the previous one because
@@ -225,15 +278,114 @@ The \texttt{cell} version contain 2 files :
   \end{enumerate}
 \end{description}
 
+The cell ccompilette is simple as :
+
+\begin{lstlisting}
+#cpu cell
+
+typedef int (*pifi)(int);
+pifi multiplyFunc; 
+
+pifi multiplyCompile(int multiplyValue)
+{
+ insn *code= (insn *)_malloc_align(1024, 7);
+ printf("Code generation for multiply value %d\n", multiplyValue);
+  #[
+	.org	code
+	mpyi    $3, $3, (multiplyValue) 
+	bi $lr 
+  ]#;
+  printf("Code generated\n");
+  return (pifi)code;
+}
+\end{lstlisting} % $
+
+\begin{description}
+\item[line 3 and 4] define a type pointer on a function which take one
+  parameter
+\item[line 8] alloc a block in memory where the function will be generated.
+\item[line 10] The token \verb|#[| define the beginning of the
+  compilette block
+\item[line 11] define the beginning address of the function
+\item[line 12 and 13] will generate 2 binary instructions. The
+  \texttt{mpyi} instruction take the \texttt{multiplyValue} as
+  parameter.
+
+  \texttt{bi \$lr} is the return instruction.
+
+\item[line 14] The token \verb|]#| define the end of the compilette block
+\end{description}
+
 \subsubsection{Itanium version}
 
 Use the command \texttt{make ia64} to build the program
 \texttt{simple-multiply-ia64}. Run it !
 
+\begin{lstlisting}
+#cpu ia64
+
+typedef int (*pifi)(int);
+pifi multiplyCompile(int multiplyValue)
+{
+  insn *code= (insn *)calloc(1024, sizeof (insn));
+  printf("Code generation for multiply value %d\n", multiplyValue);
+  #[
+	.org	code
+	.proc   code+16, 0
+	mov	r33 = (multiplyValue)  
+	nop.i 22
+	nop.i 22 ;;
+
+	setf.sig f32 = r32
+	setf.sig f33 = r33
+	nop.i 22 ;;
+
+	nop.m 22
+	xmpy.l  f32 = f32, f33 
+	nop.i 22 ;;
+
+	nop.m 22
+	getf.sig r8= f32
+	br.ret.sptk.many b0 ;;
+  ]#;
+  iflush (code, asm_pc);
+  printf("Code generated\n");
+  return (pifi)code;
+}
+\end{lstlisting}
+
+The Itanium version is more complicated due to the fact that this
+processor does not have integer multiplication.
+
+The \texttt{setf.sig} instruction convert integer values to floating
+point values and the \texttt{getf.sig} does the opposite.
+
 \subsubsection{Power4 version}
 
 Use the command \texttt{make power4} to build the program
 \texttt{simple-multiply-power4}. Run it !
+
+\begin{lstlisting}
+#cpu power4
+
+typedef int (*pifi)(int);
+pifi multiplyCompile(int multiplyValue)
+{
+  insn *code= (insn *)calloc(1024, sizeof (insn));
+  printf("Code generation for multiply value %d\n", multiplyValue);
+  #[
+	.org	code
+	mulli r3, r3, (multiplyValue)  
+	blr
+  ]#;
+  iflush (code, asm_pc);
+  printf("Code generated\n");
+  return (pifi)code;
+}
+\end{lstlisting}
+
+The compilette code is similar to the cell one except for the
+\texttt{mulli} instruction.
 
 \section{Porting \hpbcg}
 
@@ -253,7 +405,7 @@ A processor description file should contain
 \begin{description}
 \item[Comments] A comments line is a line starting with \#
 \item[Arch length] A line containing the architecture name and the bit
-  lenght of one instruction. For instance the first lone of the 
+  length of one instruction. For instance the first lone of the 
 \verb|cell.isa| containing the cell description contain :
 \begin{verbatim}
 cell 32
@@ -288,7 +440,7 @@ For instance the \verb|cell.isa| description contain a line with :
 \subsection{isatobcg Parser}
 
 
-\subsection{HPBCG Parser}
+\subsection{\hpbcg Parser}
 
 \section{Assembly languages}
 

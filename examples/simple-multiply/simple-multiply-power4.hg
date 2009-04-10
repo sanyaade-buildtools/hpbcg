@@ -5,7 +5,6 @@
 #cpu power4
 
 typedef int (*pifi)(int);
-
 pifi multiplyCompile(int multiplyValue)
 {
   insn *code= (insn *)calloc(1024, sizeof (insn));
