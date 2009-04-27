@@ -6,7 +6,7 @@ all:
 	@echo "${MAKE} what [dist|install] ?"
 
 dist: clean
-	(cd ../; tar cvfz -X HPBCG/excludeList.txt HPBCG-`date +"%Y.%m.%d"`.tgz HPBCG/*)
+	(cd ../; tar cvfzX HPBCG-`date +"%Y.%m.%d"`.tgz HPBCG/excludeList.txt HPBCG/*)
 
 build:  clean
 	${MAKE} -C src/isatobcg
