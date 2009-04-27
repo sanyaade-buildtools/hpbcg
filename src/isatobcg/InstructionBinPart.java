@@ -59,25 +59,28 @@ class InstructionBinPart
     public String toString()
     {
 	String tmp = "";
+	int mask;
 	switch (type)
 	    {
 	    case INTDESC:  
+		mask = (1 << intBinPartLength) - 1;
 		if (intStart == 0)
-		    tmp = "i"+intNumber+", "+intBinPartLength;	
+		    {
+			tmp = "i"+intNumber+" & "+mask+", "+intBinPartLength;	
+		    }
 		else
 		    {
-			int mask;
-			mask = (1 << intBinPartLength) - 1;
 			tmp = "((i"+intNumber+">>"+intStart+") & "+ mask +"), "+intBinPartLength;
 		    }
 		break;
 	    case INTEXPR:  
+		mask = (1 << intBinPartLength) - 1;
 		if (intStart == 0)
-		    tmp = "("+intExpr+"), "+intBinPartLength;
+		    {
+			tmp = "("+intExpr+" & "+mask+"), "+intBinPartLength;
+		    }
 		else
 		    {
-			int mask;
-			mask = (1 << intBinPartLength) - 1;
 			tmp = "(("+intExpr+">>"+intStart+") & "+ mask +"), "+intBinPartLength;
 		    }
 		break;

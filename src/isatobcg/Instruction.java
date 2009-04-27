@@ -72,6 +72,11 @@ class Instruction
 	}
 	return tmp;
     }
+
+    /**
+     * return the macro able to generate a binary instruction
+     */
+
     public String toMacro()
     {
 	StringBuffer tmp = new StringBuffer("#define "+getName()+"(");
@@ -93,6 +98,9 @@ class Instruction
 	return tmp.toString();
     } /* toMacro */
 
+    /**
+     * get the binary lenght of an instruction
+     */
     public int getLength()
     {
 	int l, end = binPart.size();
@@ -103,6 +111,10 @@ class Instruction
 	}
 	return l;
     }
+
+    /**
+     * return the function able to generate a binary instruction
+     */
     public String toFunction()
     {
 	int end;
@@ -128,6 +140,7 @@ class Instruction
 	tmp.append( "#endif /* ASM_DEBUG */\n}\n");
 	return tmp.toString();
     } /* toFunction */
+
     String toMacroBody()
     {
 	InstructionBinPart ibp;
