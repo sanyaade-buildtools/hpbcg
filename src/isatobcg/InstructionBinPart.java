@@ -62,9 +62,25 @@ class InstructionBinPart
 	switch (type)
 	    {
 	    case INTDESC:  
-		tmp = "i"+intNumber+", "+intBinPartLength;			break;
+		if (intStart == 0)
+		    tmp = "i"+intNumber+", "+intBinPartLength;	
+		else
+		    {
+			int mask;
+			mask = (1 << intBinPartLength) - 1;
+			tmp = "((i"+intNumber+">>"+intStart+") & "+ mask +"), "+intBinPartLength;
+		    }
+		break;
 	    case INTEXPR:  
-		tmp = "("+intExpr+"), "+intBinPartLength;			break;
+		if (intStart == 0)
+		    tmp = "("+intExpr+"), "+intBinPartLength;
+		else
+		    {
+			int mask;
+			mask = (1 << intBinPartLength) - 1;
+			tmp = "(("+intExpr+">>"+intStart+") & "+ mask +"), "+intBinPartLength;
+		    }
+		break;
 	    case BINNUM:   tmp =  binaryValue+","+intBinPartLength;  			break;
 	    case REGDESC:  tmp =  regName+regNumber+","+intBinPartLength;  		break;
 	    default: System.err.println ("Error InstructionBinPart not known"); 

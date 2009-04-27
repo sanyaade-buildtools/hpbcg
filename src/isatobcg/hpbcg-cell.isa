@@ -183,9 +183,8 @@ cell 32
 # Hint-for-Branch Instructions  
   
 00110101100 0  0000 i1_8-7 r1_7        i1_6-0 |  hbr i1, r1
-0001000             i1_8-7 i2_16-0     i1_6-0 |  hbra i1, i2
-0001001             i1_8-7 i2_16-0     i1_6-0 |  hbrr i1, i2
-
+0001000             i1_8-7 i2_15-0     i1_6-0 |  hbra i1, i2
+0001001             i1_8-7 i2_15-0     i1_6-0 |  hbrr i1, i2
 
 # Floating-Br2nch Instructions
  01011000100      r3_7       r2_7      r1_7   |    fa              r1,r2,r3
@@ -194,7 +193,7 @@ cell 32
  01011001101      r3_7       r2_7      r1_7   |    dfs             r1,r2,r3
  01011000110      r3_7       r2_7      r1_7   |    fm              r1,r2,r3
  01011001110      r3_7       r2_7      r1_7   |    dfm             r1,r2,r3
- 1110             r1_7       r3_7      r2_7    r4_7     |  fma     r1,r2,r3,r4                                     
+ 1110             r1_7       r3_7      r2_7    r4_7     |  fma     r1,r2,r3,r4
  01101011100      r3_7       r2_7      r1_7   |    dfma            r1,r2,r3
  1101             r1_7       r3_7      r2_7    r4_7     |  fnms    r1,r2,r3,r4
  01101011110      r3_7       r2_7      r1_7   |    dfnms           r1,r2,r3
