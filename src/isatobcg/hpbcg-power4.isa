@@ -1,5 +1,5 @@
 # Initial version from Khawar Sajjad saj@prism.uvsq.fr
-# Adaptation by enri-Pierre Charles hpc@hpch.net
+# Adaptation by Henri-Pierre Charles hpc@hpch.net
 power4 32
 #
 #
@@ -341,10 +341,11 @@ power4 32
 011111    r1_5   r2_5   r3_5       1100101110  0 |  stfxsux    r1,r2,r3
 
 
-# Altivec
+# Altivec ISA
+# Initial version by Khawar Sajjad saj@prism.uvsq.fr
 
 000100  r1_5  r2_5  r3_5  00110000000   | vaddcuw  r1,  r2,  r3
-000100  r1_5  r2_5  r3_5  00000001010   | vaddfpw  r1,  r2,  r3
+000100  r1_5  r2_5  r3_5  00000001010   | vaddfp  r1,  r2,  r3
 000100  r1_5  r2_5  r3_5  01100000000   | vaddsbs  r1,  r2,  r3
 000100  r1_5  r2_5  r3_5  01101000000   | vaddshs  r1,  r2,  r3
 000100  r1_5  r2_5  r3_5  01110000000   | vaddsws  r1,  r2,  r3
@@ -395,16 +396,16 @@ power4 32
 000100  r1_5  r2_5  r3_5  00001001110   | vpkuwum  r1,  r2,  r3
 000100  r1_5  r2_5  r3_5  00011001110   | vpkuwus  r1,  r2,  r3
 
-000100  r1_5  i1_5-0  r2_5  01000001100 | vspltb  r1,  r2,  i1
-000100  r1_5  i1_5-0  r2_5  01001001100 | vsplth  r1,  r2,  i1
-000100  r1_5  i1_5-0  r2_5  01010001100 | vspltw  r1,  r2,  i1
-000100  r1_5  i1_5-0  00000  01100001100 | vspltisb  r1,  i1
-000100  r1_5  i1_5-0  00000  01101001100 | vspltish  r1,  i1
-000100  r1_5  i1_5-0  00000  01110001100 | vspltisw  r1,  i1
+000100  r1_5  i1_4-0  r2_5  01000001100 | vspltb  r1,  r2,  i1
+000100  r1_5  i1_4-0  r2_5  01001001100 | vsplth  r1,  r2,  i1
+000100  r1_5  i1_4-0  r2_5  01010001100 | vspltw  r1,  r2,  i1
+000100  r1_5  i1_4-0  00000  01100001100 | vspltisb  r1,  i1
+000100  r1_5  i1_4-0  00000  01101001100 | vspltish  r1,  i1
+000100  r1_5  i1_4-0  00000  01110001100 | vspltisw  r1,  i1
 
 000100  r1_5  r2_5  r3_5  00111000100    | vsl  r1,  r2,  r3
 000100  r1_5  r2_5  r3_5  00100000100    | vslb  r1,  r2,  r3
-000100  r1_5  r2_5  r3_5  i1_5-0  101100 | vsldoi  r1,  r2,  r3,  i1
+000100  r1_5  r2_5  r3_5  i1_4-0  101100 | vsldoi  r1,  r2,  r3,  i1
 000100  r1_5  r2_5  r3_5  00101000100    | vslh  r1,  r2,  r3
 000100  r1_5  r2_5  r3_5  10000001100    | vslo  r1,  r2,  r3
 000100  r1_5  r2_5  r3_5  00110000100    | vslw  r1,  r2,  r3
@@ -419,7 +420,7 @@ power4 32
 000100  r1_5  r2_5  r3_5  01010000100   | vsrw  r1,  r2,  r3
 
 000100  r1_5  r2_5  r3_5  10110000000   | vsubcuw  r1,  r2,  r3
-000100  r1_5  r2_5  r3_5  00001001010   | vsubfpw  r1,  r2,  r3
+000100  r1_5  r2_5  r3_5  00001001010   | vsubfp  r1,  r2,  r3
 000100  r1_5  r2_5  r3_5  11100000000   | vsubsbs  r1,  r2,  r3
 000100  r1_5  r2_5  r3_5  11101000000   | vsubshs  r1,  r2,  r3
 000100  r1_5  r2_5  r3_5  11110000000   | vsubsws  r1,  r2,  r3
@@ -436,3 +437,107 @@ power4 32
 000100  r1_5  00000  r2_5  01111001110   | vupklpx  r1,  r2
 000100  r1_5  00000  r2_5  01010001110   | vupklsb  r1,  r2
 000100  r1_5  00000  r2_5  01011001110   | vupklsh  r1,  r2
+
+# 82 instructions added by Khawar Sajjad in May 2009
+
+000100  r1_5  r2_5  r3_5  r4_5 100100   | vmsumubm r1, r2, r3, r4 
+000100  r1_5  r2_5  r3_5  r4_5 100101   | vmsummbm r1, r2, r3, r4 
+000100  r1_5  r2_5  r3_5  r4_5 100110   | vmsumuhm r1, r2, r3, r4 
+000100  r1_5  r2_5  r3_5  r4_5 100111   | vmsumuhs r1, r2, r3, r4 
+000100  r1_5  r2_5  r3_5  r4_5 101000   | vmsumshm r1, r2, r3, r4 
+000100  r1_5  r2_5  r3_5  r4_5 101001   | vmsumshs r1, r2, r3, r4 
+000100  r1_5  r2_5  r3_5  r4_5 101010   | vsel r1, r2, r3, r4 
+
+#CAUTION: for vmaddfp according to doc operation = r1 = r2*r4 +r3
+000100  r1_5  r2_5  r4_5  r3_5 101110   | vmaddfp r1, r2, r3, r4  
+
+#CAUTION: for vnmsubfp according to doc operation = r1 = -(r2*r4 -r3)
+000100  r1_5  r2_5  r4_5  r3_5 101111   | vnmsubfp r1, r2, r3, r4 
+
+000100  r1_5  r2_5  r3_5  10001000100   | vandc r1, r2, r3
+000100  r1_5  r2_5  r3_5  10011000100   | vxor r1, r2, r3
+
+000100  r1_5  r2_5  r3_5  10000000110   | vcmpequbx r1, r2, r3
+000100  r1_5  r2_5  r3_5  10001000110   | vcmpequhx r1, r2, r3
+000100  r1_5  r2_5  r3_5  10010000110   | vcmpequwx r1, r2, r3
+000100  r1_5  r2_5  r3_5  10011000110   | vcmpeqfpx r1, r2, r3
+000100  r1_5  r2_5  r3_5  10111000110   | vcmpgefpx r1, r2, r3
+000100  r1_5  r2_5  r3_5  11000000110   | vcmpgtubx r1, r2, r3
+000100  r1_5  r2_5  r3_5  11001000110   | vcmpgtuhx r1, r2, r3
+000100  r1_5  r2_5  r3_5  11010000110   | vcmpgtuwx r1, r2, r3
+000100  r1_5  r2_5  r3_5  11011000110   | vcmpgtfpx r1, r2, r3
+000100  r1_5  r2_5  r3_5  11100000110   | vcmpgtsbx r1, r2, r3
+000100  r1_5  r2_5  r3_5  11101000110   | vcmpgtshx r1, r2, r3
+000100  r1_5  r2_5  r3_5  11110000110   | vcmpgtswx r1, r2, r3
+000100  r1_5  r2_5  r3_5  11111000110   | vcmpbfpx r1, r2, r3
+
+000100  r1_5  r2_5  r3_5  00000001000   | vmuloub r1, r2, r3
+000100  r1_5  r2_5  r3_5  00001001000   | vmulouh r1, r2, r3
+000100  r1_5  r2_5  r3_5  00100001000   | vmulosb r1, r2, r3
+000100  r1_5  r2_5  r3_5  00101001000   | vmulosh r1, r2, r3
+000100  r1_5  r2_5  r3_5  01000001000   | vmuleub r1, r2, r3
+000100  r1_5  r2_5  r3_5  01001001000   | vmuleuh r1, r2, r3
+000100  r1_5  r2_5  r3_5  01100001000   | vmulesb r1, r2, r3
+000100  r1_5  r2_5  r3_5  01101001000   | vmulesh r1, r2, r3
+
+000100  r1_5  r2_5  r3_5  11000001000   | vsum4ubs r1, r2, r3
+000100  r1_5  r2_5  r3_5  11100001000   | vsum4sbs r1, r2, r3
+000100  r1_5  r2_5  r3_5  11001001000   | vsum4shs r1, r2, r3
+000100  r1_5  r2_5  r3_5  11010001000   | vsum2sws r1, r2, r3
+000100  r1_5  r2_5  r3_5  11110001000   | vsumsws r1, r2, r3
+
+000100  r1_5  00000  r3_5  00100001010   | vrefp r1, r2
+000100  r1_5  00000  r3_5  00101001010   | vrsqrtefp r1, r2
+000100  r1_5  00000  r3_5  00110001010   | vexptefp r1, r2
+000100  r1_5  00000  r3_5  00111001010   | vlogefp r1, r2
+
+000100  r1_5  00000  r3_5  01000001010   | vrfin r1, r2
+000100  r1_5  00000  r3_5  01001001010   | vrfiz r1, r2
+000100  r1_5  00000  r3_5  01010001010   | vrfip r1, r2
+000100  r1_5  00000  r3_5  01011001010   | vrfim r1, r2
+
+000100  r1_5  i1_4-0  r3_5  01100001010   | vcfux r1, r2, i1
+000100  r1_5  i1_4-0  r3_5  01100001010   | vcfsx r1, r2, i1
+000100  r1_5  i1_4-0  r3_5  01110001010   | vctuxs r1, r2, i1
+000100  r1_5  i1_4-0  r3_5  01111001010   | vctsxs r1, r2, i1
+
+000100  r1_5  r2_5  r3_5  10000000010   | vavgub r1, r2, r3
+000100  r1_5  r2_5  r3_5  10001000010   | vavguh r1, r2, r3
+000100  r1_5  r2_5  r3_5  10010000010   | vavguw r1, r2, r3
+000100  r1_5  r2_5  r3_5  10100000010   | vavgsb r1, r2, r3
+000100  r1_5  r2_5  r3_5  10101000010   | vavgsh r1, r2, r3
+000100  r1_5  r2_5  r3_5  10110000010   | vavgsw r1, r2, r3
+
+000100  r1_5  r2_5  r3_5  00000000100   | vrlb r1, r2, r3
+000100  r1_5  r2_5  r3_5  00001000100   | vrlh r1, r2, r3
+000100  r1_5  r2_5  r3_5  00010000100   | vrlw r1, r2, r3
+
+000100  r1_5  00000  00000  11000000100   | mfvscr r1
+000100  00000  00000  r1_5  11001000100   | mtvscr r1
+
+011111000  i1_1-0  r1_5  r2_5  01010101100  | dst r1, r2, i1
+011111100  i1_1-0  r1_5  r2_5  01010101100  | dstt r1, r2, i1
+011111000  i1_1-0  r1_5  r2_5  01011101100  | dstst r1, r2, i1
+011111100  i1_1-0  r1_5  r2_5  01011101100  | dststt r1, r2, i1
+011111000  i1_1-0  00000  00000  11001101100  | dss i1
+011111100  i1_1-0  00000  00000  11001101100  | dssall i1
+
+000100  r1_5  r2_5  r3_5  r4_5  100000   | vmhaddshs r1, r2, r3, r4
+000100  r1_5  r2_5  r3_5  r4_5  100001   | vmhraddshs r1, r2, r3, r4
+
+000100  r1_5  r2_5  r3_5  00000000010   | vmaxub r1, r2, r3
+000100  r1_5  r2_5  r3_5  00001000010   | vmaxuh r1, r2, r3
+000100  r1_5  r2_5  r3_5  00010000010   | vmaxuw r1, r2, r3
+000100  r1_5  r2_5  r3_5  00100000010   | vmaxsb r1, r2, r3
+000100  r1_5  r2_5  r3_5  00101000010   | vmaxsh r1, r2, r3
+000100  r1_5  r2_5  r3_5  00110000010   | vmaxsw r1, r2, r3
+
+000100  r1_5  r2_5  r3_5  01000000010   | vminub r1, r2, r3
+000100  r1_5  r2_5  r3_5  01001000010   | vminuh r1, r2, r3
+000100  r1_5  r2_5  r3_5  01010000010   | vminuw r1, r2, r3
+000100  r1_5  r2_5  r3_5  01100000010   | vminsb r1, r2, r3
+000100  r1_5  r2_5  r3_5  01101000010   | vminsh r1, r2, r3
+000100  r1_5  r2_5  r3_5  01110000010   | vminsw r1, r2, r3
+
+000100  r1_5  r2_5  r3_5  10000001010   | vmaxfp r1, r2, r3
+000100  r1_5  r2_5  r3_5  10001001010   | vminfp r1, r2, r3

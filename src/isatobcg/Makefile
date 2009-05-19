@@ -21,7 +21,8 @@ CFLAGS = -Wall -g -I../common
 TARGETS = \
 	hpbcg-cell.lst   hpbcg-cell.h 	\
 	hpbcg-power4.lst hpbcg-power4.h \
-	hpbcg-ia64.lst   hpbcg-ia64.h
+	hpbcg-ia64.lst   hpbcg-ia64.h 
+#	hpbcg-armthumb.lst   hpbcg-armthumb.h
 UTILS = hpbcg-cell-utils.h hpbcg-ia64-utils.h hpbcg-power4-utils.h	\
 	hpbcg-asm-common.h
 CLASSFILES = IsaToBCGParser.class IsaToBCGLexer.class		\

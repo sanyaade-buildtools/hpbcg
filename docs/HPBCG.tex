@@ -164,6 +164,22 @@ Run-time            & nothing 			\\ \hline
   generator.
 \end{description}
 
+\subsection{Installation}
+
+HPBCG can be installed everywhere, the usual location should be
+\texttt{/usr/local}.
+
+In the main directory type the commands :
+\begin{verbatim}
+make build
+sudo make install WHERE=/usr/local
+\end{verbatim}
+
+\begin{enumerate}
+\item The first one will create all the \texttt{.h} files
+\item The second one will install the files in the \texttt{WHERE} directory.
+\end{enumerate}
+
 \section{Using \hpbcg}
 
 Mainly \hpbcg is a parser which translate C code whith special parts
