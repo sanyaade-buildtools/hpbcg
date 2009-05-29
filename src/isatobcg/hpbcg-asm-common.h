@@ -20,7 +20,7 @@ typedef unsigned int ui32_t;
 
 #define _UL(X)		((ui64_t)(X))
 #define _MASK(N)	((ui64_t)((1ULL << (N))) -1)
-#define LENOK(VAL, LEN) ((VAL) < (1ULL << (LEN))?(VAL)			\
+#define LENOK(VAL, LEN) ((VAL) < (1ULL << (LEN))?(ui64_t)(VAL)		\
 	 :ASMFAIL("unsigned long "#VAL" too large for "#LEN"-bit field line "))
 #define ASMFAIL(MSG) asmFail(MSG, __FILE__, __LINE__,(char *) __func__)
 
@@ -36,8 +36,8 @@ static int asmFail(char *msg, char *file, int line, char *function)
 /* Return a string which help to identify the architecture */
 char * getArchName()
 {
-  char * msg, *name;
-  int procId;
+  char * msg;
+
   msg = malloc(1024);
 /* How to know which flag are defined : gcc -dM -E - < /dev/null | sort */
 #if 0
@@ -49,6 +49,8 @@ char * getArchName()
   sprintf(msg, "%s", "i386:");
 #else
 #if defined(__powerpc__) || defined(_POWER)
+  int procId;
+  char *name;
   asm("mfspr %0, 287" : "=r" (procId));
   switch ((procId >> 16) & 0xFFFF)
     {

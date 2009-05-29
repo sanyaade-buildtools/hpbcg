@@ -12,19 +12,13 @@ pifi multiplyCompile(int multiplyValue)
   #[
 	.org	code
 	.proc   code+16, 0
-	mov	r33 = (multiplyValue)  
-	nop.i 22
-	nop.i 22 ;;
-
+	mov	r33 = (multiplyValue)   
 	setf.sig f32 = r32
-	setf.sig f33 = r33
-	nop.i 22 ;;
+	   nop.i 0 ;;
+	setf.sig f33 = r33		;;
 
-	nop.m 22
-	xmpy.l  f32 = f32, f33 
-	nop.i 22 ;;
+	xmpy.l  f32 = f32, f33 		;;
 
-	nop.m 22
 	getf.sig r8= f32
 	br.ret.sptk.many b0 ;;
   ]#;

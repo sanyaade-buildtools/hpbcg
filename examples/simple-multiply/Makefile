@@ -3,7 +3,7 @@
 .hg.c:
 	hpbcg $< > $@
 
-CFLAGS=-I${HPBCGHOME}/include/ -g ${ADDCFLAGS}
+CFLAGS=-I${HPBCGHOME}/include/ -g ${ADDCFLAGS}  -DASM_DEBUG=1 -DWITH_HPBCG_FUNCTIONS=1 
 CDIR = /opt/cell/sdk/usr/
 CELLFILES     = simple-multiply-cell simple-worker-cell
 IAFILES       = simple-multiply-ia64 

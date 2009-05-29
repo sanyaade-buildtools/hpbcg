@@ -25,7 +25,7 @@ class InstructionsList
     public String toString()
     {
 	StringBuffer tmp = new StringBuffer(header());
-	tmp.append("#if WITH_HPBCG_FUNCTIONS\n");
+	tmp.append("#ifndef WITH_HPBCG_FUNCTIONS\n");
 	for (int i = 0; i < instructionList.size(); ++i)
 	    tmp.append(((Instruction) instructionList.elementAt(i)).toMacro());
 	tmp.append("#else /* WITH_HPBCG_FUNCTIONS */\n");

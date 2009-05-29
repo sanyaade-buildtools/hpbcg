@@ -24,7 +24,7 @@ TARGETS = \
 	hpbcg-ia64.lst   hpbcg-ia64.h 
 #	hpbcg-armthumb.lst   hpbcg-armthumb.h
 UTILS = hpbcg-cell-utils.h hpbcg-ia64-utils.h hpbcg-power4-utils.h	\
-	hpbcg-asm-common.h
+	hpbcg-asm-common.h hpbcg-ia64-cache.h
 CLASSFILES = IsaToBCGParser.class IsaToBCGLexer.class		\
 	InstructionsList.class Instruction.class		\
 	InstructionBinPart.class InstructionAsmPart.class
@@ -35,6 +35,7 @@ java: ${CLASSFILES}
 
 isa: ${TARGETS}
 
+# Dummy rule 
 IsaToBCGParser.java IsaToBCGLexer.java: IsaToBCG.java
 
 debug: 
@@ -43,7 +44,7 @@ debug:
 isatobcg : ${FILESISA}
 	${CC} ${CFLAGS} ${LDLIBS} ${FILESISA} -o $@
 
-install: isatobcg
+install: 
 	../../CheckPrefix
 	install -d ${PREFIX}/include/
 	install ${TARGETS} ${PREFIX}/include/

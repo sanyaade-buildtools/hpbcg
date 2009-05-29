@@ -11,8 +11,8 @@ static void iflush(insn *addr, insn *last)
 #if 0
   printf("iflush:  page size %d frontiere %p\n", pageSize, ptmp);
 #endif
-  ia64_addInsn(ia64_nop[ia64_UnitI], 0);
-  ia64_addInsn(ia64_nop[ia64_UnitI], 0);
+  while (0 != ia64_slotCount)
+    ia64_emitInsn();
 #if 0
   while(addr <= last)
     {

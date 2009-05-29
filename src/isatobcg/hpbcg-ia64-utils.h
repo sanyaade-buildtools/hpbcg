@@ -38,17 +38,10 @@ enum ia64_Unit
   ia64_NumUnits
 };
 
-static const ui64_t ia64_nop[ia64_NumUnits]=
-{
-  0x0000000000ULL,
-  0x20008000000ULL,  /* nop.i */
-  0x30008000000ULL,  /* nop.m */
-  0x44000000000ULL,  /* nop.b */
-  0x50008000000ULL,  /* nop.f */
-  0x20008000000ULL,  /* nop.l */
-  0x20008000000ULL   /* nop.x */
-};
-
+#define NOPI   0x8000000ULL
+#define NOPM   NOPI
+#define NOPB   0x4000000000ULL
+#define NOPF   NOPI
 /* Template number depending on the instruction type */
 /* Contributed by Ali Guellal <guellal.ali@gmail.com> during
  * Master stage
@@ -340,66 +333,87 @@ void isAsserted()
   hasBeenAsserted = 1;
 } /* isAsserted */
 
-
-char insnType(char type)
+char insnTypeArray[] = "_aimbfx_AIMBFX";
+char insnType(char type, int stop)
 {
-  switch (type)
-    {
-    case ia64_TypeA: return 'a'; break;
-    case ia64_TypeI: return 'i'; break;
-    case ia64_TypeM: return 'm'; break;
-    case ia64_TypeB: return 'b'; break;
-    case ia64_TypeF: return 'f'; break;
-    case ia64_TypeX: return 'x'; break;
-    default: fprintf(stderr, "%s:Unknown unit: %d\n", __FUNCTION__, type); 
-      exit(-1); 
-      break;
-    }
+  int i = type+stop*7;
+  assert(i < sizeof(insnTypeArray));
+  return insnTypeArray[i];
 } /* insnType */
-
 
 static void pInsn(ui64_t insn, char type, char stop)
 {
-  if (stop)
-    printf("%c: 0x%0llx\n", insnType(type) - 32, insn);
-  else
-    printf("%c: 0x%0llx\n", insnType(type), insn);
+  printf("%c: 0x%0llx\n", insnType(type, stop), insn);
 }
 
 static int ia64_emitInsn()
 {
   char tmplate[4];
-  char tmplval;
+  char tmplval, stop;
   int i, s0, s1, s2;
 
-  if (!hasBeenAsserted)
-      isAsserted ();
-
+  printf("ia64_emitInsn %d \n", ia64_slotCount);
+  if (!hasBeenAsserted) isAsserted ();
   for (i = 0; i < 3; ++i)
     {
-      tmplate[i] = insnType(ia64_slots[i].ia64_insnType);
-      if (ia64_slots[i].ia64_stop) tmplate[i] -= 0x20;
+      tmplate[i] = insnType(ia64_slots[i].ia64_insnType, 
+			    ia64_slots[i].ia64_stop);
     }
   tmplate[i] = '\0';
   s0 = (int) ia64_slots[0].ia64_insnType + (ia64_slots[0].ia64_stop?7:0);
   s1 = (int) ia64_slots[1].ia64_insnType + (ia64_slots[1].ia64_stop?7:0);
   s2 = (int) ia64_slots[2].ia64_insnType + (ia64_slots[2].ia64_stop?7:0);
   tmplval = ia64_tmpl[s0][s1][s2];
-  /*   assert (-1 != tmplval); */
-#ifdef ASM_DEBUG
-  printf("%s %d\n", tmplate, tmplval);
-#endif
+  if (-1 != tmplval)		/* Found template statically */
    {
-     bundle b =
-      {
-	  (ia64_slots[1].ia64_insn << 46) | (ia64_slots[0].ia64_insn <<  5) | tmplval,
-	  (ia64_slots[2].ia64_insn << 23) | (ia64_slots[1].ia64_insn >> 18)
-      };
+#ifdef ASM_DEBUG
+     printf("S: %s %d\n", tmplate, tmplval);
+#endif
+     bundle b = {
+	 (ia64_slots[1].ia64_insn << 46) | (ia64_slots[0].ia64_insn <<  5) | tmplval, (ia64_slots[2].ia64_insn << 23) | (ia64_slots[1].ia64_insn >> 18)
+       };
      _GEN(b); asm_pc++;
+      ia64_slotCount = 0;
+   }
+  else
+    {				/* Emit the 1st insn, then reschedule */
+      ia64_insns myInsn = ia64_slots[0];
+      stop = myInsn.ia64_stop;
+      switch (myInsn.ia64_insnType)
+	{
+	case ia64_TypeA: 
+	case ia64_TypeI: 
+	case ia64_TypeM: 
+	  printf("D: %s\n", (stop)?"mIi":"mii");
+	  if (stop) { bundle b = {(NOPI << 46) | (myInsn.ia64_insn << 5) | 0x01, (NOPI << 23) | (NOPI >> 18) }; _GEN(b); }
+	  else	    { bundle b = {(NOPI << 46) | (myInsn.ia64_insn << 5) | 0x00, (NOPI << 23) | (NOPI >> 18) }; _GEN(b); }
+	  break;
+	case ia64_TypeB: 
+	  printf("D: %s\n", (stop)?"bbB":"bbb"); 
+	  if (stop) { bundle b = {(NOPB << 46) | (myInsn.ia64_insn << 5) | 0x17, (NOPB << 23) | (NOPB >> 18) }; _GEN(b); }
+	  else	    { bundle b = {(NOPB << 46) | (myInsn.ia64_insn << 5) | 0x16, (NOPB << 23) | (NOPB >> 18) }; _GEN(b); }
+	  break;
+	case ia64_TypeF: 
+	  printf("D: %s\n", (stop)?"mfI":"mfi"); 
+	  if (stop) { bundle b = {(myInsn.ia64_insn << 46) | (NOPM << 5) | 0x0d, (NOPI << 23) | (myInsn.ia64_insn >> 18) }; _GEN(b); }
+	  else	    { bundle b = {(myInsn.ia64_insn << 46) | (NOPM << 5) | 0x0c, (NOPI << 23) | (myInsn.ia64_insn >> 18) }; _GEN(b); }
+	  break;
+	case ia64_TypeX: 
+	  printf("D: %s\n", (stop)?"mlX":"mlx"); 
+	  printf("mlx not yet implemented\n");
+	  exit(0);
+	  break;
+	default: 
+	  printf("This case shoud not append s0 = %d\n", s0); exit(0); break;
+	}
+      asm_pc++;
+      ia64_slots[0] =  ia64_slots[1]; /* Replanify the following insn*/
+      ia64_slots[1] =  ia64_slots[2];
+      ia64_slotCount--;
+    }
 #ifdef ASM_DEBUG
      printf("asm_pc = %p\n", asm_pc);
 #endif
-  }
  return 0;
 }
 
@@ -412,7 +426,6 @@ static int ia64_addInsn(ui64_t insn, char stop)
   if (ia64_slotCount >= INSNMAX)
     {
       ia64_emitInsn();
-      ia64_slotCount = 0;
     }
   ia64_slots[ia64_slotCount].ia64_insnType = insnType;
   ia64_slots[ia64_slotCount].ia64_insn = insnBin;
@@ -424,5 +437,5 @@ static int ia64_addInsn(ui64_t insn, char stop)
   return 0;
 }
 
-#include <ia64-cache.h>
+#include <hpbcg-ia64-cache.h>
 
