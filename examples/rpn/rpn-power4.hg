@@ -18,7 +18,6 @@ pifi rpnCompile(char *expr)
 #endif
   #[	.org	code  ]#;
 
-
   while (*expr)
     {
       char  buf[32];

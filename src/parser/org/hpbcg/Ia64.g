@@ -46,7 +46,7 @@ options { k = 2; }
             case MNEMO:
 		if (a.getText().equals("ar.pfs"))
 		{
-		    Debug ("REG ar.pfs : " + a.getText());
+		    Debug ("REG Application Register : " + a.getText());
 		    currentInsn.setParam(a.getText(), Insn.TYPEARREG);
 		}
 		else

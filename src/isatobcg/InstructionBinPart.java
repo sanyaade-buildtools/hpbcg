@@ -77,11 +77,11 @@ class InstructionBinPart
 		mask = (1 << intBinPartLength) - 1;
 		if (intStart == 0)
 		    {
-			tmp = "("+intExpr+" & "+mask+"), "+intBinPartLength;
+			tmp = "(("+intExpr+") & "+mask+"), "+intBinPartLength;
 		    }
 		else
 		    {
-			tmp = "(("+intExpr+">>"+intStart+") & "+ mask +"), "+intBinPartLength;
+			tmp = "((("+intExpr+")>>"+intStart+") & "+ mask +"), "+intBinPartLength;
 		    }
 		break;
 	    case BINNUM:   tmp =  binaryValue+","+intBinPartLength;  			break;

@@ -13,7 +13,7 @@ pifi rpnCompile(char *expr)
   insn *code= (insn *)calloc(64, sizeof(insn));
   #[
 	.org	code
-	.proc	code+1, 0
+	.proc	code+16, 0
 	alloc   r33 = ar.pfs, 1, 32, 0, 0
   ]#;
   top= 35;
@@ -97,7 +97,7 @@ pifi rpnCompile(char *expr)
       abort();
     }
   #[
-	mov ar.pfs = r33
+	mov.i ar.pfs = r33
 	mov r8 = r(top)
 	br.ret.sptk.many b0	;;
   ]#;
@@ -130,6 +130,5 @@ int main(int argc, char **argv)
   printf("\nC:");
   for (i= 32;  i <= 212;  i += 10) printf("%3d ", f2c(i));
   printf("\n");
-
   return 0;
 }

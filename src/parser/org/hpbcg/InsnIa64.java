@@ -53,15 +53,17 @@ class InsnIa64 extends Insn
 	    case TYPEIREG:
 	    case TYPEBREG:
 	    case TYPEFREG: 	
-	    case TYPEPREG: 	
-		registers[currentRegister++] = 
-		    new String (name.getBytes(), 1, name.length() - 1);
+	    case TYPEPREG:
+		registers[currentRegister++] =  new String (name.getBytes(), 1, name.length() - 1);
+		break;
+	    case TYPEARREG:  	// Application Registers [1, Table 3-3] 
+		if (name.equals("ar.pfs")) registers[currentRegister++] = "64"; 
+		else fatalErrorMsg ("Unknown application register "+name);
 		break;
 	    default:
 		registers[currentRegister++] = name;
 		break;
 	    }
-
     }
     public String getInsn()
     {
