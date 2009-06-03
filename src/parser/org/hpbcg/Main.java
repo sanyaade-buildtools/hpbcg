@@ -9,7 +9,7 @@ class Main
     
     public static void main(String[] args) 
     {
-        String currentArch = null, tmp;
+        String currentArch = "No #arch defined", tmp;
 	CharStream in;
         try 
 	{
@@ -22,13 +22,13 @@ class Main
 	    while (true)
 	    {
 		tmp = lexerC.myParse(debug);
-		if (null != tmp)currentArch = tmp;
+		if (null != tmp) currentArch = tmp;
 		if (currentArch.equals("cell"))        lexerCell.myParse(debug);
 		else if (currentArch.equals("ia64"))   lexerIa64.myParse(debug);
 		else if (currentArch.equals("power4")) lexerPower4.myParse(debug);
 		else
 		    {
-			System.err.println("No #cpu defined ("+currentArch+")");
+			System.err.println("#cpu error ("+currentArch+")");
 			System.exit(-1);
 		    }   
 	    }

@@ -43,7 +43,6 @@ class Insn
 	for (i = 0; i < currentRegister - 1;  i++)
 	{
 	    tmp += registers[i] +',';
-
 	}
 	if (currentRegister > 0) tmp += registers[i];
 	tmp += ");";
@@ -81,7 +80,7 @@ class Insn
 	}
 	return false;
     } /* verifExistInsn */
-
+    // Load in memory the valid instruction list
     public String [] loadInsnList(String name) 
     {
 	String repDir [] = {"/usr/local/include", "/usr/include"};
@@ -116,8 +115,10 @@ class Insn
 				break;
 			    }
 		    }
+	    System.out.println("/* Processor description from :"+fileName+" */");
 	    if (ok)
-	    {
+		{
+
 		in = new BufferedReader(new FileReader(fileName));
 		while (null != in.readLine())
 		{

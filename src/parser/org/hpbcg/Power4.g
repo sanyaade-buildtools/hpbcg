@@ -33,8 +33,13 @@ lexer grammar  Power4;  // -*- java -*-
                 inAsm = false;  		
                 break;
             case POWERREG:
-                Debug("REGISTER ");
-                currentInsn.setParam(a.getText(), Insn.TYPEIREG);
+                Debug("REGISTER "+a.getText());
+		switch(a.getText().charAt(0))
+		    {
+		    case 'r': currentInsn.setParam(a.getText(), Insn.TYPEIREG); break;
+		    case 'f': currentInsn.setParam(a.getText(), Insn.TYPEFREG); break;
+		    default : System.out.println("Surprising register name :!"+a.getText()+"!"); System.exit(-1); break;
+		    }
                 break;
             case INT:
                 Debug("INTEGER ");
@@ -52,8 +57,13 @@ lexer grammar  Power4;  // -*- java -*-
             case SEP:                 break;
             case WS:                  break;
             case POWERREGOPEN:         
-                Debug("POWERREGOPEN");
-                currentInsn.setParam(a.getText(), Insn.TYPEIREG);
+                Debug("POWERREGOPEN"+a.getText());
+		switch(a.getText().charAt(0))
+		    {
+		    case 'r': currentInsn.setParam(a.getText(), Insn.TYPEIREG); break;
+		    case 'f': currentInsn.setParam(a.getText(), Insn.TYPEFREG); break;
+		    default : System.out.println("Surprising parametric register name :!"+a.getText()+"!"); System.exit(-1); break;
+		    }
 		break;
             case PAROPEN:         
                 Debug("PAROPEN");
@@ -81,8 +91,7 @@ lexer grammar  Power4;  // -*- java -*-
         }
         else
         {
-            if (debug) 
-                System.out.println("No defined insn");
+            if (debug) System.out.println("No defined insn");
         }    
     }        
     public void Debug(String a)
@@ -105,8 +114,8 @@ INT      : ('+' | '-') ? (NUMBER)+;
 SEP      : ',' ;
 INDEX    : (NUMBER)+ '('  POWERREG ')';
 MNEMO    : LETTER (LETTER)* ;
-POWERREG  : 'r' (NUMBER)+ | 'lr' | 'sp' | '(r' (NUMBER)+ ')';
-POWERREGOPEN : 'r('  ( options {greedy=false;} : . )* ')' ;
+POWERREG  : ('r'|'f') (NUMBER)+ | 'lr' | 'sp' | '(r' (NUMBER)+ ')';
+POWERREGOPEN : ('r'|'f') '('  ( options {greedy=false;} : . )* ')'  ;
 PAROPEN  : '('  ( options {greedy=false;} : . )* ')' ;
 
 fragment LETTER : ('a'..'z' | 'A'..'Z');

@@ -4,14 +4,32 @@ power4 32
 #
 #
 
-011111  r1_5  r2_5  r3_5  0  100001010  0   	| add    r1,  r2,  r3
-011111  r1_5  r2_5  r3_5  0  000001010  0   	| addc   r1,  r2,  r3
+# Add 
+011111  r1_5  r2_5  r3_5  0 100001010 0   	| add    r1,  r2,  r3
+011111  r1_5  r2_5  r3_5  0 100001010 1   	| add.   r1,  r2,  r3
+011111  r1_5  r2_5  r3_5  1 100001010 0   	| addo   r1,  r2,  r3
+011111  r1_5  r2_5  r3_5  1 100001010 1   	| addo.  r1,  r2,  r3
+
+# Add carrying
+011111  r1_5  r2_5  r3_5  0 000001010 0   	| addc    r1,  r2,  r3
+011111  r1_5  r2_5  r3_5  0 000001010 1   	| addc.   r1,  r2,  r3
+011111  r1_5  r2_5  r3_5  1 000001010 0   	| addco   r1,  r2,  r3
+011111  r1_5  r2_5  r3_5  1 000001010 1   	| addco.  r1,  r2,  r3
+
+# Add extended
 011111  r1_5  r2_5  r3_5  0  010001010  0   	| adde   r1,  r2,  r3
-011111  r1_5  r2_5  r3_5  1  100001010  0   	| addo   r1,  r2,  r3
-001110  r1_5  r2_5  i1_15-0   			| addi   r1,  r2,  i1
+011111  r1_5  r2_5  r3_5  0  010001010  1   	| adde.  r1,  r2,  r3
+
+# Add immediate  & immediate carrying & shifted
 001100  r1_5  r2_5  i1_15-0   			| addic  r1,  r2,  i1
+001101  r1_5  r2_5  i1_15-0   			| addic. r1,  r2,  i1
+001110  r1_5  r2_5  i1_15-0   			| addi   r1,  r2,  i1
 001111  r1_5  r2_5  i1_15-0   			| addis  r1,  r2,  i1
 
+# Add to minus one extended
+# TBD
+
+# And / And immediate / And immediate shifted
 011111  r2_5  r1_5  r3_5  0000011100  0   	| and    r1,  r2,  r3
 011111  r2_5  r1_5  r3_5  0000011100  1   	| and.   r1,  r2,  r3
 011111  r2_5  r1_5  r3_5  0000111100  0   	| andc   r1,  r2,  r3
@@ -19,6 +37,7 @@ power4 32
 011100  r2_5  r1_5  i1_15-0   			| andi.  r1,  r2,  i1
 011101  r2_5  r1_5  i1_15-0   			| andis. r1,  r2,  i1
 
+# Branch
 010010  i1_23-0  0  0   			| b   i1
 010010  i1_23-0  1  0   			| ba  i1
 010010  i1_23-0  0  1   			| bl  i1
@@ -109,14 +128,25 @@ power4 32
 
 010011  00000  00000  00000  0010010110  0   	| isync
 
+# Load byte and zero indexed
 100010  r1_5  r2_5  i1_15-0   			| lbz   r1,  i1,  r2
 100011  r1_5  r2_5  i1_15-0   			| lbzu  r1,  i1,  r2
 011111  r1_5  r2_5  r3_5  0001110111  0   	| lbzux r1,  r2,  r3
 011111  r1_5  r2_5  r3_5  0001010111  0   	| lbzx  r1,  r2,  r3
 
-110000  r1_5  r2_5  i1_15-0   			| lfs   r1,  i1,  r2
-110001  r1_5  r2_5  i1_15-0   			| lfsu  r1,  i1,  r2
+# Load floating point double
+110010  f1_5  r2_5  i1_15-0  			| lfd   f1,  i1,  r2
+110011  f1_5  r2_5  i1_15-0  			| lfdu  f1,  i1,  r2
+011111  f1_5  r2_5  r3_5  1001110111 0		| lfdux f1,  r2,  r3
+011111  f1_5  r2_5  r3_5  1001010111 0		| lfdx  r1,  r2,  r3
 
+# Load floating point single
+110000  f1_5  r2_5  i1_15-0   			| lfs   f1,  i1,  r2
+110001  f1_5  r2_5  i1_15-0   			| lfsu  f1,  i1,  r2
+011111  f1_5  r2_5  r3_5  1000110111 0		| lfsux f1,  r2,  r3
+011111  f1_5  r2_5  r3_5  1000010111 0		| lfsx  r1,  r2,  r3
+
+# Load half word algebraic
 101010  r1_5  r2_5  i1_15-0   			| lha   r1,  i1,  r2
 101011  r1_5  r2_5  i1_15-0   			| lhau  r1,  i1,  r2
 011111  r1_5  r2_5  r3_5  0101110111  0   	| lhaux r1,  r2,  r3
