@@ -223,19 +223,27 @@ power4 32
 011111  r2_5  r1_5  r3_5  1000011000  0   	| srw  r1,  r2,  r3
 011111  r2_5  r1_5  r3_5  1000011000  1   	| srw.  r1,  r2,  r3
 
+# Store byte
 100110  r1_5  r2_5  i1_15-0   			| stb  r1,  i1,  r2
 100111  r1_5  r2_5  i1_15-0   		       	| stbu  r1,  i1,  r2
 011111  r1_5  r2_5  r3_5  0011110111  0   	| stbux  r1,  r2,  r3
 011111  r1_5  r2_5  r3_5  0011010111  0   	| stbx  r1,  r2,  r3
 
-110100  r1_5  f1_5  i1_15-0   			| stfs  r1,  i1,  f1
+# Store floating point double
+110110  f1_5 r2_5 i1_15-0			| stfd   f1, i1, r2
+110111  f1_5 r2_5 i1_15-0			| stfdu  f1, i1, r2
+011111  f1_5 r2_5 r3_5 1011110111		| stfdux f1, r2, r3
+011111  f1_5 r2_5 r3_5 1011010111		| stfdx  f1, r2, r3
+
+# Store floating point single
+110100  r1_5  f1_5  i1_15-0   			| stfs   r1,  i1,  f1
 110101  r1_5  f1_5  i1_15-0   		  	| stfsu  r1,  i1,  f1
 
-101100  r1_5  r2_5  i1_15-0   		  	| sth  r1,  i1,  r2
-101101  r1_5  r2_5  i1_15-0   		    	| sthu  r1,  i1,  r2
-011111  r1_5  r2_5  r3_5  1110010110  0   	| sthbrx  r1,  r2,  r3
+101100  r1_5  r2_5  i1_15-0   		  	| sth    r1,  i1,  r2
+101101  r1_5  r2_5  i1_15-0   		    	| sthu   r1,  i1,  r2
+011111  r1_5  r2_5  r3_5  1110010110  0   	| sthbrx r1,  r2,  r3
 011111  r1_5  r2_5  r3_5  0110110111  0   	| sthux  r1,  r2,  r3
-011111  r1_5  r2_5  r3_5  0110010111  0   	| sthx  r1,  r2,  r3
+011111  r1_5  r2_5  r3_5  0110010111  0   	| sthx   r1,  r2,  r3
 
 101111  r1_5  r2_5  i1_15-0   			| stmw  r1,  i1,  r2
 

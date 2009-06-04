@@ -46,8 +46,19 @@ lexer grammar  Power4;  // -*- java -*-
                 currentInsn.setParam(a.getText(), Insn.TYPEINT);
                 break;
             case INDEX:
-                Debug("INDEX ");
-                currentInsn.setParam(a.getText(), Insn.TYPEIDXREG);
+		String number, register, token;
+		int i;
+                Debug("INDEX "+a.getText());
+		token = a.getText();
+		number = "";
+		for (i = 0; '(' != token.charAt(i); i++)
+		    number += token.charAt(i);
+		i ++ ;
+		register = "";
+		for (; ')' != token.charAt(i); i++)
+		    register += token.charAt(i);
+                currentInsn.setParam(number, Insn.TYPEINT);
+                currentInsn.setParam(register, Insn.TYPEIREG);
                 break;
             case MNEMO:
                 Debug("MNEMONIC "+a.getText());

@@ -1,19 +1,18 @@
 #include <stdio.h> /* -*- c -*- */
 #include <stdlib.h>
 
-typedef double tReal;
-typedef struct { tReal re, im; } tComplex;
-typedef int (*pifdd) (double re, double im);
+#include "mandelbrot-common.h"
 
-double ConstZero =   0.0f;
-double ConstModulo = 4.0f;
+typedef double (*pifdd) (tComplex *a);
+
+tComplex ConstZero   = { 0.0f, 0.0f };
 
 #cpu power4
 
 void compileAdd(int Dest, int Src1, int Src2)
 {
 #[
-  fadd f(Dest), f(Src1), f(Src2)
+  fadd f(Dest),   f(Src1),   f(Src2)
   fadd f(Dest+1), f(Src1+1), f(Src2+1)
 ]#
 } /* compileAdd */
@@ -21,36 +20,103 @@ void compileAdd(int Dest, int Src1, int Src2)
 void compileMul(int Dest, int a, int b, int tmp)
 {
 #[
-
   fmul  f(tmp),    f(a+1), f(b+1)
-  fmsub f(Dest),   f(a),   f(b),   f(tmp)
-  fmul  f(tmp),    f(a+1), f(b)
-  fmadd f(Dest+1), f(a),   f(b+1), f(tmp)
+  fmul  f(tmp+1),  f(a+1), f(b)
+
+  fmsub f(tmp),     f(a),   f(b),   f(tmp)
+  fmadd f(Dest+1),  f(a),   f(b+1), f(tmp+1)
+
+  fmr   f(Dest),   f(tmp)
 ]#
 } /* compileMul */
+
+void compileMod(int Dest, int a)
+{
+#[
+  fmul  f(Dest),  f(a),   f(a)
+  fmadd f(Dest),  f(a+1), f(a+1), f(Dest)
+]#
+} /* compileMod */
 
 
 pifdd isInSetCompile(int limit, int colorMapSize)
 {
   insn *code= (insn *)calloc(64, sizeof(insn));
-  // Floating registers 1 & 2 contain input parameter
-  // Floating registers 3 & 4 contain Z
+  int rZ, rC, rTmp;
+  // Floating registers 1 & 2 contain C
+  rC = 0;
+  rZ = 2;
+  rTmp = 4;
   #[	.org	code  
-	lfd f0, 0, r3
+	lfd f(rC),   0(r3)
+	lfd f(rC+1), 8(r3)
 
+	fsub f(rZ),   f(rZ),   f(rZ)
+	fsub f(rZ+1), f(rZ+1), f(rZ+1)
   ]#;
-  compileAdd(0, 2, 0);
-  compileMul(2, 4, 6, 8);
+  compileMul(rZ, rZ, rZ, rTmp);
+  compileAdd(rZ, rC, rZ);
+
+  compileMul(rZ, rZ, rZ, rTmp);
+  compileAdd(rZ, rC, rZ);
+
+  compileMul(rZ, rZ, rZ, rTmp);
+  compileAdd(rZ, rC, 2);
+
+  compileMul(rZ, rZ, rZ, rTmp);
+  compileAdd(rZ, rC, rZ);
+
+  compileMod(1, rZ);
   #[
+    stfd f(rZ),   0(r3)
+    stfd f(rZ+1), 8(r3)
     blr
-    ]#
-    return (pifdd) code;
+   ]#
+   return (pifdd) code;
 }
 
 int main(int argc, char * argv[])
 {
-  pifdd myFunction;
-  myFunction = isInSetCompile(256, 256);
-  myFunction (0.0f, 0.0f);
+  pifdd isInSet;
+  tComplex Center, C1, C2, Z;
+  tReal reInc, imInc, reSize, imSize, tmp;
+  int IMGXSIZE, IMGYSIZE, i, j, k;
+  int COLORMAPSIZE = 65536;
+  if (argc <= 6)
+    {
+      fprintf(stderr, "%s [Cr] i[Ci] re[Size] i[Size] imgXsize imgYsize\n", argv[0]);
+      fprintf(stderr, "C = Center, B = bottom rigth\n");
+      exit(0);
+    }
+
+  isInSet = isInSetCompile(256, 256);
+  cSet(&Center, atof (argv[1]), atof (argv[2]));
+  reSize     = atof (argv[3]);  imSize   = atof (argv[4]);
+  IMGXSIZE   = atoi (argv[5]);
+  IMGYSIZE   = atoi (argv[6]);
+  fprintf(stderr, "Mendelbrot set : ");  pComplex(Center, stderr); 
+  fprintf(stderr, "\nSize     : %f %f \n", reSize, imSize);
+  fprintf(stderr, "Img Size : %dx%d\n",IMGXSIZE, IMGYSIZE);
+
+  reInc = reSize / IMGXSIZE;
+  imInc = imSize / IMGYSIZE;
+  cSet(&C1, RE(Center) - (reSize / 2.0f), IMAG(Center) - (imSize / 2.0f));
+  (void) printf("P2\n");  
+  (void) printf("%d %d\n", IMGXSIZE, IMGYSIZE);  
+  (void) printf("%d\n", COLORMAPSIZE);  
+  for (i = 0; i < IMGYSIZE; i++)
+    {
+      C2 = C1;
+      for (j = 0; j < IMGXSIZE; ++j)
+	{
+	  tmp = isInSet(&C2);
+	  if (4.0 < tmp)
+	    tmp = 4;
+	  printf("%d \n", (int) tmp*COLORMAPSIZE/256);
+	  RE(C2) += reInc;
+	}
+      IMAG(C1) += imInc;
+      printf("\n");
+    }
   return 0;
 }
