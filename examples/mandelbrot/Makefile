@@ -3,7 +3,7 @@
 .hg.c:
 	hpbcg $< > $@
 
-CFLAGS=-I${HPBCGHOME}/include/ -g ${ADDCFLAGS} # -DWITHCOMPLEXSUPPORT
+CFLAGS=-I${HPBCGHOME}/include/ -g ${ADDCFLAGS} # -DASM_DEBUG -DWITH_HPBCG_FUNCTIONS # -DWITHCOMPLEXSUPPORT
 CFILES = mandelbrot
 POWERFILES = mandelbrot-power4 mandelbrot-power4.c
 quoi:

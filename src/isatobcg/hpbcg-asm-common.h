@@ -23,6 +23,7 @@ typedef unsigned int ui32_t;
 #define LENOK(VAL, LEN) ((VAL) < (1ULL << (LEN))?(ui64_t)(VAL)		\
 	 :ASMFAIL("unsigned long "#VAL" too large for "#LEN"-bit field line "))
 #define ASMFAIL(MSG) asmFail(MSG, __FILE__, __LINE__,(char *) __func__)
+#define LABEL(IDLABEL) (IDLABEL = asm_pc)
 
 int hasBeenAsserted = 0;
 static int asmFail(char *msg, char *file, int line, char *function)

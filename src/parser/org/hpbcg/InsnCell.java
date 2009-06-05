@@ -7,12 +7,10 @@ class InsnCell extends Insn
     public InsnCell()
     {
 	super(4);
-	insnList = loadInsnList("cell");
     }
     public InsnCell(String name)
     {
 	super(4);
-	insnList = loadInsnList("cell");
 	setInsn (name);
     }
     public void setParam (String name, int TYPE)

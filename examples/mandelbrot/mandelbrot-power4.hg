@@ -3,11 +3,19 @@
 
 #include "mandelbrot-common.h"
 
-typedef double (*pifdd) (tComplex *a);
+typedef int (*pifdd) (tComplex *a, tReal b);
 
 tComplex ConstZero   = { 0.0f, 0.0f };
 
 #cpu power4
+
+void compileSub(int Dest, int Src1, int Src2)
+{
+#[
+  fsub f(Dest),   f(Src1),   f(Src2)
+  fsub f(Dest+1), f(Src1+1), f(Src2+1)
+]#
+} /* compileSub */
 
 void compileAdd(int Dest, int Src1, int Src2)
 {
@@ -41,35 +49,41 @@ void compileMod(int Dest, int a)
 
 pifdd isInSetCompile(int limit, int colorMapSize)
 {
-  insn *code= (insn *)calloc(64, sizeof(insn));
-  int rZ, rC, rTmp;
+  insn * code= (insn *)calloc(64, sizeof(insn));
+  insn * branch1;
+  insn * branch2;
+  int frZ, frC, frTmp, frBorne, rLimit, rI;
+
   // Floating registers 1 & 2 contain C
-  rC = 0;
-  rZ = 2;
-  rTmp = 4;
+  frBorne = 0;
+  frC = 2;
+  frZ = 4;
+  frTmp = 6;
+  frBorne = 8;
+  rLimit = 5;
+  rI = 6;    
   #[	.org	code  
-	lfd f(rC),   0(r3)
-	lfd f(rC+1), 8(r3)
+	lfd f(frC),   0(r3)
+	lfd f(frC+1), 8(r3)
 
-	fsub f(rZ),   f(rZ),   f(rZ)
-	fsub f(rZ+1), f(rZ+1), f(rZ+1)
+	li r(rLimit), (limit)
+	mtctr r(rLimit)
+	li r(rI), 0
+   ]#
+	compileAdd(frZ, frZ, frZ);
+   #[
+branch1:
+	addi r(rI), r(rI), 1
   ]#;
-  compileMul(rZ, rZ, rZ, rTmp);
-  compileAdd(rZ, rC, rZ);
-
-  compileMul(rZ, rZ, rZ, rTmp);
-  compileAdd(rZ, rC, rZ);
-
-  compileMul(rZ, rZ, rZ, rTmp);
-  compileAdd(rZ, rC, 2);
-
-  compileMul(rZ, rZ, rZ, rTmp);
-  compileAdd(rZ, rC, rZ);
-
-  compileMod(1, rZ);
+  compileMul(frZ, frZ, frZ, frTmp);
+  compileAdd(frZ, frC, frZ);
+  compileMod(1, frZ);
   #[
-    stfd f(rZ),   0(r3)
-    stfd f(rZ+1), 8(r3)
+    fcmpu r7, f1, f(frBorne)
+    blt 7, (+2)
+    bdnz(branch1-asm_pc)
+branch2:
+    mr r3, r(rI)
     blr
    ]#
    return (pifdd) code;
@@ -79,13 +93,14 @@ int main(int argc, char * argv[])
 {
   pifdd isInSet;
   tComplex Center, C1, C2, Z;
-  tReal reInc, imInc, reSize, imSize, tmp;
-  int IMGXSIZE, IMGYSIZE, i, j, k;
+  tReal reInc, imInc, reSize, imSize;
+  int IMGXSIZE, IMGYSIZE, i, j, k, tmp;
   int COLORMAPSIZE = 65536;
   if (argc <= 6)
     {
       fprintf(stderr, "%s [Cr] i[Ci] re[Size] i[Size] imgXsize imgYsize\n", argv[0]);
       fprintf(stderr, "C = Center, B = bottom rigth\n");
+      fprintf(stderr, "Example : %s 0.0    0.0 3    3    1280 1024\n", argv[0]);
       exit(0);
     }
 
@@ -109,10 +124,9 @@ int main(int argc, char * argv[])
       C2 = C1;
       for (j = 0; j < IMGXSIZE; ++j)
 	{
-	  tmp = isInSet(&C2);
-	  if (4.0 < tmp)
-	    tmp = 4;
-	  printf("%d \n", (int) tmp*COLORMAPSIZE/256);
+	  tmp = isInSet(&C2, 4.0f);
+	  if (4 < tmp) tmp = 4;
+	  printf("%d ", tmp);
 	  RE(C2) += reInc;
 	}
       IMAG(C1) += imInc;

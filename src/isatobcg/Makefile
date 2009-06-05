@@ -29,7 +29,7 @@ CLASSFILES = IsaToBCGParser.class IsaToBCGLexer.class		\
 	InstructionsList.class Instruction.class		\
 	InstructionBinPart.class InstructionAsmPart.class
 
-all: java isa
+all: java isa test-v test-e
 
 java: ${CLASSFILES}
 
@@ -60,9 +60,9 @@ test-e:
 	gcc -Wall -I. -E hpbcg-power4.h -o /dev/null 
 	gcc -Wall -I. -E hpbcg-ia64.h   -o /dev/null 
 test-c:
-	gcc -Wall -I. -c hpbcg-cell.h 
-	gcc -Wall -I. -c hpbcg-power4.h 
-	gcc -Wall -I. -c hpbcg-ia64.h 
+	gcc -Wall -I. -c hpbcg-cell.h    -o /dev/null 
+	gcc -Wall -I. -c hpbcg-power4.h  -o /dev/null 
+	gcc -Wall -I. -c hpbcg-ia64.h    -o /dev/null 
 
 clean:
 	-rm ${FILESISA}

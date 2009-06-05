@@ -8,6 +8,7 @@ options { k = 2; }
 //   lexer class members
     InsnIa64 currentInsn = null;
     boolean debug;
+    InsnList ia64List = new InsnList("ia64");
     public void myParse(boolean debug) throws antlr.TokenStreamException
     {
 	boolean inAsm = true;
@@ -43,17 +44,19 @@ options { k = 2; }
 		    currentInsn = new InsnIa64(b.getText(), a.getText());
 		}
 		break;
-            case MNEMO:
-		if (a.getText().equals("ar.pfs"))
+            case MNEMO:	
+		String insnName = a.getText();
+		if (insnName.equals("ar.pfs"))
 		{
-		    Debug ("REG Application Register : " + a.getText());
-		    currentInsn.setParam(a.getText(), Insn.TYPEARREG);
+		    Debug ("REG Application Register : " + insnName);
+		    currentInsn.setParam(insnName, Insn.TYPEARREG);
 		}
 		else
 		{
-		    Debug ("MNEMO : " + a.getText());
+		    Debug ("MNEMONIC : " + insnName);
+		    ia64List.verifExistInsn(insnName);
 		    ejectInsn();
-		    currentInsn = new InsnIa64(a.getText());
+		    currentInsn = new InsnIa64(insnName);
 		}
                 break;
             case ENDMULTI: 

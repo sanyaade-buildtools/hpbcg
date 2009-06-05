@@ -4,6 +4,7 @@ lexer grammar  Power4;  // -*- java -*-
 //   lexer class members</em>
     Insn currentInsn = null;
     boolean debug;
+    InsnList powerList = new InsnList("power4");
     public void myParse(boolean debug) throws antlr.TokenStreamException
     {
         boolean inAsm = true;        
@@ -60,14 +61,23 @@ lexer grammar  Power4;  // -*- java -*-
                 currentInsn.setParam(number, Insn.TYPEINT);
                 currentInsn.setParam(register, Insn.TYPEIREG);
                 break;
-            case MNEMO:
-                Debug("MNEMONIC "+a.getText());
+            case LABEL: 
+		String labelName = a.getText();
+                Debug("LABEL"+labelName);
+                currentInsn = new InsnPower4();
+                currentInsn.setLabel(new String (labelName.getBytes(), 0, labelName.length() - 1));
                 ejectInsn();
-                currentInsn = new InsnPower4(a.getText());
+                break;
+            case MNEMO:
+		String insnName = a.getText();
+                Debug("MNEMONIC "+insnName);
+		powerList.verifExistInsn(insnName);
+                ejectInsn();
+                currentInsn = new InsnPower4(insnName);
                 break;
             case SEP:                 break;
             case WS:                  break;
-            case POWERREGOPEN:         
+            case POWERREGOPEN:
                 Debug("POWERREGOPEN"+a.getText());
 		switch(a.getText().charAt(0))
 		    {
@@ -125,6 +135,7 @@ INT      : ('+' | '-') ? (NUMBER)+;
 SEP      : ',' ;
 INDEX    : (NUMBER)+ '('  POWERREG ')';
 MNEMO    : LETTER (LETTER)* ;
+LABEL	 : LETTER (LETTER | NUMBER)* ':' ;
 POWERREG  : ('r'|'f') (NUMBER)+ | 'lr' | 'sp' | '(r' (NUMBER)+ ')';
 POWERREGOPEN : ('r'|'f') '('  ( options {greedy=false;} : . )* ')'  ;
 PAROPEN  : '('  ( options {greedy=false;} : . )* ')' ;

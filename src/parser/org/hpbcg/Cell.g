@@ -4,6 +4,7 @@ lexer grammar  Cell;  // -*- java -*-
 //   lexer class members</em>
     Insn currentInsn = null;
     boolean debug;
+    InsnList cellList = new InsnList("power4");
     public void myParse(boolean debug) throws antlr.TokenStreamException
     {
         boolean inAsm = true;        
@@ -45,8 +46,11 @@ lexer grammar  Cell;  // -*- java -*-
                 currentInsn.setParam(a.getText(), Insn.TYPEIDXREG);
                 break;
             case MNEMO:
+		String insnName = a.getText();
+                Debug("MNEMONIC "+insnName);
+		cellList.verifExistInsn(insnName);
                 ejectInsn();
-                currentInsn = new InsnCell(a.getText());
+                currentInsn = new InsnCell(insnName);
                 break;
             case SEP:                 break;
             case WS:                  break;

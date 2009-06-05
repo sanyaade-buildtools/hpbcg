@@ -214,6 +214,7 @@ The compilette block is delimited by theses tokens :
 Inside a compilette block a programmer can write standard assembler
 instructions. The used syntax for the assembly instructions is defined
 by the previous \verb|#cpu| An example of CELL instruction :
+
 \begin{verbatim}
 	mpyi    $3, $3, 4
 \end{verbatim}
@@ -230,6 +231,9 @@ instruction :
 
 \section{Compilettes examples}
 
+This section show basic compilettes examples the article \ref{KB2004}
+describe the first compilette examples and results.
+
 \subsection{simple-multiply}
 
 This example is very simple, it's just a proof of concept.
@@ -243,8 +247,8 @@ Code generated
  42  84 126 168 210 252 294 336 378 420 
 \end{verbatim}
 
-The \texttt{simple-multiply} program should generate a specialized
-version of a very simple program. The non specialized version is :
+The \texttt{simple-multiply} program generate a specialized version of
+a very simple program. The non specialized version is :
 \begin{verbatim}
 int multiply (int a, int b)
 {
@@ -269,10 +273,9 @@ This specialized version should be faster than the previous one because
 \begin{itemize}
 \item the code is less specialized (Well, for a 1 instruction
   function, it's not so evident, but you get the idea)
-\item the function contain less parameter, which use less memory and
-  less register
+\item the function contain less parameter, which use less memory in
+  the stack and less register
 \end{itemize}
-
 
 \subsubsection{Cell version}
 
@@ -570,8 +573,42 @@ For instance the \verb|cell.isa| description contain a line with :
 
 \end{description}
 
-\subsection{isatobcg Parser}
+\subsection{IsaToBCG parser}
 
+This parser translate the isa description into a code generation
+program.
+
+For example the ``multiply by a constant'' instruction which is in the
+\texttt{hpbcg-power4.isa} file is defined as :
+
+\begin{verbatim}
+000111  r1_5  r2_5  i1_15-0  | mulli  r1,  r2,  i1
+\end{verbatim}
+
+is translated into theses two instructions bloc. The first one is a
+macro instruction which can be partially evaluated at static compile
+time, the second one is a function version which is usefull for
+debugging purpose.
+
+\begin{verbatim}
+#define mulli_iRRI(r1, r2, i1)    \
+     ADDINSN(((((LENOK(7,6))<< 5  \
+     |  LENOK(r1,5))<< 5          \
+     |  LENOK(r2,5))<< 16         \
+     |  LENOK(i1 & 65535, 16)))
+\end{verbatim}
+
+\begin{verbatim}
+void mulli_iRRI(r1, r2, i1)      \
+{    ADDINSN(((((LENOK(7,6))<< 5 \
+    |  LENOK(r1,5))<< 5          \
+    |  LENOK(r2,5))<< 16         \
+    |  LENOK(i1 & 65535, 16)));
+#ifdef ASM_DEBUG
+    printf("%p : %s%s 0x%X\n", asm_pc, "mulli_iRRI", *(asm_pc-1));
+#endif /* ASM_DEBUG */
+}
+\end{verbatim}
 
 \subsection{\hpbcg Parser}
 
@@ -593,18 +630,30 @@ This part is devoted to different assembly languages that \hpbcg
 \item[Calling convention] 
 \end{description}
 
-\subsection{power and cell-ppu }
+\subsection{power, cell-ppu  and power FP2}
 
 \begin{description}
 \item[Integer register name]  one of
   \begin{itemize}
-  \item \verb|r0| .. \verb|r32|
-  \item \verb|r3| 1st function argument \& return value
+  \item \verb|r0| .. \verb|r31| integer registers name
+  \item \verb|f0| .. \verb|f31| floating point register name
+  \item \verb|Cst(rx)| \texttt{Cst} indexed value for register \texttt{rx}
   \end{itemize}
 \item[Calling convention] 
+  \begin{itemize}
+  \item \verb|r3| first interger parameter value
+  \item \verb|f0| first floating point register value (simple or double precision)
+  \end{itemize}
+\item[Return convention] 
+  \begin{itemize}
+  \item \verb|r3| return integer value
+  \item \verb|f0| return FP value
+  \end{itemize}
+
 \end{description}
 
 \subsection{ia64}
+
 \begin{description}
 \item[Registers name] one of
   \begin{itemize}

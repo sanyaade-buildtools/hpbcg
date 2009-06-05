@@ -6,7 +6,8 @@ import java.io.*;
 class Main
 {
     static boolean debug;
-    
+    String [] insnList;
+
     public static void main(String[] args) 
     {
         String currentArch = "No #arch defined", tmp;

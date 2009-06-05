@@ -9,18 +9,15 @@ class InsnIa64 extends Insn
     public InsnIa64()
     {
 	super(6);
-	insnList = loadInsnList("ia64");
     }
     public InsnIa64(String name)
     {
 	super(6);
-	insnList = loadInsnList("ia64");
 	setInsn (name);
     }
     public InsnIa64(String name, String pred)
     {
 	super(6);
-	insnList = loadInsnList("ia64");
 	setInsn (name);
 	setPredicat(pred);
     }
@@ -70,7 +67,6 @@ class InsnIa64 extends Insn
 	int i;
 	String tmp;
 	tmp = insnName+buildDescReg();
-	if (!verifExistInsn(tmp)) fatalErrorMsg ("Insn "+tmp+" doesn't exist");
 	tmp += "(";
 	for (i = 0; i < currentRegister - 1;  i++)
 	{

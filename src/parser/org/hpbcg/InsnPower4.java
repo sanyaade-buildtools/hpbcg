@@ -7,12 +7,10 @@ class InsnPower4 extends Insn
     public InsnPower4()
     {
 	super(4);
-	insnList = loadInsnList("power4");
     }
     public InsnPower4(String name)
     {
 	super(4);
-	insnList = loadInsnList("power4");
 	setInsn (name);
     }
     public void setParam (String name, int TYPE)
