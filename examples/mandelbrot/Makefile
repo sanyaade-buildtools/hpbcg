@@ -9,6 +9,7 @@ COMPLEXFILES = mandelbrot-complex
 POWERFILES   = mandelbrot-power4 mandelbrot-power4.c
 FILES  = 
 IMGSIZE = 3000 3000
+
 quoi:
 	@echo -n "make what ?     "
 	@echo "make [cell|ia64|power4|bluegene]"
