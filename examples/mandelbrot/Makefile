@@ -3,26 +3,48 @@
 .hg.c:
 	hpbcg $< > $@
 
-CFLAGS=-I${HPBCGHOME}/include/ -g ${ADDCFLAGS} # -DASM_DEBUG -DWITH_HPBCG_FUNCTIONS # -DWITHCOMPLEXSUPPORT
-CFILES = mandelbrot
-POWERFILES = mandelbrot-power4 mandelbrot-power4.c
+CFLAGS=-fno-inline -I${HPBCGHOME}/include/ -g ${ADDCFLAGS} 
+CFILES       = mandelbrot
+COMPLEXFILES = mandelbrot-complex
+POWERFILES   = mandelbrot-power4 mandelbrot-power4.c
+FILES  = 
+IMGSIZE = 3000 3000
 quoi:
 	@echo -n "make what ?     "
 	@echo "make [cell|ia64|power4|bluegene]"
 
-all: ${FILES}
+all: C C-complex power4 
 
-power4:
-	hpbcg mandelbrot-power4.hg > mandelbrot-power4.c
-	${CC} ${CFLAGS} -o mandelbrot-power4 mandelbrot-power4.c
+C:
+	${MAKE} ADDCFLAGS="-O3" mandelbrot
+
+C-complex:
+	${MAKE} ADDCFLAGS="-O3 -DWITHCOMPLEXSUPPORT" mandelbrot-complex
+
+power4:	# Could use  -DASM_DEBUG -DWITH_HPBCG_FUNCTIONS 
+	${MAKE} ADDCFLAGS="" mandelbrot-power4
+
+
+mandelbrot-complex: mandelbrot.c
+	${CC} ${CFLAGS} -o $@ $?
+
+mandelbrot-power4: mandelbrot-power4.c
+
+mandelbrot-power4.c: mandelbrot-power4.hg
+
 test: all
-	time ./mandelbrot 0.0    0.0 3    3    1280 1024 > /tmp/OUT1.pgm
-	time ./mandelbrot -1.411 0.0 0.01 0.01 1280 1024 > /tmp/OUT2.pgm
-	qiv -T /tmp/OUT*.pgm&
+	make test-arch ARCH=""
+	make test-arch ARCH="-power4"
+	make test-arch ARCH="-complex"
+	scp /tmp/OUT[12]*.pgm vlaminck:/usr/tmp
 
+test-arch:
+	time ./mandelbrot${ARCH}  0.0   0.0 3    3    ${IMGSIZE} > /dev/null
+	time ./mandelbrot${ARCH} -1.411 0.0 0.01 0.01 ${IMGSIZE} > /dev/null
 clean:
-	make FILES="${CFILES}" real-clean
+	make FILES="${CFILES}"     real-clean
 	make FILES="${POWERFILES}" real-clean
+	make FILES="${COMPLEXFILES}" real-clean
 
 real-clean:
 	-rm ${FILES}

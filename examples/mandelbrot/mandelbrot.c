@@ -3,7 +3,7 @@
 
 #include "mandelbrot-common.h"
 
-int isInSet(tComplex C, int limit, int colorMapSize)
+int isInSet(tComplex C, int limit, tReal moduleMax)
 {
   int i;
   tReal mod;
@@ -15,11 +15,12 @@ int isInSet(tComplex C, int limit, int colorMapSize)
   for (i = 0; i < limit; i++)
     {
       Z = cAdd (cMul (Z, Z), C);
-      //  pComplex(Z, stdout);
       mod = module (Z);
-      if (4.0 < mod) break;
+      //      pComplex(Z, stdout);
+      if (moduleMax < mod) break;
     }
-  return colorMapSize*i/limit;
+  //  (void) printf("%2.2f \n", mod);
+  return i;
 } /* isInSet */
 
 int main(int argc, char * argv[])
@@ -28,6 +29,7 @@ int main(int argc, char * argv[])
   tReal reInc, imInc, reSize, imSize;
   int IMGXSIZE, IMGYSIZE, i, j, k;
   int COLORMAPSIZE = 65536;
+  int ITERLIMIT = 256;
   if (argc <= 6)
     {
       fprintf(stderr, "%s [Cr] i[Ci] re[Size] i[Size] imgXsize imgYsize\n", argv[0]);
@@ -38,8 +40,12 @@ int main(int argc, char * argv[])
   reSize     = atof (argv[3]);  imSize   = atof (argv[4]);
   IMGXSIZE   = atoi (argv[5]);
   IMGYSIZE   = atoi (argv[6]);
-  fprintf(stderr, "Mendelbrot set : ");  pComplex(Center, stderr); 
-  fprintf(stderr, "\nSize     : %f %f \n", reSize, imSize);
+#ifdef WITHCOMPLEXSUPPORT
+  fprintf(stderr, "Mendelbrot set (complex support): ");  pComplex(Center, stderr); 
+#else 
+  fprintf(stderr, "Mendelbrot set (real support): ");  pComplex(Center, stderr); 
+#endif
+  fprintf(stderr, "Size     : %2.2f %2.2f ", reSize, imSize);
   fprintf(stderr, "Img Size : %dx%d\n",IMGXSIZE, IMGYSIZE);
 
   reInc = reSize / IMGXSIZE;
@@ -53,7 +59,7 @@ int main(int argc, char * argv[])
       C2 = C1;
       for (j = 0; j < IMGXSIZE; ++j)
 	{
-	  printf("%d ", isInSet(C2, 256, COLORMAPSIZE));
+	  printf("%d ", COLORMAPSIZE*isInSet(C2, ITERLIMIT, 4.0f)/ITERLIMIT);
 	  RE(C2) += reInc;
 	}
       IMAG(C1) += imInc;

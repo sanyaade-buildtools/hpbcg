@@ -47,20 +47,16 @@ void compileMod(int Dest, int a)
 } /* compileMod */
 
 
-pifdd isInSetCompile(int limit, int colorMapSize)
+pifdd isInSetCompile(int limit)
 {
   insn * code= (insn *)calloc(64, sizeof(insn));
   insn * branch1;
-  insn * branch2;
-  int frZ, frC, frTmp, frBorne, rLimit, rI;
+  int frZ, frC, frTmp, rLimit, rI;
 
-  // Floating registers 1 & 2 contain C
-  frBorne = 0;
-  frC = 2;
-  frZ = 4;
+  rLimit = 0;
+  frC = 2;   // Floating registers 2 & 3 contain C
+  frZ = 4;   // Floating registers 4 & 5 contain Z
   frTmp = 6;
-  frBorne = 8;
-  rLimit = 5;
   rI = 6;    
   #[	.org	code  
 	lfd f(frC),   0(r3)
@@ -70,19 +66,19 @@ pifdd isInSetCompile(int limit, int colorMapSize)
 	mtctr r(rLimit)
 	li r(rI), 0
    ]#
-	compileAdd(frZ, frZ, frZ);
+  compileSub(frZ, frZ, frZ);
    #[
 branch1:
-	addi r(rI), r(rI), 1
+     addi r(rI), r(rI), 1
   ]#;
   compileMul(frZ, frZ, frZ, frTmp);
   compileAdd(frZ, frC, frZ);
-  compileMod(1, frZ);
+  compileMod(frTmp, frZ);
   #[
-    fcmpu r7, f1, f(frBorne)
-    blt 7, (+2)
-    bdnz(branch1-asm_pc)
-branch2:
+    fcmpu r2, f(frTmp), f(rLimit)
+    bc  r0, r9, (branch1-asm_pc)
+  
+    subi r(rI), r(rI), 1
     mr r3, r(rI)
     blr
    ]#
@@ -96,6 +92,7 @@ int main(int argc, char * argv[])
   tReal reInc, imInc, reSize, imSize;
   int IMGXSIZE, IMGYSIZE, i, j, k, tmp;
   int COLORMAPSIZE = 65536;
+  int ITERLIMIT = 256;
   if (argc <= 6)
     {
       fprintf(stderr, "%s [Cr] i[Ci] re[Size] i[Size] imgXsize imgYsize\n", argv[0]);
@@ -104,13 +101,13 @@ int main(int argc, char * argv[])
       exit(0);
     }
 
-  isInSet = isInSetCompile(256, 256);
+  isInSet = isInSetCompile(ITERLIMIT);
   cSet(&Center, atof (argv[1]), atof (argv[2]));
   reSize     = atof (argv[3]);  imSize   = atof (argv[4]);
   IMGXSIZE   = atoi (argv[5]);
   IMGYSIZE   = atoi (argv[6]);
-  fprintf(stderr, "Mendelbrot set : ");  pComplex(Center, stderr); 
-  fprintf(stderr, "\nSize     : %f %f \n", reSize, imSize);
+  fprintf(stderr, "Mendelbrot set (power4 compilette support) : ");  pComplex(Center, stderr); 
+  fprintf(stderr, "Size     : %2.2f %2.2f ", reSize, imSize);
   fprintf(stderr, "Img Size : %dx%d\n",IMGXSIZE, IMGYSIZE);
 
   reInc = reSize / IMGXSIZE;
@@ -125,8 +122,7 @@ int main(int argc, char * argv[])
       for (j = 0; j < IMGXSIZE; ++j)
 	{
 	  tmp = isInSet(&C2, 4.0f);
-	  if (4 < tmp) tmp = 4;
-	  printf("%d ", tmp);
+	  printf("%d ", COLORMAPSIZE*tmp/ITERLIMIT);
 	  RE(C2) += reInc;
 	}
       IMAG(C1) += imInc;
