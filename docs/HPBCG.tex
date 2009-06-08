@@ -523,6 +523,27 @@ pifi rpnCompile(char *expr)
     }
 \end{lstlisting}
 
+
+\subsection{Mandelbrot set}
+
+The Mandelbrot set is a mathematical set of point in the complex plane
+defined as the set of complex values of $c$ for which the orbit of 0
+under iteration of the complex quadratic polynomial $z_{n+1} = z_n^2 + c$
+remains bounded. That is, a complex number, c, is in the Mandelbrot
+set if, when starting with $z_0=0$ and applying the iteration repeatedly,
+the absolute value of $z_n$ never exceeds a certain number (that number
+depends on $c$) however large n
+gets. \footnote{\url{http://en.wikipedia.org/wiki/Mandelbrot_set}}
+
+\subsection{power 4 implementation}
+
+A complex number is implemented with two successive floating point registers.
+
+\subsection{cell implementation}
+
+A complex number is implemeted with one register. The two first slots
+are the real and imaginary parts.
+
 \section{Porting \hpbcg}
 
 Porting \hpbcg to a new architecture should be as simple than the

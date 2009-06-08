@@ -21,7 +21,9 @@ void pComplex(tComplex a, FILE *o)
 {
   fprintf(o, "%+2.2f+i*%+2.2f ", __real__  a, __imag__ a);
 } /* pComplex */
-#else
+
+#else  /* Without COMPLEXSUPPORT */
+
 typedef struct { tReal re, im; } tComplex;
 #define RE(var)    (var).re
 #define IMAG(var)  (var).im
@@ -50,14 +52,6 @@ tComplex cAdd(tComplex a, tComplex b)
   return tmp;
 } /* cAdd */
 
-tReal module(tComplex a)
-{
-  return a.re*a.re + a.im*a.im;
-} /* module */
-
-
-void pComplex(tComplex a, FILE *o)
-{
-  fprintf(o, "%+2.2f+i*%+2.2f ", a.re, a.im);
-} /* pComplex */
+tReal module(tComplex a){  return a.re*a.re + a.im*a.im;} /* module */
+void pComplex(tComplex a, FILE *o){  fprintf(o, "%+2.2f+i*%+2.2f ", a.re, a.im);} /* pComplex */
 #endif

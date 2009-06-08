@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "mandelbrot-common.h"
+#include "mandelbrot-palette.h"
 
 typedef int (*pifdd) (tComplex *a, tReal b);
 
@@ -91,7 +92,6 @@ int main(int argc, char * argv[])
   tComplex Center, C1, C2, Z;
   tReal reInc, imInc, reSize, imSize;
   int IMGXSIZE, IMGYSIZE, i, j, k, tmp;
-  int COLORMAPSIZE = 65536;
   int ITERLIMIT = 256;
   if (argc <= 6)
     {
@@ -121,8 +121,8 @@ int main(int argc, char * argv[])
       C2 = C1;
       for (j = 0; j < IMGXSIZE; ++j)
 	{
-	  tmp = isInSet(&C2, 4.0f);
-	  printf("%d ", COLORMAPSIZE*tmp/ITERLIMIT);
+	  k = COLORMAPSIZE*isInSet(&C2, 4.0f)/ITERLIMIT;
+	  printf("%d %d %d\n", thePalette[k].r, thePalette[k].v, thePalette[k].b);
 	  RE(C2) += reInc;
 	}
       IMAG(C1) += imInc;

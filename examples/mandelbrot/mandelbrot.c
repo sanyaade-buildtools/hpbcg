@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "mandelbrot-common.h"
+#include "mandelbrot-palette.h"
 
 int isInSet(tComplex C, int limit, tReal moduleMax)
 {
@@ -28,7 +29,6 @@ int main(int argc, char * argv[])
   tComplex Center, C1, C2, Z;
   tReal reInc, imInc, reSize, imSize;
   int IMGXSIZE, IMGYSIZE, i, j, k;
-  int COLORMAPSIZE = 65536;
   int ITERLIMIT = 256;
   if (argc <= 6)
     {
@@ -51,16 +51,17 @@ int main(int argc, char * argv[])
   reInc = reSize / IMGXSIZE;
   imInc = imSize / IMGYSIZE;
   cSet(&C1, RE(Center) - (reSize / 2.0f), IMAG(Center) - (imSize / 2.0f));
-  (void) printf("P2\n");  
-  (void) printf("%d %d\n", IMGXSIZE, IMGYSIZE);  
-  (void) printf("%d\n", COLORMAPSIZE);  
+  printf("P3\n");  
+  printf("%d %d\n", IMGXSIZE, IMGYSIZE);  
+  printf("%d\n", COLORMAPSIZE);  
   for (i = 0; i < IMGYSIZE; i++)
     {
       C2 = C1;
       for (j = 0; j < IMGXSIZE; ++j)
 	{
-	  printf("%d ", COLORMAPSIZE*isInSet(C2, ITERLIMIT, 4.0f)/ITERLIMIT);
-	  RE(C2) += reInc;
+	  k = COLORMAPSIZE*isInSet(C2, ITERLIMIT, 4.0f)/ITERLIMIT;
+	  printf("%d %d %d\n", thePalette[k].r, thePalette[k].v, thePalette[k].b);
+  	  RE(C2) += reInc;
 	}
       IMAG(C1) += imInc;
       printf("\n");

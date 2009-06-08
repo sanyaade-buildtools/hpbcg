@@ -1,5 +1,6 @@
 #include <stdio.h> /* -*- c -*- */
 #include <stdlib.h>
+#include <mpi.h>
 
 #include "mandelbrot-common.h"
 
