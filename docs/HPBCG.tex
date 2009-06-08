@@ -231,7 +231,7 @@ instruction :
 
 \section{Compilettes examples}
 
-This section show basic compilettes examples the article \ref{KB2004}
+This section show basic compilettes examples the article \cite{KB2004}
 describe the first compilette examples and results.
 
 \subsection{simple-multiply}
@@ -632,22 +632,26 @@ This part is devoted to different assembly languages that \hpbcg
 
 \subsection{power, cell-ppu  and power FP2}
 
+Full programming description can be found in \cite{POWERABI1} or
+\cite{POWERABI2}.
+
 \begin{description}
 \item[Integer register name]  one of
   \begin{itemize}
   \item \verb|r0| .. \verb|r31| integer registers name
   \item \verb|f0| .. \verb|f31| floating point register name
+  \item \verb|v0| .. \verb|v31| vector register name (if altivec)
   \item \verb|Cst(rx)| \texttt{Cst} indexed value for register \texttt{rx}
   \end{itemize}
 \item[Calling convention] 
   \begin{itemize}
-  \item \verb|r3| first interger parameter value
-  \item \verb|f0| first floating point register value (simple or double precision)
+  \item \verb|r3-r10| first interger parameter value
+  \item \verb|f1-f13| first floating point register value (simple or double precision)
   \end{itemize}
 \item[Return convention] 
   \begin{itemize}
   \item \verb|r3| return integer value
-  \item \verb|f0| return FP value
+  \item \verb|f1| return FP value
   \end{itemize}
 
 \end{description}

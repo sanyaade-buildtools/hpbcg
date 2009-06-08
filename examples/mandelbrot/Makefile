@@ -7,6 +7,7 @@ CFLAGS=-fno-inline -I${HPBCGHOME}/include/ -g ${ADDCFLAGS}
 CFILES       = mandelbrot
 COMPLEXFILES = mandelbrot-complex
 POWERFILES   = mandelbrot-power4 mandelbrot-power4.c
+BGFILES   = mandelbrot-bluegene mandelbrot-bluegene.c
 FILES  = 
 IMGSIZE = 3000 3000
 
@@ -18,13 +19,14 @@ all: C C-complex power4
 
 C:
 	${MAKE} ADDCFLAGS="-O3" mandelbrot
-
 C-complex:
 	${MAKE} ADDCFLAGS="-O3 -DWITHCOMPLEXSUPPORT" mandelbrot-complex
 
 power4:	# Could use  -DASM_DEBUG -DWITH_HPBCG_FUNCTIONS 
 	${MAKE} ADDCFLAGS="" mandelbrot-power4
 
+bluegene:	# Could use  -DASM_DEBUG -DWITH_HPBCG_FUNCTIONS 
+	${MAKE} ADDCFLAGS="" mandelbrot-bluegene
 
 mandelbrot-complex: mandelbrot.c
 	${CC} ${CFLAGS} -o $@ $?
@@ -46,6 +48,7 @@ clean:
 	make FILES="${CFILES}"     real-clean
 	make FILES="${POWERFILES}" real-clean
 	make FILES="${COMPLEXFILES}" real-clean
+	make FILES="${BGFILES}" real-clean
 
 real-clean:
 	-rm ${FILES}
