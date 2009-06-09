@@ -120,9 +120,9 @@ int main(int argc, char * argv[])
   reInc = reSize / IMGXSIZE;
   imInc = imSize / IMGYSIZE;
   cSet(&C1, RE(Center) - (reSize / 2.0f), IMAG(Center) - (imSize / 2.0f));
-  (void) printf("P2\n");  
+  (void) printf("P3\n");  
   (void) printf("%d %d\n", IMGXSIZE, IMGYSIZE);  
-  (void) printf("%d\n", COLORMAPSIZE);  
+  (void) printf("%d\n", 256);  
   for (i = 0; i < IMGYSIZE; i++)
     {
       C2 = C1;

@@ -32,13 +32,26 @@ cell:	# Could use  -DASM_DEBUG -DWITH_HPBCG_FUNCTIONS
 bluegene:	# Could use  -DASM_DEBUG -DWITH_HPBCG_FUNCTIONS 
 	${MAKE} ADDCFLAGS="" mandelbrot-bluegene
 
-mandelbrot-complex: mandelbrot.c
+mandelbrot-complex: mandelbrot.c mandelbrot-palette.h
 	${CC} ${CFLAGS} -o $@ $?
 
+mandelbrot: mandelbrot.c mandelbrot-palette.h
+mandelbrot-palette.h: mandelbrot-palette
+	./mandelbrot-palette 16384 > mandelbrot-power4.h
 mandelbrot-power4: mandelbrot-power4.c
 mandelbrot-power4.c: mandelbrot-power4.hg
 mandelbrot-cell: mandelbrot-cell.c
 mandelbrot-cell.c: mandelbrot-cell.hg
+
+color:
+	gcc -DIMAGE=1 -o ColorMapGenerator ColorMapGenerator.c
+	./ColorMapGenerator 16 > /tmp/a016.pnm
+	./ColorMapGenerator 32 > /tmp/a032.pnm
+	./ColorMapGenerator 64 > /tmp/a064.pnm
+	./ColorMapGenerator 128 > /tmp/a128.pnm
+	./ColorMapGenerator 256 > /tmp/a256.pnm
+	./ColorMapGenerator 512 > /tmp/a512.pnm
+	./ColorMapGenerator 1024 > /tmp/a1024.pnm
 
 test: all
 	make test-arch ARCH=""

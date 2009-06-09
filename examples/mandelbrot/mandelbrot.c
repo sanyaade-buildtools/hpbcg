@@ -53,7 +53,7 @@ int main(int argc, char * argv[])
   cSet(&C1, RE(Center) - (reSize / 2.0f), IMAG(Center) - (imSize / 2.0f));
   printf("P3\n");  
   printf("%d %d\n", IMGXSIZE, IMGYSIZE);  
-  printf("%d\n", COLORMAPSIZE);  
+  printf("%d\n", 256);  
   for (i = 0; i < IMGYSIZE; i++)
     {
       C2 = C1;
