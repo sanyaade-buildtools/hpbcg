@@ -4,19 +4,18 @@
 #include <string.h>
 #include <pthread.h>
 
-
 #include <malloc_align.h>
 #include <free_align.h>
 #include <libspe2.h>
 
-#define SendInt(CTX, VAL) spe_in_mbox_write(CTX, \
-			(unsigned int *) &VAL, \
-			1, SPE_MBOX_ANY_NONBLOCKING);
-#define GetInt(CTX, VAL)  spe_out_intr_mbox_read(CTX,\
-			(unsigned int *) &VAL, \
-			1, SPE_MBOX_ALL_BLOCKING);
 #cpu cell
 
+#define SendInt(CTX, VAL)						\
+  spe_in_mbox_write(CTX,    (unsigned int *) &VAL,			\
+		    1, SPE_MBOX_ANY_NONBLOCKING);
+#define GetInt(CTX, VAL)						\
+  spe_out_intr_mbox_read(CTX,	(unsigned int *) &VAL,			\
+			 1, SPE_MBOX_ALL_BLOCKING);
 typedef int (*pifi)(int);
 pifi multiplyFunc; 
 
@@ -38,7 +37,6 @@ void *waitingThread(void * arg)
 {
   spe_program_handle_t *spu_handle;
   spe_stop_info_t stop_info;
-  insn *insnbuffer;
   spe_context_ptr_t ctx = *(spe_context_ptr_t *) arg;  
   unsigned int entry = SPE_DEFAULT_ENTRY;
 
@@ -48,7 +46,6 @@ void *waitingThread(void * arg)
   spe_program_load(ctx, spu_handle);
   /* Send and launch the code */
   spe_context_run(ctx, &entry, 0, multiplyFunc, NULL, &stop_info);
-  _free_align(insnbuffer);
   pthread_exit(0);
 }
 

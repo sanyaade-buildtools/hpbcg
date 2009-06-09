@@ -38,27 +38,36 @@ void genDegrade(int l, tColor start, tColor end)
 } /* genDegrage */
 
 
+void pComment(char * c)
+{
+#ifdef IMAGE
+  printf("# %s\n", c);
+#else
+  printf("/* %s */\n", c);
+#endif
+} /* pColor */
+
 void genOneColor(int len, tColor theColor)
 {
-  printf("# Black to Color\n");
+  pComment("Black to Color");
   genDegrade(len/4,   BLACK,    theColor);
-  printf("# Color to white\n");
+  pComment("Color to white");
   genDegrade(len/4,   theColor, WHITE);
-  printf("# White to color\n");
+  pComment("White to color");
   genDegrade(len/4,   WHITE,    theColor);
-  printf("# Color to black\n");
+  pComment("Color to black");
   genDegrade(len/4,   theColor, BLACK);
 }
 
 void genImage (int width, int height)
 {
-  int i, j, tmp;
+  int i;
   printf("P3\n");
   printf("%d %d\n", width, height);
   printf("%d \n", 256);
   for (i = 0; i < height; ++i)
     {
-      (void) printf("# Beginning of line\n");
+      printf("# Beginning of line\n");
       genOneColor(width/4, BLUE);
       genOneColor(width/4, RED);
       genOneColor(width/4, GREEN);
@@ -68,7 +77,6 @@ void genImage (int width, int height)
 
 void genColorMap(int width)
 {
-  int i, tmp;
   printf("#define COLORMAPSIZE %d\n", width);
   printf("typedef struct {int r, v, b;}tColor;\n");
   printf("tColor thePalette[%d]=\n", width);
@@ -89,6 +97,7 @@ int main(int argc, char * argv[])
       printf("%s Lenght\n", argv[0]);
       exit(0);
     }
+#if 1
   lenght = atoi(argv[1]);
   for (bitcount = 0, i = lenght; i; i >>= 1)
     if (1 == (i & 1)) bitcount++;
@@ -97,6 +106,9 @@ int main(int argc, char * argv[])
       printf("%d lenght should be a power of 2 > 16 \n", lenght);
       exit(0);
     }
+#else
+  lenght = 32;
+#endif
 #ifdef IMAGE
   genImage(lenght,256);
 #else

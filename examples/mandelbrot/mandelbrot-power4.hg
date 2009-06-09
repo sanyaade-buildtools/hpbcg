@@ -89,9 +89,9 @@ branch1:
 int main(int argc, char * argv[])
 {
   pifdd isInSet;
-  tComplex Center, C1, C2, Z;
+  tComplex Center, C1, C2;
   tReal reInc, imInc, reSize, imSize;
-  int IMGXSIZE, IMGYSIZE, i, j, k, tmp;
+  int IMGXSIZE, IMGYSIZE, i, j, k;
   int ITERLIMIT = 256;
   if (argc <= 6)
     {

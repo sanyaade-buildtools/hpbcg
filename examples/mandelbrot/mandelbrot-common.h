@@ -1,6 +1,3 @@
-
-typedef double tReal;
-
 #ifdef WITHCOMPLEXSUPPORT
 #include <complex.h>
 #define tComplex _Complex double
@@ -55,3 +52,12 @@ tComplex cAdd(tComplex a, tComplex b)
 tReal module(tComplex a){  return a.re*a.re + a.im*a.im;} /* module */
 void pComplex(tComplex a, FILE *o){  fprintf(o, "%+2.2f+i*%+2.2f ", a.re, a.im);} /* pComplex */
 #endif
+
+
+typedef struct { 
+  union { 
+    tComplex complexValues;
+    int          intValues[2];
+  } u;
+} tComplexUnion;
+

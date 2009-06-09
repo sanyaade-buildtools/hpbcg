@@ -3,72 +3,58 @@
 .hg.c:
 	hpbcg $< > $@
 
+CDIR = /opt/cell/sdk/usr/
 CFLAGS=-fno-inline -I${HPBCGHOME}/include/ -g ${ADDCFLAGS} 
-CFILES       = mandelbrot
-COMPLEXFILES = mandelbrot-complex
-POWERFILES   = mandelbrot-power4 mandelbrot-power4.c
-CELLFILES   = mandelbrot-cell4 mandelbrot-cell4.c
-BGFILES   = mandelbrot-bluegene mandelbrot-bluegene.c
-FILES  = 
+LDFLAGS=${ADDLDFLAGS} 
+CFILES       = mandelbrot-palette.h  mandelbrot  
+COMPLEXFILES = mandelbrot-palette.h mandelbrot-complex 
+POWERFILES   = mandelbrot-palette.h  mandelbrot-power4 mandelbrot-power4.c 
+CELLFILES    = mandelbrot-palette.h mandelbrot-cell mandelbrot-cell.c simple-worker-cell
+BGFILES      = mandelbrot-palette.h mandelbrot-bluegene mandelbrot-bluegene.c
 IMGSIZE = 3000 3000
 
 quoi:
 	@echo -n "make what ?     "
 	@echo "make [cell|ia64|power4|bluegene]"
 
-all: C C-complex power4 
+all: ${FILES}
 
 C:
-	${MAKE} ADDCFLAGS="-O3" mandelbrot
+	${MAKE} FILES="${CFILES}" ADDCFLAGS="-DtReal=double -Wall -O3" mandelbrot
 C-complex:
-	${MAKE} ADDCFLAGS="-O3 -DWITHCOMPLEXSUPPORT" mandelbrot-complex
+	${MAKE} FILES="${COMPLEXFILES}" ADDCFLAGS="-DtReal=double -Wall -O3 -DWITHCOMPLEXSUPPORT" mandelbrot-complex
 
 power4:	# Could use  -DASM_DEBUG -DWITH_HPBCG_FUNCTIONS 
-	${MAKE} ADDCFLAGS="" mandelbrot-power4
+	${MAKE} FILES="${POWERFILES}" ADDCFLAGS="-DtReal=double -Wall " all
 
 cell:	# Could use  -DASM_DEBUG -DWITH_HPBCG_FUNCTIONS 
-	${MAKE} ADDCFLAGS="" mandelbrot-cell
+	${MAKE} FILES="${CELLFILES}" ADDCFLAGS="-DtReal=float -Wall -I${CDIR}/include" ADDLDFLAGS="-lspe2" all
 
 bluegene:	# Could use  -DASM_DEBUG -DWITH_HPBCG_FUNCTIONS 
-	${MAKE} ADDCFLAGS="" mandelbrot-bluegene
+	${MAKE} FILES="${BGFILES}" ADDCFLAGS="" all
 
-mandelbrot-complex: mandelbrot.c mandelbrot-palette.h
-	${CC} ${CFLAGS} -o $@ $?
-
-mandelbrot: mandelbrot.c mandelbrot-palette.h
 mandelbrot-palette.h: mandelbrot-palette
-	./mandelbrot-palette 16384 > mandelbrot-power4.h
-mandelbrot-power4: mandelbrot-power4.c
-mandelbrot-power4.c: mandelbrot-power4.hg
-mandelbrot-cell: mandelbrot-cell.c
-mandelbrot-cell.c: mandelbrot-cell.hg
+	./mandelbrot-palette 16384 > mandelbrot-palette.h
 
-color:
-	gcc -DIMAGE=1 -o ColorMapGenerator ColorMapGenerator.c
-	./ColorMapGenerator 16 > /tmp/a016.pnm
-	./ColorMapGenerator 32 > /tmp/a032.pnm
-	./ColorMapGenerator 64 > /tmp/a064.pnm
-	./ColorMapGenerator 128 > /tmp/a128.pnm
-	./ColorMapGenerator 256 > /tmp/a256.pnm
-	./ColorMapGenerator 512 > /tmp/a512.pnm
-	./ColorMapGenerator 1024 > /tmp/a1024.pnm
+simple-worker-cell: simple-worker-cell.c
+	spu-gcc -g ${CFLAGS} -o simple-worker-cell simple-worker-cell.c 
 
 test: all
 	make test-arch ARCH=""
 	make test-arch ARCH="-power4"
-	make test-arch ARCH="-cell"
 	make test-arch ARCH="-complex"
-	scp /tmp/OUT[12]*.pgm vlaminck:/usr/tmp
+	make test-arch ARCH="-cell"
 
 test-arch:
 	time ./mandelbrot${ARCH}  0.0   0.0 3    3    ${IMGSIZE} > /dev/null
 	time ./mandelbrot${ARCH} -1.411 0.0 0.01 0.01 ${IMGSIZE} > /dev/null
 clean:
+	-rm mandelbrot-palette
 	make FILES="${CFILES}"       real-clean
 	make FILES="${POWERFILES}"   real-clean
 	make FILES="${COMPLEXFILES}" real-clean
 	make FILES="${BGFILES}"      real-clean
-	make FILES="${CELLILES}"     real-clean
+	make FILES="${CELLFILES}"     real-clean
 
 real-clean:
 	-rm ${FILES}
