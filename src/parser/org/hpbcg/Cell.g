@@ -45,6 +45,13 @@ lexer grammar  Cell;  // -*- java -*-
                 Debug("INDEX ");
                 currentInsn.setParam(a.getText(), Insn.TYPEIDXREG);
                 break;
+            case LABEL: 
+		String labelName = a.getText();
+                Debug("LABEL"+labelName);
+                currentInsn = new InsnCell();
+                currentInsn.setLabel(new String (labelName.getBytes(), 0, labelName.length() - 1));
+                ejectInsn();
+                break;
             case MNEMO:
 		String insnName = a.getText();
                 Debug("MNEMONIC "+insnName);
@@ -104,16 +111,18 @@ ENDMULTI : '}#' ;
 ENDUNI   : ']#' ;
 EOL      : '\n';
 WS       : (' ' | '\t');
-INT      : ('+' | '-') ? (NUMBER)+;
+INT      : (('+' | '-') ? (NUMBER)+ | '0x' (NUMBER|LETTERHEXA)+);
 SEP      : ',' ;
 INDEX    : (NUMBER)+ '('  CELLREG ')';
 MNEMO    : LETTER (LETTER | NUMBER)* ;
+LABEL	 : LETTER (LETTER | NUMBER)* ':' ;
 CELLREG  : '$' (NUMBER)+ | '$lr' | '$sp' | '($' (NUMBER)+ ')';
 CELLREGOPEN : '$('  ( options {greedy=false;} : . )* ')' ;
 PAROPEN  : '('  ( options {greedy=false;} : . )* ')' ;
 
-fragment LETTER : ('a'..'z' | 'A'..'Z');
-fragment NUMBER : ('0'..'9');
+fragment LETTERHEXA : ('a'..'f' | 'A'..'F');
+fragment LETTER     : ('a'..'z' | 'A'..'Z');
+fragment NUMBER     : ('0'..'9');
 // NUL SOH STX ETX EOT ENQ ACK BEL BS HT NL VT NP CR SO SI DLE DC1
 // DC2 DC3 DC4 NAK SYN ETB CAN EM SUB ESC FS GS RS US
 // SP !  "  # $ % & ' ( ) * + , - .  /

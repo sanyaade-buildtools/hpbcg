@@ -26,7 +26,7 @@ int isInSet(tComplex C, int limit, tReal moduleMax)
 
 int main(int argc, char * argv[])
 {
-  tComplex Center, C1, C2, Z;
+  tComplex Center, C1, C2;
   tReal reInc, imInc, reSize, imSize;
   int IMGXSIZE, IMGYSIZE, i, j, k;
   int ITERLIMIT = 256;
@@ -41,9 +41,9 @@ int main(int argc, char * argv[])
   IMGXSIZE   = atoi (argv[5]);
   IMGYSIZE   = atoi (argv[6]);
 #ifdef WITHCOMPLEXSUPPORT
-  fprintf(stderr, "Mendelbrot set (complex support): ");  pComplex(Center, stderr); 
+  fprintf(stderr, "Mandelbrot set (complex support): ");  pComplex(Center, stderr); 
 #else 
-  fprintf(stderr, "Mendelbrot set (real support): ");  pComplex(Center, stderr); 
+  fprintf(stderr, "Mandelbrot set (real support): ");  pComplex(Center, stderr); 
 #endif
   fprintf(stderr, "Size     : %2.2f %2.2f ", reSize, imSize);
   fprintf(stderr, "Img Size : %dx%d\n",IMGXSIZE, IMGYSIZE);

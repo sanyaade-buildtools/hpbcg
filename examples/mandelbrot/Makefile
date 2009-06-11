@@ -20,15 +20,15 @@ quoi:
 all: ${FILES}
 
 C:
-	${MAKE} FILES="${CFILES}" ADDCFLAGS="-DtReal=double -Wall -O3" mandelbrot
+	${MAKE} FILES="${CFILES}" ADDCFLAGS="-DtReal=double -Wall -O3" all
 C-complex:
-	${MAKE} FILES="${COMPLEXFILES}" ADDCFLAGS="-DtReal=double -Wall -O3 -DWITHCOMPLEXSUPPORT" mandelbrot-complex
+	${MAKE} FILES="${COMPLEXFILES}" ADDCFLAGS="-DtReal=double -Wall -O3 -DWITHCOMPLEXSUPPORT" all
 
 power4:	# Could use  -DASM_DEBUG -DWITH_HPBCG_FUNCTIONS 
 	${MAKE} FILES="${POWERFILES}" ADDCFLAGS="-DtReal=double -Wall " all
 
 cell:	# Could use  -DASM_DEBUG -DWITH_HPBCG_FUNCTIONS 
-	${MAKE} FILES="${CELLFILES}" ADDCFLAGS="-DtReal=float -Wall -I${CDIR}/include" ADDLDFLAGS="-lspe2" all
+	${MAKE} FILES="${CELLFILES}" ADDCFLAGS="-DASM_DEBUG -DWITH_HPBCG_FUNCTIONS  -DtReal=float -Wall -I${CDIR}/include" ADDLDFLAGS="-lspe2" all
 
 bluegene:	# Could use  -DASM_DEBUG -DWITH_HPBCG_FUNCTIONS 
 	${MAKE} FILES="${BGFILES}" ADDCFLAGS="" all
