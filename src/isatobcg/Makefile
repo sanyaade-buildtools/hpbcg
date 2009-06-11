@@ -16,7 +16,6 @@ YACCFLAGS = -d 		# FreeBSD make
 YFLAGS = ${YACCFLAGS} 	# Needed on linux
 # LEX =lex  -d 		# Pour debuggage token lexer
 YACCFLAGS = -d -t 	# Pour debuggage token parser
-FILESISA = 
 CFLAGS = -Wall -g -I../common
 TARGETS = \
 	hpbcg-cell.lst   hpbcg-cell.h 	\
@@ -41,9 +40,6 @@ IsaToBCGParser.java IsaToBCGLexer.java: IsaToBCG.java
 debug: 
 	java org.antlr.works.IDE IsaToBCG.g
 
-isatobcg : ${FILESISA}
-	${CC} ${CFLAGS} ${LDLIBS} ${FILESISA} -o $@
-
 install: 
 	../../CheckPrefix
 	install -d ${PREFIX}/include/
@@ -65,7 +61,6 @@ test-c:
 	gcc -Wall -I. -c hpbcg-ia64.h    -o /dev/null 
 
 clean:
-	-rm ${FILESISA}
 	-rm ${TARGETS}
 	-rm IsaToBCG*.class IsaToBCG*.java
 	-rm ${CLASSFILES}

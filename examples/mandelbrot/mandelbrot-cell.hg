@@ -108,19 +108,30 @@ pifdd isInSetCompile(int limit)
     andi  $(rI), $(rI), 0
 branch:
   ]# 				/* Should add a hint for branch */
+#if 1
   compileCarre(rZ, rZ, rTmp1, rAlignDuplic, rAlignInvert, rAlignRealign, rMoinsUnPlusUn);
   compileAdd(rZ, rZ, rC);
   compileModule(rMod, rZ, rTmp1, rTmp2, rAlignModulo);
+#endif
   #[    
-    fcgt $(rTest), $(rMod), $(rQuatre)
-    brz $(rTest), (asm_pc+2)
-
+    fcgt $(rTest), $(rC), $(rQuatre)
+    brnz $(rTest), (+4)
+  ]#
+#if 1
+    /* For Loop */
+  #[    
     ai   $(rI), $(rI), 1
     ceqi $(rTest), $(rI), (limit)
     brz  $(rTest), (branch - asm_pc)
-
+  ]#
+#endif
+    /* Get result */
+  #[    
+    nop $32
+    nop $32
     ori  $(rC), $(rI), 0
-    bi $lr   ]#
+    bi $lr   
+  ]#
    return (pifdd) code;
 }
 
@@ -181,15 +192,15 @@ int main(int argc, char * argv[])
       C2 = C1;
       for (j = 0; j < IMGXSIZE; ++j)
 	{
-	  printf("%2.2f %2.2f\n", C2.re, C2.im);
+	  printf("%2.2f %2.2f -- ", C2.re, C2.im);
 	  SendComplex(ctx, C2.re);       	/* Send parameters */
 	  SendComplex(ctx, C2.im);       	
 	  GetComplex(ctx, res.u.intValues[0]); /* Receive results */
 	  GetComplex(ctx, res.u.intValues[1]);
 	  GetComplex(ctx, res2.u.intValues[0]); /* Receive results */
 	  GetComplex(ctx, res2.u.intValues[1]);
-	  // printf("%X %X %X %X\n", res.u.intValues[0], res.u.intValues[1], res2.u.intValues[0], res2.u.intValues[1]);
-	  printf("%2.2f %2.2f %2.2f %2.2f\n", res.u.complexValues.re, res.u.complexValues.im, res2.u.complexValues.re, res2.u.complexValues.im);
+	  printf("%X %X %X %X\n", res.u.intValues[0], res.u.intValues[1], res2.u.intValues[0], res2.u.intValues[1]);
+	  // printf("%2.2f %2.2f %2.2f %2.2f\n", res.u.complexValues.re, res.u.complexValues.im, res2.u.complexValues.re, res2.u.complexValues.im);
 	  RE(C2) += reInc;
 	}
       IMAG(C1) += imInc;

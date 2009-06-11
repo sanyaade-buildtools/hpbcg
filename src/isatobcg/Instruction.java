@@ -119,13 +119,15 @@ class Instruction
     {
 	int end;
 	StringBuffer tmp = new StringBuffer("void "+getName()+"(");
+	String printFormat, printArg;
 	StringBuffer argList = new StringBuffer();
 	end = asmPart.size();
 	for (int i = 0; i < end; ++i)
 	    {
 		tmp.append( ("int "+(InstructionAsmPart) asmPart.elementAt(i)).toString());
-		argList.append(" "+((InstructionAsmPart) asmPart.elementAt(i)).toString());
-		if (i != (end - 1)) tmp.append( ", ");
+		argList.append(","+((InstructionAsmPart) asmPart.elementAt(i)).toString());
+		if (i != (end - 1)) 
+			tmp.append( ", ");
 	    }
 	if (! archName.equals("ia64"))
 	    tmp.append( ")\t");
@@ -138,8 +140,12 @@ class Instruction
 	tmp.append( toMacroBody());
 	tmp.append( ";");
 	tmp.append( "\n#ifdef ASM_DEBUG\n");
-	//	tmp.append( "\tprintf(\"%p : %s 0x%X\\n\", asm_pc, \""+getName()+"\", (unsigned int) *(asm_pc-1));\n");
-	tmp.append( "\tprintf(\"%p : %s %s\\n\", asm_pc, \""+getName()+"\", \""+argList.toString()+"\");\n");
+	printFormat = "%p : "+getName()+" : ";
+	for (int i = 0; i < end; ++i)
+	    {
+		printFormat += ((InstructionAsmPart) asmPart.elementAt(i)).toString() +": 0x%x ";
+	    }
+	tmp.append( "\tprintf(\""+printFormat+"\\n\", asm_pc "+argList.toString()+");\n");
 	tmp.append( "#endif /* ASM_DEBUG */\n}\n");
 	return tmp.toString();
     } /* toFunction */
