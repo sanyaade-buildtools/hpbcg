@@ -90,7 +90,8 @@ Working demo / architecture :
 \begin{tabular}{|l | c c c|} \hline
   Demo name       & Cell-spu & Itanium  & Power4\\ \hline
   simple-multiply & ok       & ok       & ok \\ \hline
-  rpn             & ok \footnote{Divide precision problem to be solved}      & ok  & ok \\ \hline
+  rpn             & ok \footnote{Divide precision problem to be solved} & ok  & ok \\ \hline
+  mendelbrot      & ok       & TODO  & ok \\ \hline
 \end{tabular}
 
 \subsection{Tested platforms}
@@ -183,12 +184,14 @@ sudo make install WHERE=/usr/local
 \section{Using \hpbcg}
 
 Mainly \hpbcg is a parser which translate C code whith special parts
-to a real C code. The text contain two parts inside compilette block
-or outside
+to a real C code. The text contain two parts : the classical C code or
+the ``compilette'' block code.
 
 \subsection{Outside parser}
 
-The outside parser only recognize the \verb|#cpu| token
+The outside parser only recognize the \verb|#cpu| token and replace it
+by a \verb|#include <hpbcg-XXX.h>|
+
 
 \begin{itemize}
 \item \verb|#cpu| : this allow to define the architecture which will be
@@ -204,7 +207,7 @@ The actual cpu recognized cpu are
 
 \subsection{Inside parser}
 
-The compilette block is delimited by theses tokens :  
+The ``compilette'' block is delimited by theses tokens :  
 
 \begin{itemize}
 \item \verb|#[| : beginning of compilette block
@@ -236,7 +239,26 @@ describe the first compilette examples and results.
 
 \subsection{simple-multiply}
 
-This example is very simple, it's just a proof of concept.
+This example is very simple, it's just a proof of concept. The
+\texttt{simple-multiply} program generate a specialized version of a
+very simple program. The non specialized version is :
+
+\begin{verbatim}
+int multiply (int a, int b)
+{
+  return a * b;
+}
+\end{verbatim}
+
+The compilette will specialize this code with an ``optimized'' version
+at run-time. The following code will be specialized as
+
+\begin{verbatim}
+int multiply (int a)
+{
+  return a * 42;
+}
+\end{verbatim}
 
 The obtained result is
 \begin{verbatim}
@@ -245,25 +267,6 @@ Code generation for multiply value 42
 Code generated
   1   2   3   4   5   6   7   8   9  10 
  42  84 126 168 210 252 294 336 378 420 
-\end{verbatim}
-
-The \texttt{simple-multiply} program generate a specialized version of
-a very simple program. The non specialized version is :
-\begin{verbatim}
-int multiply (int a, int b)
-{
-  return a * b;
-}
-\end{verbatim}
-
-This compilette will specialize this code with an ``optimized''
-version at run-time. For example the previous code will be specialized
-as
-\begin{verbatim}
-int multiply (int a)
-{
-  return a * 42;
-}
 \end{verbatim}
 
 Please note that the value 42 is choosed by the user and can not be
@@ -279,7 +282,37 @@ This specialized version should be faster than the previous one because
 
 \subsubsection{Cell version}
 
-Use the command \texttt{make cell} to build the program.
+Use the command \texttt{make cell} to build the program. For this
+example, the compilation chain is :
+
+\begin{lstlisting}
+turner:simple-multiply/>make clean cell
+../..
+hpbcg simple-multiply-cell.hg > simple-multiply-cell.c
+cc ../..  -c -o simple-multiply-cell.o simple-multiply-cell.c
+cc -lspe2  simple-multiply-cell.o   -o simple-multiply-cell
+spu-gcc ../.. -g -o simple-worker-cell simple-worker-cell.c 
+
+turner:simple-multiply/>./simple-multiply-cell 42
+Code generation for multiply value 42
+0x10025080 : mpyi_iRRI r3 r3 0x2A 
+0x10025084 : bi_iR r0 
+Code generated
+  1   2   3   4   5   6   7   8   9  10 
+ 42  84 126 168 210 252 294 336 378 420 
+\end{lstlisting}
+
+This differents steps are describe here :
+\begin{description}
+\item[1] \texttt{make cell}
+\item[3] \hpbcg translate .hg file to a plain C code
+\item[5 \& 6] C compilation (for clarity swithes has been removed)
+\item[8] Run time, at the startup time, the compilette generate the
+  binary code
+\item[14] The binary generated code is used. The binary code is
+  printed thanks to the switches \verb-ASM_DEBUG- and
+  \verb-WITH_HPBCG_FUNCTIONS- used at compile time.
+\end{description}
 
 The \texttt{cell} version contain 2 files :
 \begin{description}
@@ -535,6 +568,14 @@ the absolute value of $z_n$ never exceeds a certain number (that number
 depends on $c$) however large n
 gets. \footnote{\url{http://en.wikipedia.org/wiki/Mandelbrot_set}}
 
+\begin{figure}
+  \centering \Image{Set-141-0.png}{6}
+  \caption{Meandelbrot set in a region centered on the point $(-1.41+i*+0.00)$}
+\end{figure}
+
+This mathematical set use complex arithmectic which is not supported
+by the C ansi.
+
 \subsection{power 4 implementation}
 
 A complex number is implemented with two successive floating point registers.
@@ -546,6 +587,7 @@ are the real and imaginary parts.
 
 \subsection{bluegene implementation}
 
+A complex number is implemented with one register (which contain 2 parts).
 
 \section{Porting \hpbcg}
 
@@ -639,11 +681,27 @@ void mulli_iRRI(r1, r2, i1)      \
 \section{Assembly languages}
 
 This part is devoted to different assembly languages that \hpbcg
+support.
 
+The figure \ref{fig:ISACompare} try to summarize the supported data
+type.
+
+\begin{figure}
+\begin{tabular}{| r | r | r | r | r |} \hline
+  ISA 		   & Power4  & Altivec & CELL & IA64\\ \hline
+  Integer register & 32      & 32      & 128  & 128 \\ 
+  FP register      & 32      & 32      & 128  & 128 \\
+  Vector lenght    & 32      & 128     & 128  & 64  \\\hline
+\end{tabular}
+  \caption{Isa principal facts}
+  \label{fig:ISACompare}
+\end{figure}
 \subsection{cell-spu}
 
+The cell SPU has 128 bit wide registers.
+
 \begin{description}
-\item[Integer register names] one of
+\item[Register names] one of
   \begin{itemize}
   \item \verb|$lr|, \verb|$sp|
   \item \verb|$0| : link register, \verb|$1| : stack pointer,
@@ -652,6 +710,10 @@ This part is devoted to different assembly languages that \hpbcg
   \item \verb|$80| .. \verb|$127| local variables, non-volatile
   \end{itemize}
 \item[Calling convention] 
+  \begin{itemize}
+  \item \verb|$3| is the imput register
+  \end{itemize}
+\item[Return convention] 
 \end{description}
 
 \subsection{power, cell-ppu  and power FP2}
