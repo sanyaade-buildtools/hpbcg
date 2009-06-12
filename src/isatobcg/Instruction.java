@@ -154,7 +154,7 @@ class Instruction
 		argList.append(","+((InstructionAsmPart) asmPart.elementAt(i)).toString());
 	    }
 	tmp.append( "\tprintf(\""+printFormat+"\\n\", asm_pc "+argList.toString()+");\n");
-	tmp.append( "#endif /* ASM_DEBUG */");
+	tmp.append( "#endif /* ASM_DEBUG */\n");
 	tmp.append( toMacroBody());
 	tmp.append( ";");
 	tmp.append( "\n}\n");
