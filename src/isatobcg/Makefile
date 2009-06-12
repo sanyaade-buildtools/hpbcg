@@ -28,7 +28,7 @@ CLASSFILES = IsaToBCGParser.class IsaToBCGLexer.class		\
 	InstructionsList.class Instruction.class		\
 	InstructionBinPart.class InstructionAsmPart.class
 
-all: java isa test-v test-e
+all: java isa test-v test-e test-c
 
 java: ${CLASSFILES}
 

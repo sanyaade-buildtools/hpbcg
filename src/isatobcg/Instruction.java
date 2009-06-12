@@ -121,13 +121,12 @@ class Instruction
 	StringBuffer tmp = new StringBuffer("void "+getName()+"(");
 	String printFormat, printArg;
 	StringBuffer argList = new StringBuffer();
+	char letter;
 	end = asmPart.size();
 	for (int i = 0; i < end; ++i)
 	    {
 		tmp.append( ("int "+(InstructionAsmPart) asmPart.elementAt(i)).toString());
-		argList.append(","+((InstructionAsmPart) asmPart.elementAt(i)).toString());
-		if (i != (end - 1)) 
-			tmp.append( ", ");
+		if (i != (end - 1)) tmp.append( ", ");
 	    }
 	if (! archName.equals("ia64"))
 	    tmp.append( ")\t");
@@ -136,17 +135,29 @@ class Instruction
 	    if (end > 0) tmp.append(", ");
 	    tmp.append( "int q1, int STOP)\t");
 	}
-	tmp.append( "\n{\t");
-	tmp.append( toMacroBody());
-	tmp.append( ";");
+	tmp.append( "\n{\n");
 	tmp.append( "\n#ifdef ASM_DEBUG\n");
-	printFormat = "%p : "+getName()+" : ";
+	printFormat = "%p : "+getName()+" ";
 	for (int i = 0; i < end; ++i)
 	    {
-		printFormat += ((InstructionAsmPart) asmPart.elementAt(i)).toString() +": 0x%x ";
+		letter  = ((InstructionAsmPart) asmPart.elementAt(i)).toString().charAt(0);
+		switch (letter)
+		    {
+		    case 'r': 
+		    case 'f':
+		    case 'p':
+		    case 'b':
+			printFormat += letter+"%d "; break;
+		    case 'i': printFormat += "0x%X "; break;
+		    default: System.out.println("Error Letter: "+letter); System.exit(-1);
+		    }
+		argList.append(","+((InstructionAsmPart) asmPart.elementAt(i)).toString());
 	    }
 	tmp.append( "\tprintf(\""+printFormat+"\\n\", asm_pc "+argList.toString()+");\n");
-	tmp.append( "#endif /* ASM_DEBUG */\n}\n");
+	tmp.append( "#endif /* ASM_DEBUG */");
+	tmp.append( toMacroBody());
+	tmp.append( ";");
+	tmp.append( "\n}\n");
 	return tmp.toString();
     } /* toFunction */
 
