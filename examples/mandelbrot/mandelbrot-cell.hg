@@ -7,6 +7,7 @@
 #include <libspe2.h>
 
 #include "mandelbrot-common.h"
+#include "mandelbrot-palette.h"
 
 #cpu cell
 
@@ -114,8 +115,8 @@ branch:
   compileModule(rMod, rZ, rTmp1, rTmp2, rAlignModulo);
 #endif
   #[    
-    fcgt $(rTest), $(rC), $(rQuatre)
-    brnz $(rTest), (+4)
+    fcgt $(rTest), $(rQuatre), $(rMod)
+    brz $(rTest), (+4)
   ]#
 #if 1
     /* For Loop */
@@ -127,8 +128,6 @@ branch:
 #endif
     /* Get result */
   #[    
-    nop $32
-    nop $32
     ori  $(rC), $(rI), 0
     bi $lr   
   ]#
@@ -157,10 +156,9 @@ int main(int argc, char * argv[])
   spe_context_ptr_t ctx;
   tComplex Center, C1, C2;
   tReal reInc, imInc, reSize, imSize;
-  int IMGXSIZE, IMGYSIZE, i, j;
-  int COLORMAPSIZE = 65536; 
+  int IMGXSIZE, IMGYSIZE, i, j, k;
   int ITERLIMIT = 256;
-  tComplexUnion res, res2;
+  tComplexUnion res;
   if (argc <= 6)
     {
       fprintf(stderr, "%s [Cr] i[Ci] re[Size] i[Size] imgXsize imgYsize\n", argv[0]);
@@ -192,15 +190,22 @@ int main(int argc, char * argv[])
       C2 = C1;
       for (j = 0; j < IMGXSIZE; ++j)
 	{
+#if 0
 	  printf("%2.2f %2.2f -- ", C2.re, C2.im);
+#endif
 	  SendComplex(ctx, C2.re);       	/* Send parameters */
 	  SendComplex(ctx, C2.im);       	
 	  GetComplex(ctx, res.u.intValues[0]); /* Receive results */
+	  k = COLORMAPSIZE*res.u.intValues[0]/ITERLIMIT;
+	  printf("%d %d %d\n", thePalette[k].r, thePalette[k].v, thePalette[k].b);
+
+#if 0
 	  GetComplex(ctx, res.u.intValues[1]);
 	  GetComplex(ctx, res2.u.intValues[0]); /* Receive results */
 	  GetComplex(ctx, res2.u.intValues[1]);
 	  printf("%X %X %X %X\n", res.u.intValues[0], res.u.intValues[1], res2.u.intValues[0], res2.u.intValues[1]);
 	  // printf("%2.2f %2.2f %2.2f %2.2f\n", res.u.complexValues.re, res.u.complexValues.im, res2.u.complexValues.re, res2.u.complexValues.im);
+#endif
 	  RE(C2) += reInc;
 	}
       IMAG(C1) += imInc;

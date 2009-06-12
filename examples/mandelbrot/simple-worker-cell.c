@@ -42,13 +42,15 @@ int main(unsigned long long speid,
        res = ((fadd_ptr)functionBuffer)(inParam, masques); /* Run code */
        // printf("%2.2f %2.2f %2.2f %2.2f\n", res[0], res[1], res[2], res[3]);
        msg.u.complexValues.re = res[0];
-       msg.u.complexValues.im = res[1];
        spu_write_out_intr_mbox(msg.u.intValues[0]);		/* Send results */
+#if 0
+       msg.u.complexValues.im = res[1];
        spu_write_out_intr_mbox(msg.u.intValues[1]);		
        msg.u.complexValues.re = res[2];
-       msg.u.complexValues.im = res[3];
        spu_write_out_intr_mbox(msg.u.intValues[0]);		/* Send results */
+       msg.u.complexValues.im = res[3];
        spu_write_out_intr_mbox(msg.u.intValues[1]);		
+#endif
      }
    _free_align(functionBuffer);
    return 0;

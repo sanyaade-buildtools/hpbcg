@@ -28,7 +28,7 @@ power4:	# Could use  -DASM_DEBUG -DWITH_HPBCG_FUNCTIONS
 	${MAKE} FILES="${POWERFILES}" ADDCFLAGS="-DtReal=double -Wall " all
 
 cell:	# Could use  -DASM_DEBUG -DWITH_HPBCG_FUNCTIONS 
-	${MAKE} FILES="${CELLFILES}" ADDCFLAGS="-DASM_DEBUG -DWITH_HPBCG_FUNCTIONS  -DtReal=float -Wall -I${CDIR}/include" ADDLDFLAGS="-lspe2" all
+	${MAKE} FILES="${CELLFILES}" ADDCFLAGS="-DtReal=float -Wall -I${CDIR}/include" ADDLDFLAGS="-lspe2" all
 
 bluegene:	# Could use  -DASM_DEBUG -DWITH_HPBCG_FUNCTIONS 
 	${MAKE} FILES="${BGFILES}" ADDCFLAGS="" all
@@ -39,7 +39,7 @@ mandelbrot-palette.h: mandelbrot-palette
 simple-worker-cell: simple-worker-cell.c
 	spu-gcc -g ${CFLAGS} -o simple-worker-cell simple-worker-cell.c 
 
-test: all
+test: C C-complex power4 cell
 	make test-arch ARCH=""
 	make test-arch ARCH="-power4"
 	make test-arch ARCH="-complex"
