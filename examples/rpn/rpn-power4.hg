@@ -39,7 +39,7 @@ pifi rpnCompile(char *expr)
       else if (*expr == '+')
 	{ --top; #[	add	r(top), r(top), r(top+1)	]# }
       else if (*expr == '-')
-	{ --top; #[		subf	r(top), r(top), r(top+1)	]# }
+	{ --top; #[		subf	r(top), r(top+1), r(top)	]# }
       else if (*expr == '*')
 	{ --top; #[		mullw	r(top), r(top), r(top+1)	]# }
       else if (*expr == '/')
@@ -66,8 +66,8 @@ pifi rpnCompile(char *expr)
     codeB[0] = (long) code2;
   }
 #endif
-  iflush(code, asm_pc);
-  if ((int)(asm_pc - code) >= 64)
+  iflush(code, hpbcg_asm_pc);
+  if ((int)(hpbcg_asm_pc - code) >= 64)
     {
       fprintf(stderr, "expression too complex");
       exit(0);

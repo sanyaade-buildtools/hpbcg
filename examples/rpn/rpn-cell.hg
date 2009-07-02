@@ -4,7 +4,7 @@
 #include <assert.h>
 #include <string.h>
 #include <pthread.h>
-
+#include <signal.h>
 
 #include <malloc_align.h>
 #include <free_align.h>
@@ -26,7 +26,7 @@ int getResultat(spe_context_ptr_t context, int val)
 }  
 
 typedef int (*pifi)(int);
-pifi c2f, f2c;
+pifi convertionFunction;
 
 #cpu cell
 
@@ -70,7 +70,7 @@ pifi rpnCompile(char *expr)
 		   csflt $(top+1), $(top+1), 0
 
 		   frest $(y0),    $(top+1) 
-		   fi    $(y0),    $(top+1), $(y0)
+		   fi    $(y1),    $(top+1), $(y0)
 		   fnms  $(top),   $(y1),    $(top+1), $(top)
 		   fma   $(top),   $(top), $(y0), $(y1)
 
@@ -90,8 +90,8 @@ pifi rpnCompile(char *expr)
       abort();
     }
   #[  bi $lr  ]#;
-  iflush(code, asm_pc);
-  if ((int)(asm_pc - code) >= 64)
+  iflush(code, hpbcg_asm_pc);
+  if ((int)(hpbcg_asm_pc - code) >= 64)
     {
       fprintf(stderr, "expression too complex");
       exit(0);
@@ -112,7 +112,8 @@ void *waitingThread(void * arg)
   assert(NULL != spu_handle);
   spe_program_load(ctx, spu_handle);
   /* Send and launch the code */
-  spe_context_run(ctx, &entry, 0, c2f, NULL, &stop_info);
+  spe_context_run(ctx, &entry, 0, convertionFunction, NULL, &stop_info);
+  printf("Après context_run\n");
   _free_align(insnbuffer);
   pthread_exit(0);
 }
@@ -123,27 +124,31 @@ int main(int argc, char * argv[])
   int i;
   spe_context_ptr_t ctx;
 
-  c2f= rpnCompile("9*5/32+");
+  convertionFunction = rpnCompile("9*5/32+");
   ctx = spe_context_create(0, NULL);	 /* Send it to worker */
   if (NULL == ctx) perror("create_context\n");
   pthread_create(&pthread, NULL, &waitingThread, &ctx);
   printf("\nC:");
   for (i = 0; i <= 100; i+= 10) printf("%3d ", i);
   printf("\nF:");
+  i = 11;
+  SendInt(ctx, i);
   for (i = 0; i <= 100; i+= 10) printf("%3d ", getResultat(ctx, i));
   printf("\n");
   assert(0 == spe_context_destroy(ctx));
 
-  f2c = rpnCompile("9*5/32+");
+  //  convertionFunction = rpnCompile("32-5*9/");
+  convertionFunction = rpnCompile("2/");
   ctx = spe_context_create(0, NULL);	 /* Send it to worker */
   if (NULL == ctx) perror("create_context\n");
   pthread_create(&pthread, NULL, &waitingThread, &ctx);
   printf("\nF:");
   for (i = 32; i <= 212; i+= 10) printf("%3d ", i);
   printf("\nC:");
+  i = 19;
+  SendInt(ctx, i);
   for (i = 32; i <= 212; i+= 10) printf("%3d ", getResultat(ctx, i));
   printf("\n");
   assert(0 == spe_context_destroy(ctx));
-
   return 0;
 }

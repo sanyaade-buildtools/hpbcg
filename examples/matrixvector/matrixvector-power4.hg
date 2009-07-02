@@ -51,7 +51,7 @@ VectMatProd Finalize()
 #ifdef _IBMR2
   codeB = (long *) codePtr - 2;
   codeB[0] = (long) codePtr;
-  iflush(codePtr,asm_pc);
+  iflush(codePtr,hpbcg_asm_pc);
 #endif
   return (VectMatProd)(codePtr);
 } /* Finalize */

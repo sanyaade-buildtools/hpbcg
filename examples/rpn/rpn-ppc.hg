@@ -82,8 +82,8 @@ pifi rpnCompile(char *expr)
     codeB[0] = (long) code2;
   }
 #endif
-  iflush(code, asm_pc);
-  if ((int)(asm_pc - code) >= 64)
+  iflush(code, hpbcg_asm_pc);
+  if ((int)(hpbcg_asm_pc - code) >= 64)
     {
       fprintf(stderr, "expression too complex");
       exit(0);

@@ -102,9 +102,9 @@ pifi rpnCompile(char *expr)
 	br.ret.sptk.many b0	;;
   ]#;
 
-  iflush(code, asm_pc);
+  iflush(code, hpbcg_asm_pc);
 
-  if ((int)(asm_pc - code) >= 64)
+  if ((int)(hpbcg_asm_pc - code) >= 64)
     {
       fprintf(stderr, "expression too complex");
       exit(0);

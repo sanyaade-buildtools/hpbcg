@@ -22,7 +22,7 @@ pifi multiplyCompile(int multiplyValue)
 	getf.sig r8= f32
 	br.ret.sptk.many b0 ;;
   ]#;
-  iflush (code, asm_pc);
+  iflush (code, hpbcg_asm_pc);
   printf("Code generated\n");
   return (pifi)code;
 }

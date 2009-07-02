@@ -15,6 +15,12 @@ build:  clean
 install: 
 	${MAKE} -C src/isatobcg install PREFIX=${WHERE}
 	${MAKE} -C src/parser/org/hpbcg install PREFIX=${WHERE}
+	@echo "-- You could/should define variables like (on csh)"
+	@echo "setenv HPBCGHOME ${WHERE}"
+	@echo "setenv PATH ${WHERE}/bin/:"'$${PATH}'
+	@echo "-- or on sh/bash"
+	@echo "export HPBCGHOME=${WHERE}"
+	@echo "export PATH=${WHERE}/bin/:"'$${PATH}'
 
 clean:
 	${MAKE} -C docs clean

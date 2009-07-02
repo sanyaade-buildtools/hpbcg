@@ -123,7 +123,7 @@ branch:
   #[    
     ai   $(rI), $(rI), 1
     ceqi $(rTest), $(rI), (limit)
-    brz  $(rTest), (branch - asm_pc)
+    brz  $(rTest), (branch - hpbcg_asm_pc)
   ]#
 #endif
     /* Get result */

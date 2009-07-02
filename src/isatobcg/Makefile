@@ -61,6 +61,6 @@ test-c:
 	gcc -Wall -I. -c hpbcg-ia64.h    -o /dev/null 
 
 clean:
-	-rm ${TARGETS}
+	-rm ${TARGETS} IsaToBCG.tokens
 	-rm IsaToBCG*.class IsaToBCG*.java
 	-rm ${CLASSFILES}

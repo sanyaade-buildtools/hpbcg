@@ -5,11 +5,11 @@
 
 #include <hpbcg-asm-common.h>
 
-#define ADDINSN(VAL) (*(asm_pc++) = (VAL))
-#define ORG(PTR) (asm_pc = (insn *) PTR)
+#define ADDINSN(VAL) (*(hpbcg_asm_pc++) = (VAL))
+#define ORG(PTR) (hpbcg_asm_pc = (insn *) PTR)
 
 typedef unsigned int insn;
-static insn *asm_pc;
+static insn *hpbcg_asm_pc;
 
 static void iflush(register insn *addr, register insn *last)
 {

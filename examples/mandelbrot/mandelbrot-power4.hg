@@ -77,7 +77,7 @@ branch1:
   compileMod(frTmp, frZ);
   #[
     fcmpu r2, f(frTmp), f(rLimit)
-    bc  r0, r9, (branch1-asm_pc)
+    bc  r0, r9, (branch1-hpbcg_asm_pc)
   
     subi r(rI), r(rI), 1
     mr r3, r(rI)

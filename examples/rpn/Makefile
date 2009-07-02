@@ -3,7 +3,7 @@
 .hg.c:
 	hpbcg $< > $@
 
-CFLAGS=-Wall -I${HPBCGHOME}/include/ -g ${ADDCFLAGS} -DASM_DEBUG -DWITH_HPBCG_FUNCTIONS
+CFLAGS=-Wall -I${HPBCGHOME}/include/ -g ${ADDCFLAGS} # -DASM_DEBUG -DWITH_HPBCG_FUNCTIONS
 
 CELLFILES = rpn-cell.c rpn-cell simple-worker-cell
 CDIR = /opt/cell/sdk/usr/

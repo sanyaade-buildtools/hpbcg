@@ -14,7 +14,7 @@ pifi multiplyCompile(int multiplyValue)
 	mulli r3, r3, (multiplyValue)  
 	blr
   ]#;
-  iflush (code, asm_pc);
+  iflush (code, hpbcg_asm_pc);
   printf("Code generated\n");
   return (pifi)code;
 }
