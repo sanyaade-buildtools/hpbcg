@@ -1,10 +1,12 @@
 #!/usr/bin/awk -f
-BEGIN{ACCOLADE = 0;}
+BEGIN{
+    ACCOLADE = 0;
+    INSN = 0;}
 {
     if (0 == NF) printf("");
     else 
     {
-	printf("/* %s */", $1);
+	printf("/* INSN %d %s */", INSN, $1);
 	i = 2;
 	while (match($i, "^[0-9a-f][0-9a-f]$"))
 	       {
@@ -13,6 +15,7 @@ BEGIN{ACCOLADE = 0;}
 		   ACCOLADE ++;
 		   if (16 == ACCOLADE)
 		   {
+		       INSN++;
 		       ACCOLADE = 0;
 		       printf("}, ");
 		   }
@@ -24,3 +27,4 @@ BEGIN{ACCOLADE = 0;}
 	printf("*/\n");
     }	
 }
+

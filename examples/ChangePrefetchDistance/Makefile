@@ -1,10 +1,18 @@
 CFLAGS = -Wall -g
 FILES = copyItaniumIcc.h ChangePrefetchDistance 
 
-all: ${FILES}
+all:
+	echo "x86 ou itanium"
 
-copyItaniumIcc.h: copyItaniumIcc.o
-	/usr/cross/ia64/usr/bin/objdump -d copyItaniumIcc.o | ./objcopyToArray.awk > copyItaniumIcc.h
+itanium:
+	${MAKE} MYOBJDUMP=objdump MYAS=as ${FILES}
+
+x86:
+	${MAKE} MYOBJDUMP=/usr/cross/ia64/usr/bin/objdump  MYAS=/usr/cross/ia64/usr/bin/as ${FILES}
+
+copyItaniumIcc.h: copyItaniumIcc.s
+	${MYAS} -o  copyItaniumIcc.o  copyItaniumIcc.s
+	${MYOBJDUMP} -d copyItaniumIcc.o | ./objcopyToArray.awk > copyItaniumIcc.h
 
 clean:
 	-rm ${FILES}
