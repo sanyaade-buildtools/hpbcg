@@ -111,7 +111,7 @@ void ChangePrefetchDistance (insn_t * insnAddress, int slotNumber, int PrefetchD
 
 } /* ChangePrefetchDistance */
 
-int WhichBundleM14(insn_t * insnAddress, int majorOpcode, int minorOpcode)
+int WhichBundleM15(insn_t * insnAddress, int majorOpcode, int minorOpcode)
 {
   int insnMajorOpcode, insnMinorOpcode;
   int64_t insn;
@@ -140,37 +140,19 @@ int WhichBundleA4(insn_t * insnAddress, int majorOpcode, int minorOpcode)
 
   insn = toInsn0(insnAddress);
   insnMajorOpcode = (insn >> 37) & 0xF;
-  insnMinorOpcode = (insn >> 33) & 0x7;
+  insnMinorOpcode = (insn >> 34) & 0x7;
   if ((insnMajorOpcode == majorOpcode) && (insnMinorOpcode == minorOpcode)) return 0;
 
   insn = toInsn1(insnAddress);
   insnMajorOpcode = (insn >> 37) & 0xF;
-  insnMinorOpcode = (insn >> 33) & 0x7;
+  insnMinorOpcode = (insn >> 34) & 0x7;
   if ((insnMajorOpcode == majorOpcode) && (insnMinorOpcode == minorOpcode)) return 1;
 
   insn = toInsn2(insnAddress);
   insnMajorOpcode = (insn >> 37) & 0xF;
-  insnMinorOpcode = (insn >> 33) & 0x7;
+  insnMinorOpcode = (insn >> 34) & 0x7;
   if ((insnMajorOpcode == majorOpcode) && (insnMinorOpcode == minorOpcode)) return 2;
   return -1;
-}
-
-char getM15Value(insn_t * insnAddress, int bundleNro)
-{
-  int64_t insn;
-  int i8, i7, i0_6;
-
-  switch (bundleNro)
-    {
-    case 0: insn = toInsn0(insnAddress); break;
-    case 1: insn = toInsn1(insnAddress); break;
-    case 2: insn = toInsn2(insnAddress); break;
-    default: printf("Unknow bundle value %d\n", bundleNro); exit(-1);
-    }
-  i8   = (insn >> 36) & 0x1;
-  i7   = (insn >> 27) & 0x1;
-  i0_6 = (insn >> 13) & 0x3F;
-  return ((i8 << 7) | (i7 << 6) | i0_6);
 }
 
 int getA4Value(insn_t * insnAddress, int bundleNro)
@@ -188,7 +170,78 @@ int getA4Value(insn_t * insnAddress, int bundleNro)
   i13   = (insn >> 36) & 0x1;
   i12_7 = (insn >> 27) & 0x3F;
   i0_6  = (insn >> 13) & 0x7F;
-  return ((i13 << 12) | (i12_7 << 6) | i0_6);
+  return ((i12_7 << 7) | i0_6)*((i13)?-1:1);
+
+}
+
+void setA4Value(insn_t * insnAddress, int bundleNro, int newValue)
+{
+  int64_t oldInsn, newInsn, tmp;
+  int64_t insn0, insn1, insn2;
+  int tmpl;
+  int i13, i12_7, i0_6;
+  int opcod, x2a_ve, r3, r1, qp;
+
+  insn0 = toInsn0(insnAddress);
+  insn1 = toInsn1(insnAddress);
+  insn2 = toInsn2(insnAddress);
+  tmpl = toTemplate(insnAddress);
+  switch (bundleNro)
+    {
+    case 0: oldInsn = insn0; break;
+    case 1: oldInsn = insn1; break;
+    case 2: oldInsn = insn2; break;
+    default: printf("Unknow bundle value %d\n", bundleNro); exit(-1);
+    }
+  i0_6  = newValue & 0x7F;
+  i12_7 = (newValue >> 7) & 0x3f;
+  i13   = (newValue >> 13)& 0x1;
+
+  opcod = (oldInsn >> 37) &   0xF;
+  x2a_ve= (oldInsn >> 33) &   0x7;
+  r3    = (oldInsn >> 20) &  0x7F;
+  r1    = (oldInsn >>  6) &  0x7F;
+  qp    = (oldInsn      ) &  0x1F;
+
+  newInsn = 0;
+  tmp  = opcod;  newInsn |= (tmp << 37);
+  tmp  = i13;    newInsn |= (tmp << 36);
+  tmp  = x2a_ve; newInsn |= (tmp << 33);
+  tmp  = i12_7;  newInsn |= (tmp << 27);
+  tmp  = r3;     newInsn |= (tmp << 20);
+  tmp  = i0_6;   newInsn |= (tmp << 13);
+  tmp  = r1;     newInsn |= (tmp << 6);
+  tmp  = qp;     newInsn |= (tmp);
+#if 0
+  toBin (oldInsn, 64);
+  toBin (newInsn, 64);
+#endif
+#define _B(ADDR, TMPL, S0, S1, S2) ({ insn_t myBundle = {(S1) <<46 | (S0) << 5 | TMPL, (S2) << 23 | (S1) >>18 }; *insnAddress = myBundle;})
+  switch (bundleNro)
+    {
+    case 0: _B(insnAddress, tmpl, newInsn,   insn1,   insn2); break;
+    case 1: _B(insnAddress, tmpl,   insn0, newInsn,   insn2); break;
+    case 2: _B(insnAddress, tmpl,   insn0,   insn1, newInsn); break;
+    default: printf("Unknow bundle value %d\n", bundleNro); exit(-1);
+    }
+}
+
+char getM15Value(insn_t * insnAddress, int bundleNro)
+{
+  int64_t insn;
+  int i8, i7, i0_6;
+
+  switch (bundleNro)
+    {
+    case 0: insn = toInsn0(insnAddress); break;
+    case 1: insn = toInsn1(insnAddress); break;
+    case 2: insn = toInsn2(insnAddress); break;
+    default: printf("Unknow bundle value %d\n", bundleNro); exit(-1);
+    }
+  i8   = (insn >> 36) & 0x1;
+  i7   = (insn >> 27) & 0x1;
+  i0_6 = (insn >> 13) & 0x3F;
+  return ((i7 << 7) | i0_6)*(i8)?-1:1;
 }
 
 void setM15Value(insn_t * insnAddress, int bundleNro, char newValue)
@@ -211,8 +264,8 @@ void setM15Value(insn_t * insnAddress, int bundleNro, char newValue)
     default: printf("Unknow bundle value %d\n", bundleNro); exit(-1);
     }
   i0_6 = newValue & 0x7F;
-  i7   = (newValue >> 0x7) & 0x1;
-  i8   = (newValue >> 0x8) & 0x1;
+  i7   = (newValue >> 7) & 0x1;
+  i8   = (newValue >> 8) & 0x1;
 
   opcod = (oldInsn >> 37) &   0xF;
   x6    = (oldInsn >> 30) &  0x3F;
@@ -255,19 +308,31 @@ int main(int argc, char * argv[])
   for (i = 0; i < Ninstructions; ++i)
     {
       myPointer = (void *)&arrayFunction[i][0];
-      /*      bundleNro = WhichBundleM14(myPointer, 0x7, 0x2C); M14 lfetch  */
-      bundleNro = WhichBundleA4(myPointer, 0x8, 0x4); /* A4 add imm14  */
+      // bundleNro = WhichBundleM15(myPointer, 0x7, 0x2C); /* M14 lfetch  */
+      bundleNro = WhichBundleA4(myPointer, 0x8, 0x2); /* A4 add imm14  */
       if (-1 != bundleNro)
 	{
 #if 1
-	  printf("Insn Nr %d template %s bundle nr %d value %d\n", 
+	  int value = getA4Value(myPointer, bundleNro);
+	  if (! value) continue;
+	  printf("    Insn Nr %d template %s bundle nr %d value %d\n", 
 		 i, 
 		 ia64_template[toTemplate(myPointer)], 
 		 bundleNro, 
-		 getA4Value(myPointer, bundleNro)
+		 value
 		 );
 #endif
-	  setM15Value(myPointer, bundleNro, 255);
+	  if (2392 == value)
+	    {
+	      setA4Value(myPointer, bundleNro, 42);
+	      value = getA4Value(myPointer, bundleNro);
+	      printf("New Insn Nr %d template %s bundle nr %d value %d\n", 
+		     i, 
+		     ia64_template[toTemplate(myPointer)], 
+		     bundleNro, 
+		     value
+		     );
+	    }
 	}
     }
   return 0;
