@@ -9,9 +9,10 @@
 
 JAVAC=jikes --emacs
 JAVAC=javac # -target 4
-JFILES = C.java Cell.java Ia64.java Power4.java
-CFILES = Main.java Insn.java InsnCell.java InsnIa64.java  InsnPower4.java InsnList.java
+JFILES = C.java Cell.java Ia64.java Power4.java X86.java
+CFILES = Main.java Insn.java InsnCell.java InsnIa64.java  InsnPower4.java InsnList.java InsnX86.java
 D = org/hpbcg
+
 all: ${JFILES} class
 
 class:

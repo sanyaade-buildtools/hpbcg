@@ -8,10 +8,13 @@ class InstructionsList
     int isaLen;
     Vector instructionList = new Vector();
     Instruction cI;
-    public void setNameAndLenght (String archName, int isaLen)
+    public void setNameAndLenght (String archName, String isaLen)
     {
 	this.archName = archName;
-	this.isaLen = isaLen;
+	if ("var".equals(isaLen))
+	    this.isaLen = -1;
+	else
+	    this.isaLen = Integer.parseInt(isaLen);
     }
     String header()
     {
@@ -44,15 +47,26 @@ class InstructionsList
 	int len;
 	Instruction insn;
 	for (int i = 0; i < instructionList.size(); ++i)
-	{
-	    insn = (Instruction) instructionList.elementAt(i);
-	    len = insn.getLength();
-	    if (isaLen != len)
 	    {
-		isOk = false;
-		System.err.println("Incorrect size "+len+" (should be "+isaLen+") for insn " +insn.getName());
+		insn = (Instruction) instructionList.elementAt(i);
+		len = insn.getLength();
+		if (archName.equals("x86"))
+		    {
+			if (0 != (len % 8))
+			    {
+				isOk = false;
+				System.err.println("Incorrect size "+len+" (should be multiple of 8) for insn " +insn.getName());
+			    }
+		    }
+		else
+		    {
+			if (isaLen != len)
+			    {
+				isOk = false;
+				System.err.println("Incorrect size "+len+" (should be "+isaLen+") for insn " +insn.getName());
+			    }
+		    }
 	    }
-	}
 	return isOk;
     } /* checkLength */
 

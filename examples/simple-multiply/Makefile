@@ -9,10 +9,11 @@ CELLFILES     = simple-multiply-cell simple-worker-cell
 IAFILES       = simple-multiply-ia64 
 POWERFILES    = simple-multiply-power4
 BLUEGENEFILES = simple-multiply-bluegene
+X86FILES      = simple-multiply-x86
 
 quoi:
 	@echo -n "make what ?     "
-	@echo "make [cell|ia64|power4|bluegene]"
+	@echo "make [cell|ia64|power4|bluegene|x86]"
 
 all: ${FILES}
 
@@ -22,6 +23,9 @@ simple-multiply-cell.c: simple-multiply-cell.hg
 
 simple-worker-cell: simple-worker-cell.c
 	spu-gcc -I${CDIR}/include -g -o simple-worker-cell simple-worker-cell.c 
+
+x86:
+	make FILES="${X86FILES}" ADDCFLAGS="-Wall " all
 
 ia64:
 	make FILES="${IAFILES}" ADDCFLAGS="-Wall " all
@@ -40,6 +44,7 @@ clean:
 	make FILES="${CELLFILES}"  real-clean
 	make FILES="${IAFILES}"    real-clean
 	make FILES="${POWERFILES}" real-clean
+	make FILES="${X86FILES}"   real-clean
 
 real-clean:
 	-rm ${FILES}

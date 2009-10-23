@@ -15,10 +15,11 @@ class Main
         try 
 	{
 	    in = getInput (args);
-	    C      lexerC = new C(in);
-	    Cell   lexerCell  =  new Cell(in);
-	    Ia64   lexerIa64  =  new Ia64(in);
-	    Power4 lexerPower4  =  new Power4(in);
+	    C      lexerC      = new C(in);
+	    Cell   lexerCell   =  new Cell(in);
+	    Ia64   lexerIa64   =  new Ia64(in);
+	    Power4 lexerPower4 =  new Power4(in);
+	    X86    lexerX86    =  new X86(in);
 	    if (debug) 	System.out.println("/* Debug mode */");
 	    while (true)
 	    {
@@ -27,6 +28,7 @@ class Main
 		if (currentArch.equals("cell"))        lexerCell.myParse(debug);
 		else if (currentArch.equals("ia64"))   lexerIa64.myParse(debug);
 		else if (currentArch.equals("power4")) lexerPower4.myParse(debug);
+		else if (currentArch.equals("x86"))    lexerX86.myParse(debug);
 		else
 		    {
 			System.err.println("#cpu error ("+currentArch+")");

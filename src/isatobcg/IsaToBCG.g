@@ -84,7 +84,8 @@ grammar IsaToBCG; // -*- java -*-
 isafile 	: isaline* EOF {dumpResult();};
 isaline 	: (isaarchlen | isalinedesc | COMMENT | ) NL;
 isalinedesc	: isabinpart CUT isaasmpart  {iList.addInstruction();};
-isaarchlen	: archname=('power4' | 'sparc' | 'ia64' | 'cell')   INT { iList.setNameAndLenght($archname.getText(), Integer.parseInt($INT.getText()));};
+isaarchlen	: archname=('power4' | 'sparc' | 'ia64' | 'cell' | 'x86')   myIsaLen=(INT | 'var')
+	{ iList.setNameAndLenght($archname.getText(), $myIsaLen.getText());};
 isabinpart 	: (binnum | intdescr | regdescr | paropen)+;
 binnum 		: BINNUM  		{ iList.addBinaryNumber  ($BINNUM.getText());		};
 intdescr 	: INTDESCR 		{ iList.addBinaryIntDescr($INTDESCR.getText());		};
@@ -99,7 +100,7 @@ paramlist 	: (param)*									;
 param 		: (intname | regname | BINNUM)							;
 regname		: REGNAME		{ iList.addAsmReg($REGNAME.getText());			};
 intname		: INTNAME		{ iList.addAsmInt($INTNAME.getText());			};
-REGNAME		: REGLETTER (INT) 				;
+REGNAME		: (REGLETTER (INT) | ('ax' | 'eax' | 'al')) 				;
 INTNAME		: 'i' (INT)					;
 INSNNAME	: (LETTER)(LETTER | NUM)*			;
 BINNUM 		: ('0' | '1')+ 					;

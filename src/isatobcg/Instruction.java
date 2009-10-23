@@ -1,5 +1,7 @@
 import java.util.*;
-
+/**
+ * Instruction description
+ */
 class Instruction
 {
     String name, archName;
@@ -109,11 +111,12 @@ class Instruction
 	{
 	    l += ((InstructionBinPart) binPart.elementAt(i)).getLength();
 	}
+	// System.out.println("Computed len"+ l);
 	return l;
     }
 
     /**
-     * return the function able to generate a binary instruction
+     * Build a function able to generate the current instruction
      */
     public String toFunction()
     {
@@ -140,18 +143,23 @@ class Instruction
 	printFormat = "%p : "+getName()+" ";
 	for (int i = 0; i < end; ++i)
 	    {
-		letter  = ((InstructionAsmPart) asmPart.elementAt(i)).toString().charAt(0);
-		switch (letter)
+		if ("x86".equals (archName))
+		    argList.append (","+(InstructionAsmPart) asmPart.elementAt(i));
+		else
 		    {
-		    case 'r': 
-		    case 'f':
-		    case 'p':
-		    case 'b':
-			printFormat += letter+"%d "; break;
-		    case 'i': printFormat += "0x%X "; break;
-		    default: System.out.println("Error Letter: "+letter); System.exit(-1);
+			letter  = ((InstructionAsmPart) asmPart.elementAt(i)).toString().charAt(0);
+			switch (letter)
+			    {
+			    case 'r': 
+			    case 'f':
+			    case 'p':
+			    case 'b':
+				printFormat += letter+"%d "; break;
+			    case 'i': printFormat += "0x%X "; break;
+			    default: System.out.println("Error letter in register name: "+letter); System.exit(-1);
+			    }
+			argList.append(","+((InstructionAsmPart) asmPart.elementAt(i)).toString());
 		    }
-		argList.append(","+((InstructionAsmPart) asmPart.elementAt(i)).toString());
 	    }
 	tmp.append( "\tprintf(\""+printFormat+"\\n\", hpbcg_asm_pc "+argList.toString()+");\n");
 	tmp.append( "#endif /* ASM_DEBUG */\n");
@@ -161,6 +169,9 @@ class Instruction
 	return tmp.toString();
     } /* toFunction */
 
+    /**
+     * Build a macro instruction able to generate the current instruction
+     */
     String toMacroBody()
     {
 	InstructionBinPart ibp;
@@ -176,11 +187,11 @@ class Instruction
 	    }
 	if (! archName.equals("ia64"))
 	    tmp.append(")");
-	    else
-	{
-	    if (end > 0) tmp.append(", ");
-	    tmp.append("STOP)");
-	}
+	else
+	    {
+		if (end > 0) tmp.append(", ");
+		tmp.append("STOP)");
+	    }
 	return tmp.toString();
     }
 

@@ -160,4 +160,4 @@ PAROPEN : '('  ( options {greedy=false;} : . )* ')' ;
 
 fragment LETTER : ('a'..'z' | 'A'..'Z');
 fragment NUMBER : ('0'..'9');
-fragment HEXNUMBER : ('0'..'9' | 'A' .. 'F' | 'a' .. 'f' );
+fragment HEXNUMBER : '0x' ('0'..'9' | 'A' .. 'F' | 'a' .. 'f' );

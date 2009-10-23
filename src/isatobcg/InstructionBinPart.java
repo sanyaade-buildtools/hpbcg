@@ -9,23 +9,22 @@ class InstructionBinPart
     static final int INTEXPR  = 4;
     int type;
     char typeLetter;
-    int binaryValue;
-    int intNumber, intStart, intEnd;
-    int intBinPartLength;
-    String regName; int regNumber;
-    String intExpr;
+    int binaryValue, intNumber, intStart, intEnd, regNumber, intBinPartLength;
+    String regName, intExpr;
 
     public InstructionBinPart(int n, int l)
     {
 	type = BINNUM;
 	binaryValue = n;
 	intBinPartLength = l;
+	// System.out.println("InstructionBinPart Val="+n+" Len ="+l+" intBinPartLenght= "+intBinPartLength);
     }
     public void addBinNum(int n, int l)
     {
 	binaryValue 	 <<= l;
 	binaryValue 	 |= n;
 	intBinPartLength += l;
+	// System.out.println("InstructionBinPart.addBinNum Val="+n+" Len ="+l+" intBinPartLenght= "+intBinPartLength);
     }
 
     public InstructionBinPart(int number, int start, int end)
@@ -55,7 +54,9 @@ class InstructionBinPart
     }
 
     public int getType() 	{ return type; }
-    public int getLength() 	{ return intBinPartLength; }
+    public int getLength() 	{ 	
+	// System.out.println("InstructionBinPart.getLenght"+intBinPartLength);
+	return intBinPartLength; }
     public String toString()
     {
 	String tmp = "";

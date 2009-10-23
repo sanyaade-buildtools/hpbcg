@@ -20,10 +20,11 @@ CFLAGS = -Wall -g -I../common
 TARGETS = \
 	hpbcg-cell.lst   hpbcg-cell.h 	\
 	hpbcg-power4.lst hpbcg-power4.h \
-	hpbcg-ia64.lst   hpbcg-ia64.h 
+	hpbcg-ia64.lst   hpbcg-ia64.h 	\
+	hpbcg-x86.lst    hpbcg-x86.h
 #	hpbcg-armthumb.lst   hpbcg-armthumb.h
 UTILS = hpbcg-cell-utils.h hpbcg-ia64-utils.h hpbcg-power4-utils.h	\
-	hpbcg-asm-common.h hpbcg-ia64-cache.h
+	hpbcg-asm-common.h hpbcg-ia64-cache.h hpbcg-x86-utils.h
 CLASSFILES = IsaToBCGParser.class IsaToBCGLexer.class		\
 	InstructionsList.class Instruction.class		\
 	InstructionBinPart.class InstructionAsmPart.class
@@ -51,14 +52,17 @@ test-v:
 	java IsaToBCGParser -v hpbcg-cell.isa
 	java IsaToBCGParser -v hpbcg-power4.isa
 	java IsaToBCGParser -v hpbcg-ia64.isa
+	# java IsaToBCGParser -v hpbcg-x86.isa
 test-e:
 	gcc -Wall -I. -E hpbcg-cell.h   -o /dev/null 
 	gcc -Wall -I. -E hpbcg-power4.h -o /dev/null 
 	gcc -Wall -I. -E hpbcg-ia64.h   -o /dev/null 
+	gcc -Wall -I. -E hpbcg-x86.h   -o /dev/null 
 test-c:
 	gcc -Wall -I. -c hpbcg-cell.h    -o /dev/null 
 	gcc -Wall -I. -c hpbcg-power4.h  -o /dev/null 
 	gcc -Wall -I. -c hpbcg-ia64.h    -o /dev/null 
+	gcc -Wall -I. -c hpbcg-x86.h   -o /dev/null 
 
 clean:
 	-rm ${TARGETS} IsaToBCG.tokens
