@@ -4,12 +4,13 @@
 	hpbcg $< > $@
 
 CFLAGS=-I${HPBCGHOME}/include/ -g ${ADDCFLAGS}  -DASM_DEBUG=1 -DWITH_HPBCG_FUNCTIONS=1 
+CFLAGS=-I${HPBCGHOME}/include/ -g ${ADDCFLAGS} # -DASM_DEBUG=1 -DWITH_HPBCG_FUNCTIONS=1 
 CDIR = /opt/cell/sdk/usr/
-CELLFILES     = simple-multiply-cell simple-worker-cell
-IAFILES       = simple-multiply-ia64 
-POWERFILES    = simple-multiply-power4
-BLUEGENEFILES = simple-multiply-bluegene
-X86FILES      = simple-multiply-x86
+CELLFILES     = simple-multiply-cell simple-multiply-cell.c simple-worker-cell
+IAFILES       = simple-multiply-ia64 simple-multiply-ia64.c
+POWERFILES    = simple-multiply-power4 simple-multiply-power4.c
+BLUEGENEFILES = simple-multiply-bluegene simple-multiply-bluegene.c
+X86FILES      = simple-multiply-x86 simple-multiply-x86.c
 
 quoi:
 	@echo -n "make what ?     "
@@ -26,6 +27,7 @@ simple-worker-cell: simple-worker-cell.c
 
 x86:
 	make FILES="${X86FILES}" ADDCFLAGS="-Wall " all
+simple-multiply-x86.c: simple-multiply-x86.hg
 
 ia64:
 	make FILES="${IAFILES}" ADDCFLAGS="-Wall " all
@@ -48,5 +50,3 @@ clean:
 
 real-clean:
 	-rm ${FILES}
-
-

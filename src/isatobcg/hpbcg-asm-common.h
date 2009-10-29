@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
 
 typedef unsigned long long ui64_t;
 typedef unsigned int ui32_t;

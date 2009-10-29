@@ -9,6 +9,7 @@ options { k = 2; }
     InsnIa64 currentInsn = null;
     boolean debug;
     InsnList ia64List = new InsnList("ia64");
+    Debug dBug = new Debug();
     public void myParse(boolean debug) throws antlr.TokenStreamException
     {
 	boolean inAsm = true;
@@ -19,28 +20,27 @@ options { k = 2; }
 	while (inAsm) 
 	{
 	    a = nextToken();
-	    // System.out.println(a.getType()+":!"+a.getText()+"!");
+	    Debug(a);
 	    switch  (a.getType())
 	    {
 	    case Token.EOF: System.exit (0); 		break;
             case EOL: 
-                Debug("EOL ");
                 ejectInsn();
                 Out("\n");
                 break;
             case PAROPEN:         
 		if (! Pattern.matches("\\(p[0-9]+\\)", a.getText()))
 		{
-		    Debug("PAROPEN :"+a.getText());
+		    Debug("PAROPEN INT");
 		    currentInsn.setParam(a.getText(), Insn.TYPEINT);
 		}
 		else
 		{
-		    Debug("Predicate :"+a.getText());
+		    Debug("PAROPEN Predicate");
 		    ejectInsn();
 		    b = nextToken();
 		    b = nextToken();
-		    Debug("MNEMO :"+b.getText());
+		    Debug(a);
 		    currentInsn = new InsnIa64(b.getText(), a.getText());
 		}
 		break;
@@ -72,35 +72,27 @@ options { k = 2; }
             case SEP:                 break;
             case WS:                  break;
             case INTREG:
-                Debug("REGISTER I :" + a.getText());
 		currentInsn.setParam(a.getText(), Insn.TYPEIREG);
                 break;
             case IAREGOPEN:
-                Debug("REGISTER IOPEN :" + a.getText());
 		currentInsn.setParam(a.getText(), Insn.TYPEIREG);
                 break;
             case FLTREG:
-                Debug("REGISTER F :" + a.getText());
                 currentInsn.setParam(a.getText(), Insn.TYPEFREG);
                 break;
             case BOOREG:
-                Debug("REGISTER B :" + a.getText());
                 currentInsn.setParam(a.getText(), Insn.TYPEPREG);
                 break;
             case BRREG:
-                Debug("REGISTER Br :" + a.getText());
                 currentInsn.setParam(a.getText(), Insn.TYPEBREG);
                 break;
             case INT:
-                Debug("INTEGER :" + a.getText());
                 currentInsn.setParam(a.getText(), Insn.TYPEINT);
                 break;
             case STOPBIT:
-                Debug("STOP ");
                 currentInsn.setStop();
                 break;
 	    case PROC:
-		Debug ("Proc :"+ a.getText());
 		tmp = a.getText();
 		tmp = new String (tmp.getBytes(), 5, tmp.length() - 6);
 		Out ("PROC("+tmp+");\n");
@@ -108,7 +100,7 @@ options { k = 2; }
 	    case ORG:
 		a = nextToken();
 		a = nextToken();
-		Debug ("Org :"+ a.getText());
+		Debug (a);
 		Out ("ORG("+a.getText()+");");
 		break;
             default : 
@@ -135,6 +127,13 @@ options { k = 2; }
     public void Debug(String a)
     {
         if (debug) System.out.println(a);
+    }
+    public void Debug(Token a)
+    {
+        if (debug)
+	    {
+		System.out.println(dBug.DebugX86(a.getType()) + ":!" + a.getText() + "!");
+	    }
     }
     public void Out(String a)
     {

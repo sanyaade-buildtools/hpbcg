@@ -78,7 +78,6 @@ class Instruction
     /**
      * return the macro able to generate a binary instruction
      */
-
     public String toMacro()
     {
 	StringBuffer tmp = new StringBuffer("#define "+getName()+"(");
@@ -144,7 +143,8 @@ class Instruction
 	for (int i = 0; i < end; ++i)
 	    {
 		if ("x86".equals (archName))
-		    argList.append (","+(InstructionAsmPart) asmPart.elementAt(i));
+		    {//   argList.append (","+(InstructionAsmPart) asmPart.elementAt(i));
+		    }
 		else
 		    {
 			letter  = ((InstructionAsmPart) asmPart.elementAt(i)).toString().charAt(0);
@@ -156,7 +156,7 @@ class Instruction
 			    case 'b':
 				printFormat += letter+"%d "; break;
 			    case 'i': printFormat += "0x%X "; break;
-			    default: System.out.println("Error letter in register name: "+letter); System.exit(-1);
+			    default: fatalError("Error letter in register name: "+letter); 
 			    }
 			argList.append(","+((InstructionAsmPart) asmPart.elementAt(i)).toString());
 		    }
@@ -176,7 +176,23 @@ class Instruction
     {
 	InstructionBinPart ibp;
 	int end = binPart.size();
-	StringBuffer tmp = new StringBuffer("ADDINSN(");
+	StringBuffer tmp = new StringBuffer();
+	int totalLen;
+	if (archName.equals("x86"))
+	    {
+		totalLen = 0;
+		for (int i = 0; i < end; ++i)
+		    {
+			ibp = (InstructionBinPart) binPart.elementAt(i);
+			totalLen += ibp.getLength();
+		    }
+		if (0 != (totalLen % 8))
+		    fatalError("Unknown insn length :"+totalLen); 
+		tmp.append("ADDINSN"+totalLen+"("); 
+	    }
+	else
+	    tmp.append("ADDINSN(");
+
 	for (int i = 0; i < end; ++i)
 		tmp.append("(");
 	for (int i = 0; i < end; ++i)
@@ -194,5 +210,10 @@ class Instruction
 	    }
 	return tmp.toString();
     }
+    void fatalError(String msg)
+    {
+	System.err.println("Fatal error: "+msg);
+	System.exit(-1);
+    } /* fatalError */
 
 }

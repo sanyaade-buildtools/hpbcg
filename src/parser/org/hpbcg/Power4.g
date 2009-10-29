@@ -5,6 +5,7 @@ lexer grammar  Power4;  // -*- java -*-
     Insn currentInsn = null;
     boolean debug;
     InsnList powerList = new InsnList("power4");
+    Debug dBug = new Debug();
     public void myParse(boolean debug) throws antlr.TokenStreamException
     {
         boolean inAsm = true;        
@@ -14,12 +15,11 @@ lexer grammar  Power4;  // -*- java -*-
         while (inAsm) 
         {
             a = nextToken();
-            // System.out.println(a.getType()+":!"+a.getText()+"!");
+	    Debug(a);
             switch  (a.getType())
             {
             case Token.EOF: System.exit (0); 		break;
             case EOL: 
-                Debug("EOL ");
                 ejectInsn();
                 Out("\n");
                 break;
@@ -34,7 +34,6 @@ lexer grammar  Power4;  // -*- java -*-
                 inAsm = false;  		
                 break;
             case POWERREG:
-                Debug("REGISTER "+a.getText());
 		switch(a.getText().charAt(0))
 		    {
 		    case 'r': currentInsn.setParam(a.getText(), Insn.TYPEIREG); break;
@@ -63,14 +62,12 @@ lexer grammar  Power4;  // -*- java -*-
                 break;
             case LABEL: 
 		String labelName = a.getText();
-                Debug("LABEL"+labelName);
                 currentInsn = new InsnPower4();
                 currentInsn.setLabel(new String (labelName.getBytes(), 0, labelName.length() - 1));
                 ejectInsn();
                 break;
             case MNEMO:
 		String insnName = a.getText();
-                Debug("MNEMONIC "+insnName);
 		powerList.verifExistInsn(insnName);
                 ejectInsn();
                 currentInsn = new InsnPower4(insnName);
@@ -78,7 +75,6 @@ lexer grammar  Power4;  // -*- java -*-
             case SEP:                 break;
             case WS:                  break;
             case POWERREGOPEN:
-                Debug("POWERREGOPEN"+a.getText());
 		switch(a.getText().charAt(0))
 		    {
 		    case 'r': currentInsn.setParam(a.getText(), Insn.TYPEIREG); break;
@@ -87,7 +83,6 @@ lexer grammar  Power4;  // -*- java -*-
 		    }
 		break;
             case PAROPEN:         
-                Debug("PAROPEN");
                 currentInsn.setParam(a.getText(), Insn.TYPEINT);
 		break;
 	    case ORG:
@@ -115,9 +110,16 @@ lexer grammar  Power4;  // -*- java -*-
             if (debug) System.out.println("No defined insn");
         }    
     }        
+    public void Debug(Token a)
+    {
+        if (debug)
+	    {
+		System.out.println(dBug.DebugPower4(a.getType()) + ":!" + a.getText() + "!");
+	    }
+    }
     public void Debug(String a)
     {
-        if (debug)System.out.println(a);
+        if (debug) System.out.println(a);
     }
     public void Out(String a)
     {

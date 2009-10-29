@@ -53,10 +53,8 @@ class InstructionBinPart
 	intBinPartLength = size;
     }
 
-    public int getType() 	{ return type; }
-    public int getLength() 	{ 	
-	// System.out.println("InstructionBinPart.getLenght"+intBinPartLength);
-	return intBinPartLength; }
+    public int getType() 	{ return type; 			}
+    public int getLength() 	{ return intBinPartLength; 	}
     public String toString()
     {
 	String tmp = "";

@@ -10,7 +10,7 @@ dist: clean
 
 build:  clean
 	${MAKE} -C src/isatobcg
-	${MAKE} -C src/parser/org/hpbcg jar
+	${MAKE} -C src/parser/org/hpbcg all
 
 install: 
 	${MAKE} -C src/isatobcg install PREFIX=${WHERE}

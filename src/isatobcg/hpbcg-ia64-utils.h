@@ -6,9 +6,9 @@
 #include <hpbcg-asm-common.h>
 #include <assert.h>
 
-static int ia64_addInsn(ui64_t insn, char stop);
+static int hpbcg_ia64_addInsn(ui64_t insn, char stop);
 
-#define ADDINSN(VAL, STOP) ia64_addInsn((ui64_t) (VAL), STOP)
+#define ADDINSN(VAL, STOP) hpbcg_ia64_addInsn((ui64_t) (VAL), STOP)
 #define ORG(PTR) 	(hpbcg_asm_pc = (insn *) PTR)
 #define PROC(PTR, DATA) ({ bundle b = {(ui64_t) PTR, (ui64_t) DATA}; _GEN(b); hpbcg_asm_pc++;})
 #define _GENL(B)	(*((long *)hpbcg_asm_pc)= (long)(B))
@@ -434,7 +434,7 @@ static int ia64_emitInsn()
 }
 
 
-static int ia64_addInsn(ui64_t insn, char stop)
+static int hpbcg_ia64_addInsn(ui64_t insn, char stop)
 {
   char insnType =  (insn >> 41) & 0x7;
   ui64_t insnBin = insn & _MASK(41);

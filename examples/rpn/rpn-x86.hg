@@ -16,8 +16,8 @@ pifi rpnCompile(char *expr)
 	.org	code
 	.align	4
 	pushl	%ebp
-	movl	%esp, %ebp
-	movl	8(%ebp), %eax
+	mov	%esp, %ebp
+	mov	8(%ebp), %eax
   ]#
   while (*expr)
     {

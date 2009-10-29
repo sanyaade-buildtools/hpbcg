@@ -8,22 +8,22 @@ lexer grammar X86; // -*- java -*-
     InsnX86 currentInsn = null;
     boolean debug;
     InsnList x86List = new InsnList("x86");
+    Debug dBug = new Debug();
     public void myParse(boolean debug) throws antlr.TokenStreamException
     {
 	String tmp;
 	boolean inAsm = true;
 	Token a, b;
-        this.debug = debug;
+	this.debug = debug;
 	Debug("/* x86 parser */");
 	while (inAsm) 
 	    {
 		a = nextToken();
-		System.out.println(a.getType()+":!"+a.getText()+"!");
+		Debug(a);
 		switch  (a.getType())
 		    {
 		    case Token.EOF: System.exit (0); 		break;
 		    case EOL: 
-			Debug("EOL ");
 			ejectInsn();
 			Out("\n");
 			break;
@@ -37,23 +37,40 @@ lexer grammar X86; // -*- java -*-
 			Out("ASM_1_END ");
 			inAsm = false;  		
 			break;
-		    case REG:           Debug("Reg : "+a.getText());      break;
-		    case MNEMO: 	Debug("Mnemo : "+a.getText());    break;
+		    case X86REG:
+			currentInsn.setParam (a.getText(), Insn.TYPEIREG);
+			break;
+		    case MNEMO:
+			ejectInsn();
+			x86List.verifExistInsn(a.getText());
+			currentInsn = new InsnX86(a.getText());
+			break;
 		    case SEP:                 break;
 		    case WS:                  break;
-		    case PAROPEN:     Debug("PAROPEN :"+a.getText()); break;
-		    case INT:
-			Debug("INT : " + a.getText());
-			// currentInsn.setParam(a.getText(), Insn.TYPEINT);
+		    case PAROPEN:     	      
+			tmp = a.getText();
+			tmp = new String (tmp.getBytes(), 1, tmp.length() - 2);
+			currentInsn.setParam (tmp, Insn.TYPEIREG);
+			break;
+		    case INT:		
+			currentInsn.setParam (a.getText(), Insn.TYPEINT);
+			break;
+		    case CONST:	
+			tmp = a.getText();
+			tmp = new String (tmp.getBytes(), 1, tmp.length() - 1);
+			currentInsn.setParam (tmp, Insn.TYPEINT);
+			break;
+		    case CONSTVAR:	
+			tmp = a.getText();
+			tmp = new String (tmp.getBytes(), 2, tmp.length() - 3);
+			currentInsn.setParam (tmp, Insn.TYPEINT);
 			break;
 		    case ORG:
 			a = nextToken();
 			a = nextToken();
-			Debug ("Org :"+ a.getText());
 			Out ("ORG("+a.getText()+");");
 			break;
 		    case PROC:
-			Debug ("Proc : "+ a.getText());
 			tmp = a.getText();
 			tmp = new String (tmp.getBytes(), 5, tmp.length() - 6);
 			Out ("PROC("+tmp+");\n");
@@ -63,6 +80,13 @@ lexer grammar X86; // -*- java -*-
 			System.exit(0);
 			break;
 		    }
+	    }
+    }
+    public void Debug(Token a)
+    {
+        if (debug)
+	    {
+		System.out.println(dBug.DebugX86(a.getType()) + ":!" + a.getText() + "!");
 	    }
     }
     public void Debug(String a)
@@ -94,9 +118,11 @@ PROC    : '.proc' ( options {greedy=false;} : . )* '\n' ;
 ORG     : '.org' ;
 SEP 	: (',' | '=' );
 INT     : ( (NUMBER)+ | '0x' (HEXNUMBER)+ );
+CONST   : '$0x' (HEXNUMBER)+ ;
+CONSTVAR: '$(' ( options {greedy=false;} : . )* ')' ;
 WS 	: (' ' |'\t')+;
 EOL     : '\n' ;
-    REG	: '%' (LETTER)+;
+X86REG	: '%' (LETTER)+;
 MNEMO 	:     (LETTER)+ ;
 PAROPEN : '('  ( options {greedy=false;} : . )* ')' ;
 
