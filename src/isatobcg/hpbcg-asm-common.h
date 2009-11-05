@@ -13,8 +13,8 @@ typedef unsigned long long ui64_t;
 typedef unsigned int ui32_t;
 
 
-#define ASM_1_BEGIN
-#define ASM_1_END
+#define ASM_1_BEGIN {
+#define ASM_1_END   }
 #define ASM_2_BEGIN
 #define ASM_2_END
 

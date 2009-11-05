@@ -1,6 +1,6 @@
 /* -*- C -*- */
 
-#cpu pentium
+#cpu x86
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,8 +14,7 @@ pifi rpnCompile(char *expr)
   insn *code= (insn *)malloc(1024);
   #[
 	.org	code
-	.align	4
-	pushl	%ebp
+	push	%ebp
 	mov	%esp, %ebp
 	mov	8(%ebp), %eax
   ]#
@@ -23,25 +22,30 @@ pifi rpnCompile(char *expr)
     {
       char buf[32];
       int n;
-      if (sscanf(expr, "%[0-9]%n", buf, &n)) #[
-!	expr+= n - 1;
-	pushl	%eax
-	movl	$(atoi(buf)), %eax
-      ]# else if (*expr == '+') #[
-	popl	%ecx
-	addl	%ecx, %eax
+      if (sscanf(expr, "%[0-9]%n", buf, &n)) 
+	{
+	  expr+= n - 1;
+	  n = strtol(buf, 0, 0);
+	  #[
+	    push	%eax
+	    mov	$(n), %eax
+	    ]# 
+	 }
+      else if (*expr == '+') #[
+	pop	%ecx
+	add	%ecx, %eax
       ]# else if (*expr == '-') #[
-	movl	%eax, %ecx
-	popl	%eax
-	subl	%ecx, %eax
+	mov	%eax, %ecx
+	pop	%eax
+	sub	%ecx, %eax
       ]# else if (*expr == '*') #[
-	popl	%ecx
-	imull	%ecx, %eax
+	pop	%ecx
+	imul	%ecx, %eax
       ]# else if (*expr == '/') #[
-	movl	%eax, %ecx
-	popl	%eax
+	mov	%eax, %ecx
+	pop	%eax
 	cltd
-	idivl	%ecx, %eax
+	idiv	%ecx
       ]# else {
 	fprintf(stderr, "cannot compile: %s\n", expr);
 	abort();
@@ -56,7 +60,7 @@ pifi rpnCompile(char *expr)
 }
 
 
-int main()
+int main(int argc, char * argv[])
 {
   pifi c2f= rpnCompile("9*5/32+");
   pifi f2c= rpnCompile("32-5*9/");

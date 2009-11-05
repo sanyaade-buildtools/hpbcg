@@ -27,7 +27,7 @@ pifi rpnCompile(char *expr)
       if (sscanf(expr, "%[0-9]%n", buf, &n))
 	{
 	  expr += n - 1;
-	  n= strtol(buf, 0, 0);
+	  n = strtol(buf, 0, 0);
 	  if (top == 35+32)
 	    {
 	      fprintf(stderr, "expression too complex");
@@ -113,7 +113,7 @@ pifi rpnCompile(char *expr)
 }
 
 
-int main(int argc, char **argv)
+int main(int argc, char * argv[])
 {
   int i;
   pifi c2f= rpnCompile("9*5/32+");

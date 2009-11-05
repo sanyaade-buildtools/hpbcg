@@ -70,7 +70,7 @@ pifi rpnCompile(char *expr)
 }
 
 
-int main()
+int main(int argc, char * argv[])
 {
   pifi c2f= rpnCompile("9*5/32+");
   pifi f2c= rpnCompile("32-5*9/");

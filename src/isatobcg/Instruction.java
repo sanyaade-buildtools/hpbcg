@@ -186,8 +186,7 @@ class Instruction
 			ibp = (InstructionBinPart) binPart.elementAt(i);
 			totalLen += ibp.getLength();
 		    }
-		if (0 != (totalLen % 8))
-		    fatalError("Unknown insn length :"+totalLen); 
+		if (0 != (totalLen % 8)) fatalError("Unknown insn length :"+totalLen); 
 		tmp.append("ADDINSN"+totalLen+"("); 
 	    }
 	else
