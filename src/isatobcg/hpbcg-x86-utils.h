@@ -8,7 +8,7 @@
 static void hpbcg_x86_addInsn8(u_int64_t insn);
 static void hpbcg_x86_addInsn16(u_int64_t insn);
 static void hpbcg_x86_addInsn24(u_int64_t insn);
-static void hpbcg_x86_addInsn64(u_int64_t insn);
+static void hpbcg_x86_addInsn32(u_int64_t insn);
 static void hpbcg_x86_addInsn40(u_int64_t insn);
 
 #define ADDINSN8(VAL)  hpbcg_x86_addInsn8(VAL);

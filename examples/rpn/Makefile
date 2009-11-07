@@ -5,37 +5,48 @@
 
 CFLAGS=-Wall -I${HPBCGHOME}/include/ -g ${ADDCFLAGS} # -DASM_DEBUG -DWITH_HPBCG_FUNCTIONS
 
-CELLFILES = rpn-cell.c rpn-cell simple-worker-cell
+CELLFILES =  rpn-cell.o main.o 
 CDIR = /opt/cell/sdk/usr/
-IAFILES = rpn-ia64.c rpn-ia64
-POWERFILES = rpn-power4.c rpn-power4
-X86FILES = rpn-x86.c rpn-x86
+IAFILES =    rpn-ia64.o   main.o
+POWERFILES = rpn-power4.o main.o
+X86FILES =   rpn-x86.o    main.o
 quoi:
 	@echo -n "make what ?     "
 	@echo "make [cell|ia64|power4|x86]"
 
-all: ${FILES}
+all: ${FILES} rpn-${ARCH}
 
-cell:
-	make FILES="${CELLFILES}"  ADDCFLAGS="-I${CDIR}/include -lspe2" all
+rpn-${ARCH}: ${FILES}
+	${CC} ${CFLAGS} -o $@ ${FILES}
 
-simple-worker-cell: simple-worker-cell.c
+TestBuild : 
+	${MAKE} clean
+	${MAKE} MFLAGS="-n" x86
+	${MAKE} MFLAGS="-n" ia64
+	${MAKE} MFLAGS="-n" power4
+	${MAKE} MFLAGS="-n" cell
+
+cell: 
+	${MAKE} ${MFLAGS} ARCH="cell" ADDCFLAGS="-I${CDIR}/include -lspe2" FILES="${CELLFILES}"  all
+	${MAKE} ${MFLAGS} ARCH="cell" ADDCFLAGS="-I${CDIR}/include -lspe2" simple-worker-cell
+
+simple-worker-cell:
 	spu-gcc -I${CDIR}/include -g -o simple-worker-cell simple-worker-cell.c 
 
 power4:
-	make FILES="${POWERFILES}"  all
+	${MAKE} ${MFLAGS} ARCH="ia64" FILES="${POWERFILES}"  all
 
 ia64:
-	make FILES="${IAFILES}" all
+	${MAKE} ${MFLAGS} ARCH="ia64" FILES="${IAFILES}" all
 
 x86:
-	make FILES="${X86FILES}" all
+	${MAKE} ${MFLAGS} ARCH="x86"  FILES="${X86FILES}" all
 
 clean:
-	make FILES="${CELLFILES}"  real-clean
-	make FILES="${IAFILES}"    real-clean
-	make FILES="${POWERFILES}" real-clean
-	make FILES="${X86FILES}"   real-clean
+	${MAKE} ARCH="cell"   FILES="${CELLFILES}"  real-clean
+	${MAKE} ARCH="ia64"   FILES="${IAFILES}"    real-clean
+	${MAKE} ARCH="power4" FILES="${POWERFILES}" real-clean
+	${MAKE} ARCH="x86"    FILES="${X86FILES}"   real-clean
 
 real-clean:
-	-rm ${FILES}
+	-rm ${FILES} rpn-${ARCH}.c rpn-${ARCH}
