@@ -9,9 +9,6 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
-typedef unsigned long long ui64_t;
-typedef unsigned int ui32_t;
-
 
 #define ASM_1_BEGIN {
 #define ASM_1_END   }
@@ -19,14 +16,14 @@ typedef unsigned int ui32_t;
 #define ASM_2_END
 
 
-#define _UL(X)		((ui64_t)(X))
-#define _MASK(N)	((ui64_t)((1ULL << (N))) -1)
-#define LENOK(VAL, LEN) ((VAL) < (1ULL << (LEN))?(ui64_t)(VAL)		\
+#define _UL(X)		((uint64_t)(X))
+#define _MASK(N)	((uint64_t)((1ULL << (N))) -1)
+#define LENOK(VAL, LEN) ((VAL) < (1ULL << (LEN))?(uint64_t)(VAL)		\
 	 :ASMFAIL("unsigned long "#VAL" too large for "#LEN"-bit field line "))
 #define ASMFAIL(MSG) asmFail(MSG, __FILE__, __LINE__,(char *) __func__)
 #define LABEL(IDLABEL) (IDLABEL = hpbcg_asm_pc)
 
-int hasBeenAsserted = 0;
+static int hasBeenAsserted = 0;
 static int asmFail(char *msg, char *file, int line, char *function)
 {
   fprintf(stderr, "%s: In function `%s':\n", file, function);
@@ -36,7 +33,7 @@ static int asmFail(char *msg, char *file, int line, char *function)
 }
 
 /* Return a string which help to identify the architecture */
-char * getArchName()
+static char * getArchName()
 {
   char * msg;
 
@@ -86,3 +83,13 @@ char * getArchName()
   return msg;
 }
 
+#if defined(__i386__) || defined(__x86_64__)
+/* http://fr.wikipedia.org/wiki/RDTSC */
+static __inline__ uint64_t getTick() {
+  uint64_t x;
+  __asm__ volatile ("rdtsc" : "=A" (x));
+  return x;
+}
+#else
+#warning "Tick/Tock not defined"
+#endif

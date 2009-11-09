@@ -24,7 +24,7 @@ static insn *hpbcg_asm_pc;
 
 static void iflush(register insn *addr, register insn *last)
 {
-  (void) printf("Flush data cache from %p to %p\n", addr, last);  
+  printf("Flush data cache from %p to %p\n", addr, last);  
 }
 
 static void hpbcg_x86_addInsn8(u_int64_t insn)
@@ -57,4 +57,15 @@ static void hpbcg_x86_addInsn40(u_int64_t insn)
   hpbcg_x86_addInsn8(insn >> 32);
   hpbcg_x86_addInsn16(insn >> 16);
   hpbcg_x86_addInsn16(insn);
+}
+
+static void neverCalled()
+{
+  u_int64_t myinsn = 0;
+  iflush (NULL, NULL);
+  hpbcg_x86_addInsn8(myinsn);
+  hpbcg_x86_addInsn16(myinsn);
+  hpbcg_x86_addInsn24(myinsn);
+  hpbcg_x86_addInsn32(myinsn);
+  hpbcg_x86_addInsn40(myinsn);
 }
