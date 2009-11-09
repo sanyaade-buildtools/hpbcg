@@ -6,11 +6,11 @@
 #include <hpbcg-asm-common.h>
 #include <assert.h>
 
-static int hpbcg_ia64_addInsn(ui64_t insn, char stop);
+static int hpbcg_ia64_addInsn(uint64_t insn, char stop);
 
-#define ADDINSN(VAL, STOP) hpbcg_ia64_addInsn((ui64_t) (VAL), STOP)
+#define ADDINSN(VAL, STOP) hpbcg_ia64_addInsn((uint64_t) (VAL), STOP)
 #define ORG(PTR) 	(hpbcg_asm_pc = (insn *) PTR)
-#define PROC(PTR, DATA) ({ bundle b = {(ui64_t) PTR, (ui64_t) DATA}; _GEN(b); hpbcg_asm_pc++;})
+#define PROC(PTR, DATA) ({ bundle b = {(uint64_t) PTR, (uint64_t) DATA}; _GEN(b); hpbcg_asm_pc++;})
 #define _GENL(B)	(*((long *)hpbcg_asm_pc)= (long)(B))
 #define _GEN(B)		(*hpbcg_asm_pc = (B))
 #define _BBUNDLE(TMPL, S0, S1, S2) ({ bundle b = {(S1) <<46 | (S0) << 5 | TMPL, (S2) << 23 | (S1) >>18 }; _GEN(b); hpbcg_asm_pc++;})
@@ -305,8 +305,8 @@ static const struct ia64_Template ia64_template[32]=
 };
 
 typedef struct {
-  ui64_t lo;
-  ui64_t hi;
+  uint64_t lo;
+  uint64_t hi;
 } bundle;
 typedef bundle insn;
 static insn *hpbcg_asm_pc;
@@ -314,7 +314,7 @@ static insn *hpbcg_asm_pc;
 typedef struct 
 {
   char ia64_insnType;
-  ui64_t ia64_insn;
+  uint64_t ia64_insn;
   char ia64_stop;
 } ia64_insns;
 #define INSNMAX 3
@@ -325,12 +325,12 @@ static int ia64_slotCount = 0;
 void isAsserted()
 {
 #if ASM_DEBUG
-  printf("sizeof ui64_t %d bits\n", (int) (8*sizeof (ui64_t)));
-  printf("sizeof ui32_t %d bits\n", (int) (8*sizeof (ui32_t)));
+  printf("sizeof uint64_t %d bits\n", (int) (8*sizeof (uint64_t)));
+  printf("sizeof uint32_t %d bits\n", (int) (8*sizeof (uint32_t)));
   printf("sizeof insn   %d bits\n", (int) (8*sizeof (insn)));
 #endif
-  assert(8 == sizeof (ui64_t));
-  assert(4 == sizeof (ui32_t));
+  assert(8 == sizeof (uint64_t));
+  assert(4 == sizeof (uint32_t));
   hasBeenAsserted = 1;
 } /* isAsserted */
 
@@ -343,7 +343,7 @@ char insnType(char type, int stop)
 } /* insnType */
 
 #ifdef ASM_DEBUG
-static void pInsn(ui64_t insn, char type, char stop)
+static void pInsn(uint64_t insn, char type, char stop)
 {
   printf("%c: 0x%0llx\n", insnType(type, stop), insn);
 }
@@ -434,10 +434,10 @@ static int ia64_emitInsn()
 }
 
 
-static int hpbcg_ia64_addInsn(ui64_t insn, char stop)
+static int hpbcg_ia64_addInsn(uint64_t insn, char stop)
 {
   char insnType =  (insn >> 41) & 0x7;
-  ui64_t insnBin = insn & _MASK(41);
+  uint64_t insnBin = insn & _MASK(41);
 
 #ifdef NOTDEFINED
   pInsn(insnBin, insnType, stop);

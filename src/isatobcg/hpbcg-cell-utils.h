@@ -6,7 +6,7 @@
 #include <hpbcg-asm-common.h>
 
 
-static void hpbcg_cell_addInsn(ui64_t insn);
+static void hpbcg_cell_addInsn(uint64_t insn);
 
 #define ADDINSN(VAL) hpbcg_cell_addInsn(VAL)
 #define THEADDINSN(VAL) (*(hpbcg_asm_pc++) = (VAL))
@@ -30,7 +30,7 @@ static void iflush(register insn *addr, register insn *last)
  * if (0 == hpbcg_asm_pc % 2) && (1 == slot_bit) AddInsn (NOP_X, hpbcg_asm_pc++)
  * AddInsn (VAL , hpbcg_asm_pc++)
  */
-static inline void hpbcg_cell_addInsn(ui64_t insn)
+static inline void hpbcg_cell_addInsn(uint64_t insn)
 {
   int mask;
 
@@ -39,15 +39,15 @@ static inline void hpbcg_cell_addInsn(ui64_t insn)
     {
       mask = (insn >> 32) & 0x1;
 #if 0
-      printf("mask %d asm_pc mod 8 %d\n", mask, ((ui32_t) hpbcg_asm_pc) % 8);
+      printf("mask %d asm_pc mod 8 %d\n", mask, ((uint32_t) hpbcg_asm_pc) % 8);
 #endif
-      if ((0 == (ui64_t) hpbcg_asm_pc % 8) && (1 == mask)) 
+      if ((0 == (uint32_t) hpbcg_asm_pc % 8) && (1 == mask)) 
 	{
 	  THEADDINSN (0x40200000); 
 #ifdef ASM_DEBUG
 	  printf("-> : nop (execute)\n");
 #endif
-	} else if ((4 == ((ui32_t) hpbcg_asm_pc) % 8) && (0 == mask)) 
+	} else if ((4 == ((uint32_t) hpbcg_asm_pc) % 8) && (0 == mask)) 
 	{
 	  THEADDINSN (0x00200000); 
 #ifdef ASM_DEBUG
@@ -58,7 +58,7 @@ static inline void hpbcg_cell_addInsn(ui64_t insn)
   THEADDINSN (insn);
 #else
   /* mask Cell Slot | hpbcg_asm_pc parity */
-  mask = ((insn >> 31) & 0x2) | (((ui64_t) hpbcg_asm_pc >> 3) & 0x2);
+  mask = ((insn >> 31) & 0x2) | (((uint64_t) hpbcg_asm_pc >> 3) & 0x2);
   theinsn = insn & 0xffffffff;
   switch (mask)
     {
