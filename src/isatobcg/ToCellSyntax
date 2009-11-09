@@ -1,0 +1,19 @@
+#!/usr/bin/awk -f
+
+
+# Rewrite the generic hpbcg debug output to a "cell syntax"
+/^0x[0-9a-f]+/{ # If address + instruction
+	split($3, a, "_"); 
+	printf("%s ", a[1]); # Instruction name
+	for (i = 4; i <= NF; i++) 
+	{
+	   gsub("r", "$", $i);
+	   printf(" %s", $i); # Parameters
+	   if (i != NF) printf (",");
+	}
+	printf("\n");
+	next;
+}
+{
+	print $0;
+}

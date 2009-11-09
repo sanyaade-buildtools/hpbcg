@@ -1,0 +1,34 @@
+time ./mandelbrot  0.0   0.0 3    3    3000 3000
+Mandelbrot set (real support): +0.00+i*+0.00 Size     : 3.00 3.00 Img Size : 3000x3000
+real	1m24.056s user	1m23.791s sys	0m0.261s
+
+time ./mandelbrot -1.411 0.0 0.01 0.01 3000 3000
+Mandelbrot set (real support): -1.41+i*+0.00 Size     : 0.01 0.01 Img Size : 3000x3000
+real	1m13.864s user	1m13.639s sys	0m0.221s
+
+
+time ./mandelbrot-power4  0.0   0.0 3    3    3000 3000
+Mandelbrot set (power4 compilette support) : +0.00+i*+0.00 Size     : 3.00 3.00 Img Size : 3000x3000
+real	0m25.745s user	0m25.645s sys	0m0.099s
+
+time ./mandelbrot-power4 -1.411 0.0 0.01 0.01 3000 3000
+Mandelbrot set (power4 compilette support) : -1.41+i*+0.00 Size     : 0.01 0.01 Img Size : 3000x3000
+real	0m24.471s user	0m24.359s sys	0m0.114s
+
+
+time ./mandelbrot-complex  0.0   0.0 3    3    3000 3000
+Mendelbrot set (complex support): +0.00+i*+0.00 Size     : 3.00 3.00 Img Size : 3000x3000
+real	2m15.023s user	2m14.559s sys	0m0.398s
+
+time ./mandelbrot-complex -1.411 0.0 0.01 0.01 3000 3000
+Mendelbrot set (complex support): -1.41+i*+0.00 Size     : 0.01 0.01 Img Size : 3000x3000
+real	1m57.073s user	1m56.552s sys	0m0.503s
+
+
+time ./mandelbrot-cell  0.0   0.0 3    3    3000 3000
+Mandelbrot set (cell compilette support) : +0.00+i*+0.00 Size     : 3.00 3.00 Img Size : 3000x3000
+real	2m29.660s user	0m45.769s sys	1m43.862s
+
+time ./mandelbrot-cell -1.411 0.0 0.01 0.01 3000 3000
+Mandelbrot set (cell compilette support) : -1.41+i*+0.00 Size     : 0.01 0.01 Img Size : 3000x3000
+real	2m5.928s user	0m45.053s sys	1m20.866s

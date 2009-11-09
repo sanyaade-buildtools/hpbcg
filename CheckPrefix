@@ -1,0 +1,14 @@
+#!/bin/tcsh
+
+if (! $?PREFIX) then
+    echo "PREFIX/WHERE not defined"
+    exit -1
+else
+    if ("" != $PREFIX) then
+	setenv |grep -i prefix
+	exit 0
+    else
+	echo "PREFIX/WHERE empty"
+	exit -1
+    endif
+endif

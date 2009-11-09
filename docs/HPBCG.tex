@@ -1,0 +1,827 @@
+\documentclass{article}
+\usepackage{url}
+\usepackage{listings}
+\usepackage{color}
+%\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\title{HPBCG Documentation\\
+High Performance Binary Code Generation}
+\author{Henri-Pierre Charles}
+\newcommand{\hpbcg}{\textbf{HPBCG}\ }
+\newcommand{\Image}[2][10]{\includegraphics[width=#1cm]{Img/#2}}
+\newcommand{\Fig}[2]{\includegraphics[width=#2cm]{Img/#1}}
+
+\definecolor{lbcolor}{rgb}{0.9,0.9,0.9}
+\lstset{numbers=left, language=C,
+  backgroundcolor=\color{lbcolor},rulecolor=, frame=tb}
+% \lstset{language=Java, caption=Descriptive Caption Text, label=DescriptiveLabel}
+% \lstset{frame=shadowbox, rulesepcolor=\color{blue}}
+
+\begin{document}
+\maketitle
+\tableofcontents{}
+
+\section{Introduction}
+
+\hpbcg is a tool which help to build binary code generator.
+
+\subsection{What is it ?}
+
+A binary code generator is a tool which can generate binary code
+(runnable), at run-time, without using assembly (textual)
+representation.
+
+It can be useful in a lot of situations :
+\begin{itemize}
+\item For code optimization at run-time using data as optimizing parameter
+\item For vector code generation
+\item For multimedia code generation
+\end{itemize}
+
+\subsection{Motivation}
+
+Actually (January 2009) computer architecture reach a complexity
+point which lead to
+\begin{itemize}
+\item compiler which are unable to vectorize or use multimedia
+  instructions easily
+\item a bad use of huge register set. Compiler are still using
+  algorithm allocator which came from ages where register are rare.
+\item data are the main important parameter that actual compiler
+  cannot take into account because code generation is done at static
+  compile time.
+\end{itemize}
+
+\subsection{Related projects}
+
+\begin{description}
+\item[ccg] C Code Generator \cite{2001Piumarta} is the direct
+  predecessor of \hpbcg. \hpbcg differ from ccg on many points :
+  \begin{itemize}
+  \item The architecture description has been simplified to the strict
+    minimal binary description.
+  \item The source parser has been rewrote using antlr, which greatly
+    simplify the porting process
+  \end{itemize}
+\item[lightning] \url{http://www.gnu.org/software/lightning/} is an
+  other tool (which has take the architecture description from ccg),
+  but it does not allow a full use of the large register set, the
+  vector instructions or the special multimedia instructions.
+\end{description}
+
+\section{Actual status}
+
+\subsection{Working targets}
+
+\begin{description}
+\item[Itanium]  Working draft.
+\item[Power4]  
+  \begin{itemize}
+    \item Basic power4 instruction set : Working draft
+    \item FP2 extension : Working draft
+    \item Altivec extension : To be integrated
+  \end{itemize}
+\item Cell spu : Working draft 
+\item Arm : To be integrated
+\item x86 : initial version
+\end{description}
+
+Working demo / architecture :
+
+\begin{tabular}{|l | c c c c|} \hline
+  Demo name       & Cell-spu & Itanium  & Power4 & x86\\ \hline
+  simple-multiply & ok       & ok       & ok  & ok\\ \hline
+  rpn             & ok \footnote{Divide precision problem to be  solved} & ok  & ok& ok \\ \hline
+  mendelbrot      & ok       & TODO  & ok  & TODO\\ \hline
+\end{tabular}
+
+\subsection{Tested platforms}
+
+\begin{tabular}{|r|r|r|r|} \hline
+  cell-spu 		& power4       & itanium           & x86\\ \hline
+  PS3 linux yellow dog  & Sony/PS3     & Bull ia64 / linux & FreeBSD \\
+                        & IBM/BlueGene &	           \\ \hline
+\end{tabular}
+
+Java on PS3 :\url{http://www.ibm.com/developerworks/java/jdk/linux/} could be useful
+
+\section{Todo}
+
+\begin{description}
+\item[All targets] Things to be done
+  \begin{itemize}
+  \item Improve the .isa verifyer, to check the insn coherency, the opcode
+    usage.
+  \item Find a way to handle instructions aliases
+  \end{itemize}
+\item[itanium] Things to be done :
+  \begin{enumerate}
+  \item Verify the instruction tabulated scheduler in \texttt{ia64-utils.h}
+  \item Inprove the mini scheduler which allow to break bundle into
+    sub-bundle if a static schedule does not exist
+  \item Look at the L+X instruction : how to choose the template value ?
+  \item How to choose between two possible templates ?
+  \end{enumerate}
+\item[cell] Things to be done :
+  \begin{enumerate}
+  \item Add more working examples
+  \item Hide the worker communication somewhere
+  \item Solve the precision divide problem
+  \end{enumerate}
+\item[power4]  Things to be done :
+  \begin{itemize}
+  \item Complete the .isa file
+  \item Test  FP2 on bluegene
+  \end{itemize}
+\item[x86]  Thinks to be done
+  \begin{itemize}
+  \item Complete isa description
+  \end{itemize}
+
+\end{description}
+
+\section{Installing \hpbcg}
+
+\hpbcg should work on any reasonable unix like target. The
+requirements are :
+
+\begin{tabular}{|l | l |}\hline
+Build time          & java and antlr 3.x 	\\
+Install time        & nothing 			\\
+Static compile time & java and antlr 3.x 	\\
+Run-time            & nothing 			\\ \hline
+\end{tabular}
+
+\hpbcg contain two parts :
+\begin{description}
+\item[Architecture description] contains the architecture description
+  and the parser used to generate the macro instructions. This part is
+  in the \texttt{src/isatobcg} directory.
+  \begin{figure}
+    \centering
+    \Fig{IsaToHPBCGChain.pdf}{6}
+    \caption{Installation scheme}
+    \label{fig:Install}
+  \end{figure}
+\item[Parser] contains the parser in charge of the translation from
+  the \texttt{.hg} file to the \texttt{.c} file. This parser is in the
+  \texttt{src/parser} directory.
+
+  This parser translate pseudo assembly file into fast binary code
+  generator.
+\end{description}
+
+\subsection{Installation}
+
+HPBCG can be installed everywhere, the usual location should be
+\texttt{/usr/local}.
+
+In the main directory type the commands :
+\begin{verbatim}
+make build
+sudo make install WHERE=/usr/local
+\end{verbatim}
+
+\begin{enumerate}
+\item The first one will create all the \texttt{.h} files
+\item The second one will install the files in the \texttt{WHERE} directory.
+\end{enumerate}
+
+\section{Using \hpbcg}
+
+Mainly \hpbcg is a parser which translate C code whith special parts
+to a real C code. The text contain two parts : the classical C code or
+the ``compilette'' block code.
+
+\subsection{Outside parser}
+
+The outside parser only recognize the \verb|#cpu| token and replace it
+by a \verb|#include <hpbcg-XXX.h>|
+
+
+\begin{itemize}
+\item \verb|#cpu| : this allow to define the architecture which will be
+  used in the future compilettes blocks
+\end{itemize}
+
+The actual cpu recognized cpu are 
+\begin{itemize}
+\item \verb|#cpu power4|
+\item \verb|#cpu ia64|
+\item \verb|#cpu cell|
+\item \verb|#cpu power|
+\item \verb|#cpu x86|
+\end{itemize}
+
+\subsection{Inside parser}
+
+The ``compilette'' block is delimited by theses tokens :  
+
+\begin{itemize}
+\item \verb|#[| : beginning of compilette block
+\item \verb|]#| : end of compilette block
+\end{itemize}
+
+Inside a compilette block a programmer can write standard assembler
+instructions. The used syntax for the assembly instructions is defined
+by the previous \verb|#cpu| An example of CELL instruction :
+
+\begin{verbatim}
+	mpyi    $3, $3, 4
+\end{verbatim}
+
+The special characters \verb|(| and \verb|)| are used to insert C
+expressions inside the assembly code. Please note that these
+expressions wil be evaluated only at run-time.
+
+It allow to write parametrized instruction. An example of CELL
+instruction :
+\begin{verbatim}
+	mpyi    $3, $3, (multiplyValue) 
+\end{verbatim}
+
+\section{Compilettes examples}
+
+This section show basic compilettes examples the article \cite{KB2004}
+describe the first compilette examples and results.
+
+\subsection{simple-multiply}
+
+This example is very simple, it's just a proof of concept. The
+\texttt{simple-multiply} program generate a specialized version of a
+very simple program. The non specialized version is :
+
+\begin{verbatim}
+int multiply (int a, int b)
+{
+  return a * b;
+}
+\end{verbatim}
+
+The compilette will specialize this code with an ``optimized'' version
+at run-time. The following code will be specialized as
+
+\begin{verbatim}
+int multiply (int a)
+{
+  return a * 42;
+}
+\end{verbatim}
+
+The obtained result is
+\begin{verbatim}
+turner:simple-multiply/>./simple-multiply-cell 42
+Code generation for multiply value 42
+Code generated
+  1   2   3   4   5   6   7   8   9  10 
+ 42  84 126 168 210 252 294 336 378 420 
+\end{verbatim}
+
+Please note that the value 42 is choosed by the user and can not be
+include into the code before run-time.
+
+This specialized version should be faster than the previous one because
+\begin{itemize}
+\item the code is less specialized (Well, for a 1 instruction
+  function, it's not so evident, but you get the idea)
+\item the function contain less parameter, which use less memory in
+  the stack and less register
+\end{itemize}
+
+\subsubsection{Cell version}
+
+Use the command \texttt{make cell} to build the program. For this
+example, the compilation chain is :
+
+\begin{lstlisting}
+turner:simple-multiply/>make clean cell
+../..
+hpbcg simple-multiply-cell.hg > simple-multiply-cell.c
+cc ../..  -c -o simple-multiply-cell.o simple-multiply-cell.c
+cc -lspe2  simple-multiply-cell.o   -o simple-multiply-cell
+spu-gcc ../.. -g -o simple-worker-cell simple-worker-cell.c 
+
+turner:simple-multiply/>./simple-multiply-cell 42
+Code generation for multiply value 42
+0x10025080 : mpyi_iRRI r3 r3 0x2A 
+0x10025084 : bi_iR r0 
+Code generated
+  1   2   3   4   5   6   7   8   9  10 
+ 42  84 126 168 210 252 294 336 378 420 
+\end{lstlisting}
+
+This differents steps are describe here :
+\begin{description}
+\item[1] \texttt{make cell}
+\item[3] \hpbcg translate .hg file to a plain C code
+\item[5 \& 6] C compilation (for clarity swithes has been removed)
+\item[8] Run time, at the startup time, the compilette generate the
+  binary code
+\item[14] The binary generated code is used. The binary code is
+  printed thanks to the switches \verb-ASM_DEBUG- and
+  \verb-WITH_HPBCG_FUNCTIONS- used at compile time.
+\end{description}
+
+The \texttt{cell} version contain 2 files :
+\begin{description}
+\item[simple-worker-cell.c] contain the initial SPU code. It will
+  \begin{enumerate}
+  \item download the binary code in a buffer
+  \item use this buffer as a function
+  \item call this function for all incoming parameter
+  \end{enumerate}
+\item[simple-multiply-cell.hg] is the code for the PPU. It will
+  \begin{enumerate}
+  \item generate a specialized code depending on the data given by the user.
+  \item sent it to the worker
+  \item use the worker 10 times for printing a array of multiplied values
+  \end{enumerate}
+\end{description}
+
+The cell ccompilette is simple as :
+
+\begin{lstlisting}
+#cpu cell
+
+typedef int (*pifi)(int);
+pifi multiplyFunc; 
+
+pifi multiplyCompile(int multiplyValue)
+{
+ insn *code= (insn *)_malloc_align(1024, 7);
+ printf("Code generation for multiply value %d\n", multiplyValue);
+  #[
+	.org	code
+	mpyi    $3, $3, (multiplyValue) 
+	bi $lr 
+  ]#;
+  printf("Code generated\n");
+  return (pifi)code;
+}
+\end{lstlisting} % $
+
+\begin{description}
+\item[line 3 and 4] define a type pointer on a function which take one
+  parameter
+\item[line 8] alloc a block in memory where the function will be generated.
+\item[line 10] The token \verb|#[| define the beginning of the
+  compilette block
+\item[line 11] define the beginning address of the function
+\item[line 12 and 13] will generate 2 binary instructions. The
+  \texttt{mpyi} instruction take the \texttt{multiplyValue} as
+  parameter.
+
+  \texttt{bi \$lr} is the return instruction.
+
+\item[line 14] The token \verb|]#| define the end of the compilette block
+\end{description}
+
+\subsubsection{Itanium version}
+
+Use the command \texttt{make ia64} to build the program
+\texttt{simple-multiply-ia64}. Run it !
+
+\begin{lstlisting}
+#cpu ia64
+
+typedef int (*pifi)(int);
+
+pifi multiplyCompile(int multiplyValue)
+{
+  insn *code= (insn *)calloc(1024, sizeof (insn));
+  printf("Code generation for multiply value %d\n", multiplyValue);
+  #[
+	.org	code
+	.proc   code+16, 0
+	mov	r33 = (multiplyValue)   
+	setf.sig f32 = r32
+	   nop.i 0 ;;
+	setf.sig f33 = r33		;;
+
+	xmpy.l  f32 = f32, f33 		;;
+
+	getf.sig r8= f32
+	br.ret.sptk.many b0 ;;
+  ]#;
+  iflush (code, asm_pc);
+  printf("Code generated\n");
+  return (pifi)code;
+}
+\end{lstlisting}
+
+The Itanium version is more complicated due to the fact that this
+processor does not have integer multiplication.
+
+The \texttt{setf.sig} instruction convert integer values to floating
+point values and the \texttt{getf.sig} does the opposite.
+
+The \texttt{nop.i} instruction allow the scheduler to find a bundle
+with these 3 instructions.
+
+\subsubsection{Power4 version}
+
+Use the command \texttt{make power4} to build the program
+\texttt{simple-multiply-power4}. Run it !
+
+\begin{lstlisting}
+#cpu power4
+
+typedef int (*pifi)(int);
+pifi multiplyCompile(int multiplyValue)
+{
+  insn *code= (insn *)calloc(1024, sizeof (insn));
+  printf("Code generation for multiply value %d\n", multiplyValue);
+  #[
+	.org	code
+	mulli r3, r3, (multiplyValue)  
+	blr
+  ]#;
+  iflush (code, asm_pc);
+  printf("Code generated\n");
+  return (pifi)code;
+}
+\end{lstlisting}
+
+The compilette code is similar to the cell one except for the
+\texttt{mulli} instruction.
+
+\subsubsection{Power4 bluegene version}
+
+Use the command \texttt{make bluegene} to build the program
+
+To run it you can do it  :
+\begin{itemize}
+\item interactively : \texttt{bgrun -np 64 -mode VN -mapfile TXYZ -exe
+    ./simple-multiply-bluegene}
+
+\item in a batch :
+\begin{verbatim}
+# @ job_name = simple-multiply-bluegene
+# @ job_type = BLUEGENE
+# @ output = $(job_name).out
+# @ error = $(output)
+# @ wall_clock_limit = 0:00:05
+# @ bg_size = 64
+# @ queue
+mpirun -mode VN -np 256 -mapfile TXYZ -exe ./simple-multiply-bluegene
+\end{verbatim}
+\end{itemize}
+
+The generated code is similar to the power4 version with
+differences. All the processors compute a multiplication table
+depending on their processor number. The result is sent to the
+processor 0 which print the results :
+
+\begin{verbatim}
+Proc 0:    1    2    3    4    5    6    7    8    9   10 
+Proc 0:    0    0    0    0    0    0    0    0    0    0 
+Proc 1:    1    2    3    4    5    6    7    8    9   10 
+Proc 2:    2    4    6    8   10   12   14   16   18   20 
+Proc 3:    3    6    9   12   15   18   21   24   27   30 
+Proc 4:    4    8   12   16   20   24   28   32   36   40 
+Proc 5:    5   10   15   20   25   30   35   40   45   50 
+Proc 6:    6   12   18   24   30   36   42   48   54   60 
+Proc 7:    7   14   21   28   35   42   49   56   63   70 
+Proc 8:    8   16   24   32   40   48   56   64   72   80 
+Proc 9:    9   18   27   36   45   54   63   72   81   90 
+Proc 10:   10   20   30   40   50   60   70   80   90  100 
+Proc 11:   11   22   33   44   55   66   77   88   99  110 
+../..
+\end{verbatim}
+
+\subsubsection{x86 version}
+
+Use the command \texttt{make x86} to build the target
+\texttt{simple-multiply-x86}, run it !
+\begin{lstlisting}
+pifi multiplyCompile(int multiplyValue)
+{
+  insn *code= (insn *)calloc(1024, sizeof (insn));
+  printf("Code generation for multiply value %d\n", multiplyValue);
+  #[
+	.org	code
+     	push   %ebp
+     	mov    %esp,%ebp
+     	mov    0x8(%ebp),%eax
+        imul   $(multiplyValue),%eax,%eax
+     	pop    %ebp
+     	ret    
+  ]#;
+  iflush (code, hpbcg_asm_pc);
+  printf("Code generated\n");
+  return (pifi)code;
+}
+\end{lstlisting} % $
+
+The \texttt{x86} version is very simple, the two main instructions are
+lines 9 and 10 (mov and imul). The other instructions are context
+management.
+
+\subsection{rpn}
+
+rpn is a more complicated example. It compute conversion table from
+Celcius to Farenheit by ``compiling'' RPN expression. The interesting
+part of the program is the code generation which is build with 
+
+\begin{verbatim}
+  pifi c2f= rpnCompile("9*5/32+");
+  pifi f2c= rpnCompile("32-5*9/");
+\end{verbatim}
+
+The main part is the RPN code generator which convert RPN expression
+to a binary code function. In this compilette example the registers
+are used as a stack.
+
+The first register contain the number to  convert.
+
+The result should be :
+\begin{verbatim}
+allaoua:rpn/>./rpn-ia64 
+
+C:  0  10  20  30  40  50  60  70  80  90 100 
+F: 32  50  68  86 104 122 140 158 176 194 212 
+
+F: 32  42  52  62  72  82  92 102 112 122 132 142 152 162 172 182 192 202 212 
+C:  0   5  11  16  22  27  33  38  44  50  55  61  66  72  77  83  88  94 100 
+\end{verbatim}
+
+\subsubsection{power4 version}
+
+\begin{lstlisting}
+pifi rpnCompile(char *expr)
+{
+  insn *code= (insn *)calloc(64, sizeof(insn));
+  int top= 3;
+#ifdef _IBMR2
+  code = code + 2;
+#endif
+  #[    .org    code  ]#;
+
+  while (*expr)
+    {
+      char  buf[32];
+      int n, tmp ;
+      if (sscanf(expr, "%[0-9]%n", buf, &n))
+      {
+        expr+= n - 1;
+        if (top == 10)
+          {
+            fprintf(stderr, "expression too complex");
+            exit(0);
+          }
+         ++top; tmp = atoi(buf);
+         #[
+          subf  r(top), r(top), r(top)
+          ori   r(top), r(top), (tmp)  
+         ]#;
+        }
+      else if (*expr == '+')
+        { --top; #[ add  r(top), r(top), r(top+1)  ]# }
+      else if (*expr == '-')
+        { --top; #[ subf r(top), r(top), r(top+1)  ]# }
+      else if (*expr == '*')
+        { --top; #[ mullw r(top), r(top), r(top+1) ]# }
+      else if (*expr == '/')
+        { --top; #[ divw  r(top), r(top), r(top+1) ]# }
+      else
+        {
+          fprintf(stderr, "cannot compile: %s\n", expr);
+          abort();
+        }
+      ++expr;
+    }
+\end{lstlisting}
+
+
+\subsection{Mandelbrot set}
+
+The Mandelbrot set is a mathematical set of point in the complex plane
+defined as the set of complex values of $c$ for which the orbit of 0
+under iteration of the complex quadratic polynomial $z_{n+1} = z_n^2 + c$
+remains bounded. That is, a complex number, c, is in the Mandelbrot
+set if, when starting with $z_0=0$ and applying the iteration repeatedly,
+the absolute value of $z_n$ never exceeds a certain number (that number
+depends on $c$) however large n
+gets. \footnote{\url{http://en.wikipedia.org/wiki/Mandelbrot_set}}
+
+\begin{figure}
+  \centering \Image{Set-141-0.png}{6}
+  \caption{Meandelbrot set in a region centered on the point $(-1.41+i*+0.00)$}
+\end{figure}
+
+This mathematical set use complex arithmectic which is not supported
+by the C ansi.
+
+\subsection{power 4 implementation}
+
+A complex number is implemented with two successive floating point registers.
+
+\subsection{cell implementation}
+
+A complex number is implemeted with one register. The two first slots
+are the real and imaginary parts.
+
+\subsection{bluegene implementation}
+
+A complex number is implemented with one register (which contain 2 parts).
+
+\section{Porting \hpbcg}
+
+Porting \hpbcg to a new architecture should be as simple than the
+architectural model you plan to target.
+
+\subsection{Architecture description}
+
+The actual version contain processor description for 
+\begin{description}
+\item[cell.isa] This file contain all SPU instruction description
+\item[ia64.isa] This file contain all instruction set description
+\item[power4.isa] This file contain all instruction set description
+\end{description}
+
+A processor description file should contain
+\begin{description}
+\item[Comments] A comments line is a line starting with \#
+\item[Arch length] A line containing the architecture name and the bit
+  length of one instruction. For instance the first lone of the 
+\verb|cell.isa| containing the cell description contain :
+\begin{verbatim}
+cell 32
+\end{verbatim}
+\item[Instruction description] Each line of this part describe one
+  machine instruction. Each line is divided in two part separated by a
+  \verb-|-. The general for is :
+
+\begin{verbatim}
+Binary description | Syntax description
+\end{verbatim}
+
+For instance the \verb|cell.isa| description contain a line with :
+\begin{verbatim}
+ 00011000000  r3_7 r2_7  r1_7   | a   r1,r2,r3
+\end{verbatim}
+  \begin{description}
+  \item[The Binary description] contains bits fields describing the
+    instruction. In the previous example we have 4 bit fields
+    \begin{description}
+      \item[00011000000] witch is the opcode of the instruction
+        coming from the manual\cite{SPU1} page 55.
+      \item[Registers description] \verb|r3_7| which mean that the 3nd
+        register should be encoded on 7 bits.
+    \end{description}
+  \item[Syntax description] contains the instruction syntax allowed to
+    be used in compilettes.
+  \end{description}
+
+\end{description}
+
+\subsection{IsaToBCG parser}
+
+This parser translate the isa description into a code generation
+program.
+
+For example the ``multiply by a constant'' instruction which is in the
+\texttt{hpbcg-power4.isa} file is defined as :
+
+\begin{verbatim}
+000111  r1_5  r2_5  i1_15-0  | mulli  r1,  r2,  i1
+\end{verbatim}
+
+is translated into theses two instructions bloc. The first one is a
+macro instruction which can be partially evaluated at static compile
+time, the second one is a function version which is usefull for
+debugging purpose.
+
+\begin{verbatim}
+#define mulli_iRRI(r1, r2, i1)    \
+     ADDINSN(((((LENOK(7,6))<< 5  \
+     |  LENOK(r1,5))<< 5          \
+     |  LENOK(r2,5))<< 16         \
+     |  LENOK(i1 & 65535, 16)))
+\end{verbatim}
+
+\begin{verbatim}
+void mulli_iRRI(r1, r2, i1)      \
+{    ADDINSN(((((LENOK(7,6))<< 5 \
+    |  LENOK(r1,5))<< 5          \
+    |  LENOK(r2,5))<< 16         \
+    |  LENOK(i1 & 65535, 16)));
+#ifdef ASM_DEBUG
+    printf("%p : %s%s 0x%X\n", asm_pc, "mulli_iRRI", *(asm_pc-1));
+#endif /* ASM_DEBUG */
+}
+\end{verbatim}
+
+\subsection{\hpbcg Parser}
+
+\section{Assembly languages}
+
+This part is devoted to different assembly languages syntax that
+\hpbcg support.
+
+The figure \ref{fig:ISACompare} try to summarize the supported data
+type.
+
+\begin{figure}
+\begin{tabular}{|r|r|r|r|r|r|} \hline
+  ISA 		   & Power4  & Altivec & CELL & IA64 & x86\\ \hline
+  Integer register & 32      & 32      & 128  & 128  &  \\ 
+  FP register      & 32      & 32      & 128  & 128  &  \\
+  Vector lenght    & 32      & 128     & 128  & 64   &  \\\hline
+\end{tabular}
+  \caption{Isa principal facts}
+  \label{fig:ISACompare}
+\end{figure}
+\subsection{cell-spu}
+
+The cell SPU has 128 bit wide registers.
+
+\begin{description}
+\item[Register names] one of
+  \begin{itemize}
+  \item \verb|$lr|, \verb|$sp|
+  \item \verb|$0| : link register, \verb|$1| : stack pointer,
+    \verb|$2| : volatile
+  \item \verb|$3| .. \verb|$79| function arguments \& return value, volatile
+  \item \verb|$80| .. \verb|$127| local variables, non-volatile
+  \end{itemize}
+\item[Calling convention] 
+  \begin{itemize}
+  \item \verb|$3| is the imput register
+  \end{itemize}
+\item[Return convention] 
+\end{description}
+
+\subsection{power, cell-ppu  and power FP2}
+
+Full programming description can be found in \cite{POWERABI1} or
+\cite{POWERABI2}.
+
+\begin{description}
+\item[Integer register name]  one of
+  \begin{itemize}
+  \item \verb|r0| .. \verb|r31| integer registers name
+  \item \verb|f0| .. \verb|f31| floating point register name
+  \item \verb|v0| .. \verb|v31| vector register name (if altivec)
+  \item \verb|Cst(rx)| \texttt{Cst} indexed value for register \texttt{rx}
+  \end{itemize}
+\item[Calling convention] 
+  \begin{itemize}
+  \item \verb|r3-r10| first interger parameter value
+  \item \verb|f1-f13| first floating point register value (simple or double precision)
+  \end{itemize}
+\item[Return convention] 
+  \begin{itemize}
+  \item \verb|r3| return integer value
+  \item \verb|f1| return FP value
+  \end{itemize}
+
+\end{description}
+
+\subsection{ia64}
+
+\begin{description}
+\item[Registers name] one of
+  \begin{itemize}
+  \item \verb|r0| .. \verb|r128|, \verb|f0| .. \verb|f0| are floating
+    point or multimedia registers
+  \item \verb|r0| is always 0
+  \item \verb|r1| is always 1
+  \item \verb|f0| is always 0.0
+  \end{itemize}
+\item[Calling convention] depending on the used datatype, different
+  register can be used :
+  \begin{itemize}
+  \item \verb|r32| is the first integer parameter, \verb|r33| the
+    second, etc.
+  \item \verb|f8| is the first floating point parameter, \verb|f9| the
+    second, etc.
+  \item \verb|r8| or \verb|f8| is the return value depending on the
+    used data type.
+  \end{itemize}
+\end{description}
+
+\subsection{x86}
+
+x86 is an exception for almost everything. It has stack based calling
+convention, specialized register names and variable lenght instruction
+encoding.
+
+\begin{description}
+\item[Register name]
+\item[Calling convention]
+\item[Return convention] 
+\end{description}
+
+\section{Reporting bug}
+
+Please mail your comments to \url{mailto:hpc@prism.uvsq.fr}
+
+\bibliographystyle{plain}
+\bibliography{HPBCG.bib}
+
+\end{document}
+
+% Local Variables: ***
+% compile-command:"MonMake HPBCG.pdf" ***
+% End: ***

@@ -1,0 +1,412 @@
+/* -*- c -*- Copyright (c) 2007 Henri-Pierre Charles. Tous droits reserves */
+
+#ifdef HAVE_STDINT_H
+#include <stdint.h>
+#else
+#include <inttypes.h>
+#endif
+#include <stdio.h>
+#include <stdarg.h>
+#include <stdlib.h>
+
+#cpu ia64
+
+#include "pixel-ia64.h"
+
+
+/* Declare all differents pointer instances */
+#define DECLARE(NAME, ALIGN) pfsad NAME##_##ALIGN;
+#define DECLAREA(NAME)  DECLARE(NAME, 0) \
+			DECLARE(NAME, 1) \
+			DECLARE(NAME, 2) \
+			DECLARE(NAME, 3) \
+			DECLARE(NAME, 4) \
+			DECLARE(NAME, 5) \
+			DECLARE(NAME, 6) \
+			DECLARE(NAME, 7)
+
+#define DECLAREAL(NAME) DECLAREA(NAME##_16x16_ia64) \
+     			DECLAREA(NAME##_16x8_ia64)  \
+     			DECLAREA(NAME##_8x16_ia64)  \
+     			DECLAREA(NAME##_8x8_ia64)   \
+     			DECLAREA(NAME##_8x4_ia64)   \
+			DECLAREA(NAME##_4x8_ia64)   \
+     			DECLAREA(NAME##_4x4_ia64)     			
+
+DECLAREAL(x264_pixel_sad)
+#undef DECLARE
+#undef DECLAREA
+#undef DECLAREAL
+
+/* Compilation of all version of ALIGN/W/H */
+void x264_pixel_ia64_sad_init ()
+{
+#define COMPIL(ALIGN, W, H) x264_pixel_sad_##W##x##H##_ia64##_##ALIGN = compile_pixel_sad (W, H, (up8) NULL, (up8) ALIGN);  
+#define COMPILALL(W, H) COMPIL(0, W, H) COMPIL(1, W, H) COMPIL(2, W, H) COMPIL(3, W, H) \
+		        COMPIL(4, W, H) COMPIL(5, W, H) COMPIL(6, W, H) COMPIL(7, W, H)
+
+  COMPILALL(16, 16);  COMPILALL(16,  8);
+  COMPILALL( 8, 16);  COMPILALL( 8,  8);  COMPILALL( 8,  4);
+                      COMPILALL( 4,  8);  COMPILALL( 4,  4);
+#undef COMPIL
+#undef COMPILALL
+}
+
+#define WRAPPER(W, H) 												\
+int x264_pixel_sad_##W##x##H##_ia64( uint8_t *pix1, int i_stride_pix1, uint8_t *pix2, int i_stride_pix2 ) 	\
+{ 														\
+  switch ((long) pix2 & 0x7) 											\
+    {														\
+    case 0: return x264_pixel_sad_##W##x##H##_ia64_0 (pix1, i_stride_pix1, pix2, i_stride_pix2);  break;	\
+    case 1: return x264_pixel_sad_##W##x##H##_ia64_1 (pix1, i_stride_pix1, pix2, i_stride_pix2);  break;	\
+    case 2: return x264_pixel_sad_##W##x##H##_ia64_2 (pix1, i_stride_pix1, pix2, i_stride_pix2);  break;	\
+    case 3: return x264_pixel_sad_##W##x##H##_ia64_3 (pix1, i_stride_pix1, pix2, i_stride_pix2);  break;	\
+    case 4: return x264_pixel_sad_##W##x##H##_ia64_4 (pix1, i_stride_pix1, pix2, i_stride_pix2);  break;	\
+    case 5: return x264_pixel_sad_##W##x##H##_ia64_5 (pix1, i_stride_pix1, pix2, i_stride_pix2);  break;	\
+    case 6: return x264_pixel_sad_##W##x##H##_ia64_6 (pix1, i_stride_pix1, pix2, i_stride_pix2);  break;	\
+    case 7: return x264_pixel_sad_##W##x##H##_ia64_7 (pix1, i_stride_pix1, pix2, i_stride_pix2);  break;	\
+    default: (void) printf("Unknown aligment in %s\n", __FUNCTION__); exit(-1);break; 				\
+    } 														\
+} 
+
+/* Wrapper definitions */
+  WRAPPER(16, 16);  WRAPPER(16,  8);
+  WRAPPER( 8, 16);  WRAPPER( 8,  8);  WRAPPER( 8,  4);
+                    WRAPPER( 4,  8);  WRAPPER( 4,  4);
+#undef WRAPPER
+
+/**
+ * static int name( uint8_t *pix1, int i_stride_pix1,
+ *                  uint8_t *pix2, int i_stride_pix2 )
+ * {
+ *   int i_sum = 0;
+ *    int x, y;
+ *    for( y = 0; y < ly; y++ )
+ *   {
+ *        for( x = 0; x < lx; x++ )
+ *        {
+ *           i_sum += abs( pix1[x] - pix2[x] );
+ *        }
+ *        pix1 += i_stride_pix1;
+ *       pix2 += i_stride_pix2;
+ *    }
+ *   return i_sum;
+ * } */
+
+/* This compilet will implement the previous function for differents
+   values of ly and lx */
+pfsad compile_pixel_sad (int lx, int ly, uint8_t * s1, uint8_t * s2)
+{
+  int align = (long) s2 & 0x7;	/* s1 is 8 byte aligned, s1 vary */
+  /* ( uint8_t *pix1, int i_stride_pix1, uint8_t *pix2, int i_stride_pix2 ) */
+  /* Register allocation
+   * 
+   */
+  InitReg(32);	       /* Input parameters */
+  /* Input parameter : */
+  int RS1    = newReg();  /* Source1 */
+  int ROFF1  = newReg(); 	/* Registers offsets */
+  int RS2    = newReg();	/* Source1 */
+  int ROFF2  = newReg();
+  /* 36 37 Contexte (l0 et l1) */
+  /* Local variables */
+  Initialize (4096, 4, 90);
+#if 1
+  (void) printf("sad %d x %d s1 0x%x, s2 0x%x\n", lx, ly, s1, s2);
+#endif
+  InitReg(38);
+  switch (lx)
+    {
+    case 4:
+      {
+	int RS2P   = newReg();
+	int RS1L2  = newReg(); 	/* Source 1 line 2 */
+	int RS2L2  = newReg(); 	/* Source 2 line 2 */
+	int RS2L2P = newReg();	/* Source 2 line 2 pair */
+	int RS1L3  = newReg();
+	int RS2L3  = newReg();
+	int RS2L3P = newReg();
+	int RS1L4  = newReg();
+	int RS2L4  = newReg();
+	int RS2L4P = newReg();
+	int RSTART = newReg();
+	int V1, i;
+
+	/* Pre-Compute base address values : 4 for each sources  */
+	if (align) 
+	  {
+	    c_andi(RS2, RS2, 0xF8);
+	    c_stop();
+	  }
+	c_add (RS1L2, RS1, ROFF1);
+	c_add (RS2L2, RS2, ROFF2);
+	c_r0(8);
+	c_r0(9);
+	c_stop();
+	c_add (RS1L3, RS1L2, ROFF1);
+	c_add (RS2L3, RS2L2, ROFF2);
+	c_r0(10);
+	c_r0(11);
+	c_stop();
+	c_add(RS1L4, RS1L3, ROFF1);
+	c_add(RS2L4, RS2L3, ROFF2);
+	c_stop();
+	c_addi (RS2P, 	RS2, 8);
+	c_addi (RS2L2P, RS2L2, 8);
+	c_addi (RS2L3P, RS2L3, 8);
+	c_addi (RS2L4P, RS2L4, 8);
+	c_shli(ROFF1, ROFF1, 2);
+	c_shli(ROFF2, ROFF2, 2);
+	c_stop();
+      /* Launch loads without dependancies */
+      for (V1 = RSTART, i = 0; i < ly; i += 4) /* S1 */
+	{
+	  c_ld4 (V1 + 0, RS1,   ROFF1); V1 += 4; /* line i */
+	  c_ld4 (V1 + 0, RS1L2, ROFF1); V1 += 4; /* line i+1 */
+	  c_ld4 (V1 + 0, RS1L3, ROFF1); V1 += 4;
+	  c_ld4 (V1 + 0, RS1L4, ROFF1); V1 += 4; /* line i+4 */
+	}
+      for (V1 = RSTART, i = 0; i < ly; i += 4) /* S2 */
+	{
+	   if (0 != align) 	c_ld8 (V1 + 1, RS2,   ROFF2); 
+	   else 		c_ld4 (V1 + 1, RS2,   ROFF2); 
+	   V1 += 4;
+	   if (0 != align) 	c_ld8 (V1 + 1, RS2L2, ROFF2); 
+	   else 		c_ld4 (V1 + 1, RS2L2, ROFF2); 
+	   V1 += 4;
+	   if (0 != align) 	c_ld8 (V1 + 1, RS2L3, ROFF2); 
+	   else 		c_ld4 (V1 + 1, RS2L3, ROFF2); 
+	   V1 += 4;
+	   if (0 != align) 	c_ld8 (V1 + 1, RS2L4, ROFF2); 
+	   else 		c_ld4 (V1 + 1, RS2L4, ROFF2); 
+	   V1 += 4;
+	}
+      if (0 != align)
+	{
+	      for (V1 = RSTART,i = 0; i < ly; i++, V1 += 4)
+		c_shr (V1+1, V1+1,       8*align);	
+	      c_stop();
+#if 1
+	      for (V1 = RSTART,i = 0; i < ly; i++, V1 += 4)
+		c_32to64l(V1+1, V1+1);
+	      c_stop();
+#endif
+	}
+      /* sum(abs(diff(V1-8))) */
+      for (V1 = RSTART, i = 0; i < ly; i++)
+	{
+	  c_psad(V1+3, V1 + 0, V1 + 1);
+	  V1 += 4;
+	}
+      /* Reduction */
+      for (V1 = RSTART,i = 0; i < ly; i += 4)
+	{
+	  c_acc (8,  V1 + 3);
+	  c_acc (9,  V1 + 7);
+	  c_acc (10, V1 + 11);
+	  c_acc (11, V1 + 15);
+	  V1 += 16;
+	  c_stop();
+	}
+      }
+      break;
+
+    case 8:
+      {
+	int V1, i;
+	int RS2P   = newReg();
+	int RS1L2  = newReg(); 	/* Source 1 line 2 */
+	int RS2L2  = newReg(); 	/* Source 2 line 2 */
+	int RS2L2P = newReg();	/* Source 2 line 2 pair */
+	int RS1L3  = newReg();
+	int RS2L3  = newReg();
+	int RS2L3P = newReg();
+	int RS1L4  = newReg();
+	int RS2L4  = newReg();
+	int RS2L4P = newReg();
+	int RSTART = newReg();
+	/* Pre-Compute base address values : 4 for each sources  */
+	if (align) 
+	  {
+	    c_andi(RS2, RS2, 0xF8);
+	  }
+	c_add(RS1L2, RS1, ROFF1);
+	c_add(RS2L2, RS2, ROFF2);
+	c_r0(8);
+	c_r0(9);
+	c_stop();
+	c_add(RS1L3, RS1L2, ROFF1);
+	c_add(RS2L3, RS2L2, ROFF2);
+	c_r0(10);
+	c_r0(11);
+	c_stop();
+	c_add(RS1L4, RS1L3, ROFF1);
+	c_add(RS2L4, RS2L3, ROFF2);
+	c_stop();
+	c_addi(RS2P, RS2, 8);
+	c_addi(RS2L2P, RS2L2, 8);
+	c_addi(RS2L3P, RS2L3, 8);
+	c_addi(RS2L4P, RS2L4, 8);
+
+	c_shli (ROFF1, ROFF1, 2);
+	c_shli (ROFF2, ROFF2, 2);
+	c_stop();
+      /* Launch loads without dependancies */
+      for (V1 = RSTART, i = 0; i < ly; i += 4) /* S1 */
+	{
+	  c_ld8 (V1 + 0,  RS1,    ROFF1);  V1 += 4;
+	  c_ld8 (V1 + 0,  RS1L2,  ROFF1);  V1 += 4;
+	  c_ld8 (V1 + 0,  RS1L3,  ROFF1);  V1 += 4;
+	  c_ld8 (V1 + 0,  RS1L4,  ROFF1);  V1 += 4;
+	}
+      for (V1 = RSTART, i = 0; i < ly; i += 4) /* S2 */
+	{
+	  			c_ld8 (V1 + 1,  RS2,    ROFF2); 
+	  if (0 != align)  	c_ld8 (V1 + 2,  RS2P,   ROFF2); 
+	  V1 += 4;
+				c_ld8 (V1 + 1,  RS2L2,  ROFF2); 
+	  if (0 != align)  	c_ld8 (V1 + 2,  RS2L2P, ROFF2); 
+	  V1 += 4;
+				c_ld8 (V1 + 1,  RS2L3,  ROFF2);
+	  if (0 != align)  	c_ld8 (V1 + 2,  RS2L3P, ROFF2); 
+	  V1 += 4;
+				c_ld8 (V1 + 1,  RS2L4,  ROFF2);
+	  if (0 != align)  	c_ld8 (V1 + 2,  RS2L4P, ROFF2); 
+	  V1 += 4;
+	}
+      if (0 != align)
+	{
+	      for (V1 = RSTART,i = 0; i < ly; i++, V1 += 4)
+		c_shrp(V1+1, V1+2, V1+1, 8*align);	
+	}
+      /* sum(abs(diff(V1-8))) */
+      for (V1 = RSTART, i = 0; i < ly; i++)
+	{
+	  c_psad(V1+3, V1 + 0, V1 + 1);
+	  V1 += 4;
+	}
+      /* Reduction */
+      for (V1 = RSTART,i = 0; i < ly; i += 4)
+	{
+	  c_acc (8,  V1 + 3);
+	  c_acc (9,  V1 + 7);
+	  c_acc (10, V1 + 11);
+	  c_acc (11, V1 + 15);
+	  V1 += 16;
+	  c_stop();
+	}
+      }
+      break;
+
+    case 16:
+      {
+	int RS1L10 = RS1; /* Src 1 line 1 0 */
+	int RS2L10 = RS2; /* Src 2 line 1 0*8 bytes */
+	int RS1L11 = newReg(); /* Src 1 line 1 1 */
+	int RS2L11 = newReg(); /* Src 2 line 1 1*8 bytes */
+	int RS2L12 = newReg(); /* Src 2 line 1 2*8 bytes */
+	int RS1L20 = newReg(); /* etc */
+	int RS2L20 = newReg();
+	int RS1L21 = newReg();
+	int RS2L21 = newReg();
+	int RS2L22 = newReg();
+	int RSTART = newReg();
+	int V1, i, j;
+
+	if (align) 
+	  {
+	    c_andi(RS2L10, RS2L10, 0xF8);
+	    c_stop();
+	  }
+	c_addi(RS1L11, RS1L10, 8);
+	c_addi(RS2L11, RS2L10, 8);
+	c_r0(8);
+	c_r0(9);
+	c_stop();
+	c_add(RS1L20, RS1L10, ROFF1);
+	c_add(RS2L20, RS2L10, ROFF2);
+	c_r0(10);
+	c_r0(11);
+	c_stop();
+	c_add(RS1L21, RS1L11, ROFF1);
+	c_add(RS2L21, RS2L11, ROFF2);
+	  
+	c_shli (ROFF1, ROFF1, 1);
+	c_shli (ROFF2, ROFF2, 1);
+	c_stop();
+
+	if (align) 
+	  {
+	    c_addi(RS2L12, RS2L11, 8);
+	    c_addi(RS2L22, RS2L21, 8);
+	    c_stop(); 
+	  }
+	for (i = 0; i < ly/8; ++i)
+	  {
+	    /* Launch loads without dependancies */
+	    for (V1 = RSTART, j = 0; j < 4; ++j) /* S1 loads */
+	      {
+		c_ld8 (V1 +  0,  RS1L10, ROFF1); V1 += 4; /* jst line */
+		c_ld8 (V1 +  0,  RS1L11, ROFF1); V1 += 4;
+		c_ld8 (V1 +  0,  RS1L20, ROFF1); V1 += 4; /* j+1 line */
+		c_ld8 (V1 +  0,  RS1L21, ROFF1); V1 += 4;
+	      }
+	    for (V1 = RSTART, j = 0; j < 4; ++j) /* S2 loads */
+	      {
+			   c_ld8 (V1 +  1,  RS2L10, ROFF2); /* jst line */
+			   /* V1 + 2 free */
+		V1 += 4;
+			   c_ld8 (V1 +  1,  RS2L11, ROFF2);
+		if (align) c_ld8 (V1 +  2,  RS2L12, ROFF2);
+		V1 += 4;
+			   c_ld8 (V1 +  1,  RS2L20, ROFF2);  /* j+1 line */
+			   /* V1 + 2 free */
+		V1 += 4;
+			   c_ld8 (V1 +  1,  RS2L21, ROFF2);
+		if (align) c_ld8 (V1 +  2,  RS2L22, ROFF2);
+		V1 += 4;
+	      }
+	    c_stop();
+	    if (align)		/* Alignement if necessary */
+	      {
+		for (V1 = RSTART, j = 0; j < 4; ++j)
+		  {
+		    c_shrp(V1 +   1, V1 +  5, V1 +  1, 8*align);
+		    c_shrp(V1 +   5, V1 +  6, V1 +  5, 8*align);
+		    V1 += 8;
+		    c_shrp(V1 +   1, V1 +  5, V1 +  1, 8*align);
+		    c_shrp(V1 +   5, V1 +  6, V1 +  5, 8*align);
+		    V1 += 8;
+		  }
+		c_stop();
+	      }
+	    for (V1 = RSTART, j = 0; j < 4; ++j)
+	      {
+		c_psad(V1 + 3, V1 + 0, V1 + 1); V1 += 4;
+		c_psad(V1 + 3, V1 + 0, V1 + 1); V1 += 4;
+
+		c_psad(V1 + 3, V1 + 0, V1 + 1); V1 += 4;
+		c_psad(V1 + 3, V1 + 0, V1 + 1); V1 += 4;
+	      }
+	    /* Reduction */
+	    c_stop();
+	    for (V1 = RSTART, j = 0; j < 4; ++j)
+	      {
+		c_acc (8,  V1 + 3); V1 += 4;
+		c_acc (9,  V1 + 3); V1 += 4;
+		c_acc (10, V1 + 3); V1 += 4;
+		c_acc (11, V1 + 3); V1 += 4;      
+		c_stop();
+	      }
+	  }
+      }
+      break;
+    default:
+      (void) printf("Unknwon case %d in %s\n", lx, __FUNCTION__); break;
+    }
+  c_add (8, 8, 9);
+  c_add (10, 10, 11);
+  c_stop(); 
+  c_add (8, 8, 10);
+  return Finalize();
+}

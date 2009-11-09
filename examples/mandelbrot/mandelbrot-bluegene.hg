@@ -1,0 +1,139 @@
+#include <stdio.h> /* -*- c -*- */
+#include <stdlib.h>
+#include <mpi.h>
+
+#include "mandelbrot-common.h"
+
+typedef int (*pifdd) (tComplex *a, tReal b);
+
+tComplex ConstZero   = { 0.0f, 0.0f };
+
+#cpu power4
+
+void compileSub(int Dest, int Src1, int Src2)
+{
+#[
+  fsub f(Dest),   f(Src1),   f(Src2)
+  fsub f(Dest+1), f(Src1+1), f(Src2+1)
+]#
+} /* compileSub */
+
+void compileAdd(int Dest, int Src1, int Src2)
+{
+#[
+  fadd f(Dest),   f(Src1),   f(Src2)
+  fadd f(Dest+1), f(Src1+1), f(Src2+1)
+]#
+} /* compileAdd */
+
+void compileMul(int Dest, int a, int b, int tmp)
+{
+#[
+  fmul  f(tmp),    f(a+1), f(b+1)
+  fmul  f(tmp+1),  f(a+1), f(b)
+
+  fmsub f(tmp),     f(a),   f(b),   f(tmp)
+  fmadd f(Dest+1),  f(a),   f(b+1), f(tmp+1)
+
+  fmr   f(Dest),   f(tmp)
+]#
+} /* compileMul */
+
+void compileMod(int Dest, int a)
+{
+#[
+  fmul  f(Dest),  f(a),   f(a)
+  fmadd f(Dest),  f(a+1), f(a+1), f(Dest)
+]#
+} /* compileMod */
+
+
+pifdd isInSetCompile(int limit)
+{
+  insn * code= (insn *)calloc(64, sizeof(insn));
+  insn * branch1;
+  int frZ, frC, frTmp, rLimit, rI;
+
+  rLimit = 0;
+  frC = 2;   // Floating registers 2 & 3 contain C
+  frZ = 4;   // Floating registers 4 & 5 contain Z
+  frTmp = 6;
+  rI = 6;    
+  #[	.org	code  
+	lfd f(frC),   0(r3)
+	lfd f(frC+1), 8(r3)
+
+	li r(rLimit), (limit)
+	mtctr r(rLimit)
+	li r(rI), 0
+   ]#
+  compileSub(frZ, frZ, frZ);
+   #[
+branch1:
+     addi r(rI), r(rI), 1
+  ]#;
+  compileMul(frZ, frZ, frZ, frTmp);
+  compileAdd(frZ, frC, frZ);
+  compileMod(frTmp, frZ);
+  #[
+    fcmpu r2, f(frTmp), f(rLimit)
+    bc  r0, r9, (branch1-hpbcg_asm_pc)
+  
+    subi r(rI), r(rI), 1
+    mr r3, r(rI)
+    blr
+   ]#
+   return (pifdd) code;
+}
+
+int main(int argc, char * argv[])
+{
+  int rank, nproc;
+  pifdd isInSet;
+  tComplex Center, C1, C2, Z;
+  tReal reInc, imInc, reSize, imSize;
+  int IMGXSIZE, IMGYSIZE, i, j, k, tmp;
+  int COLORMAPSIZE = 65536;
+  int ITERLIMIT = 256;
+
+  MPI_Init(&argc, &argv);
+  MPI_Comm_size(MPI_COMM_WORLD, &nproc);
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  if (argc <= 6)
+    {
+      fprintf(stderr, "%s [Cr] i[Ci] re[Size] i[Size] imgXsize imgYsize\n", argv[0]);
+      fprintf(stderr, "C = Center, B = bottom rigth\n");
+      fprintf(stderr, "Example : %s 0.0    0.0 3    3    1280 1024\n", argv[0]);
+      exit(0);
+    }
+
+  if (0 != rank) return 0;
+  isInSet = isInSetCompile(ITERLIMIT);
+  cSet(&Center, atof (argv[1]), atof (argv[2]));
+  reSize     = atof (argv[3]);  imSize   = atof (argv[4]);
+  IMGXSIZE   = atoi (argv[5]);
+  IMGYSIZE   = atoi (argv[6]);
+  fprintf(stderr, "Mandelbrot set (power4 compilette support) : ");  pComplex(Center, stderr); 
+  fprintf(stderr, "Size     : %2.2f %2.2f ", reSize, imSize);
+  fprintf(stderr, "Img Size : %dx%d\n",IMGXSIZE, IMGYSIZE);
+
+  reInc = reSize / IMGXSIZE;
+  imInc = imSize / IMGYSIZE;
+  cSet(&C1, RE(Center) - (reSize / 2.0f), IMAG(Center) - (imSize / 2.0f));
+  (void) printf("P3\n");  
+  (void) printf("%d %d\n", IMGXSIZE, IMGYSIZE);  
+  (void) printf("%d\n", 256);  
+  for (i = 0; i < IMGYSIZE; i++)
+    {
+      C2 = C1;
+      for (j = 0; j < IMGXSIZE; ++j)
+	{
+	  tmp = isInSet(&C2, 4.0f);
+	  printf("%d ", COLORMAPSIZE*tmp/ITERLIMIT);
+	  RE(C2) += reInc;
+	}
+      IMAG(C1) += imInc;
+      printf("\n");
+    }
+  return 0;
+}

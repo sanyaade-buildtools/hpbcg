@@ -1,0 +1,154 @@
+#include <stdio.h>  /* -*- c -*- */
+
+#include <stdlib.h>
+#include <assert.h>
+#include <string.h>
+#include <pthread.h>
+#include <signal.h>
+
+#include <malloc_align.h>
+#include <free_align.h>
+#include <libspe2.h>
+
+#define SendInt(CTX, VAL) spe_in_mbox_write(CTX, \
+			(unsigned int *) &VAL, \
+			1, SPE_MBOX_ANY_NONBLOCKING);
+#define GetInt(CTX, VAL)  spe_out_intr_mbox_read(CTX,\
+			(unsigned int *) &VAL, \
+			1, SPE_MBOX_ALL_BLOCKING);
+
+int getResultat(spe_context_ptr_t context, int val)
+{
+  int resultat;
+  SendInt(context, val);
+  GetInt(context, resultat);
+  return resultat;
+}  
+
+typedef int (*pifi)(int);
+pifi convertionFunction;
+
+#cpu cell
+
+pifi rpnCompile(char *expr)
+{
+  insn *code= (insn *) _malloc_align(1024, 7);
+  int top = 3;
+
+  #[ .org code ]#
+
+
+  while (*expr)
+    {
+      char buf[32];
+      int n ;
+
+      if (sscanf(expr, "%[0-9]%n", buf, &n))
+	{
+	  expr += n - 1;
+	  n = strtol (buf, 0, 0);
+	  if (top == 30)
+	    {
+	      fprintf(stderr, "expression too complex");
+	      exit(0);
+	    }
+	  ++top;
+	  #[		il	$(top), (n)  ]#;
+	}
+      else if (*expr == '+')
+	{ --top; #[ a  $(top), $(top), $(top+1)	 ]# }
+      else if (*expr == '-')
+	{ --top; #[ sf  $(top), $(top), $(top+1) ]# }
+      else if (*expr == '*')
+	{ --top; #[ mpy $(top), $(top), $(top+1) ]# }
+      else if (*expr == '/') /* gcc-4.3.2/gcc/config/spu/spu.md (div<mode>3_fast */
+	{ int y0  = top + 1;
+	  int y1  = top + 2;
+	  --top; 
+	  #[ 
+		   csflt $(top),   $(top),   0
+		   csflt $(top+1), $(top+1), 0
+
+		   frest $(y0),    $(top+1) 
+		   fi    $(y1),    $(top+1), $(y0)
+		   fnms  $(top),   $(y1),    $(top+1), $(top)
+		   fma   $(top),   $(top), $(y0), $(y1)
+
+		   cflts $(top),   $(top), 0
+	  ]# 
+	}
+      else
+	{
+	  fprintf(stderr, "cannot compile: %s\n", expr);
+	  abort();
+	}
+      ++expr;
+    }
+  if (3 != top)
+    {
+      fprintf(stderr, "stack error : %d\n", top);
+      abort();
+    }
+  #[  bi $lr  ]#;
+  iflush(code, hpbcg_asm_pc);
+  if ((int)(hpbcg_asm_pc - code) >= 64)
+    {
+      fprintf(stderr, "expression too complex");
+      exit(0);
+    }
+  return (pifi)code;
+}
+
+void *waitingThread(void * arg)
+{
+  spe_program_handle_t *spu_handle;
+  spe_stop_info_t stop_info;
+  insn *insnbuffer;
+  spe_context_ptr_t ctx = *(spe_context_ptr_t *) arg;  
+  unsigned int entry = SPE_DEFAULT_ENTRY;
+
+  /* Load wrapper SPU code */
+  spu_handle = spe_image_open("simple-worker-cell");
+  assert(NULL != spu_handle);
+  spe_program_load(ctx, spu_handle);
+  /* Send and launch the code */
+  spe_context_run(ctx, &entry, 0, convertionFunction, NULL, &stop_info);
+  printf("Après context_run\n");
+  _free_align(insnbuffer);
+  pthread_exit(0);
+}
+
+int main(int argc, char * argv[])
+{
+  pthread_t pthread;
+  int i;
+  spe_context_ptr_t ctx;
+
+  convertionFunction = rpnCompile("9*5/32+");
+  ctx = spe_context_create(0, NULL);	 /* Send it to worker */
+  if (NULL == ctx) perror("create_context\n");
+  pthread_create(&pthread, NULL, &waitingThread, &ctx);
+  printf("\nC:");
+  for (i = 0; i <= 100; i+= 10) printf("%3d ", i);
+  printf("\nF:");
+  i = 11;
+  SendInt(ctx, i);
+  for (i = 0; i <= 100; i+= 10) printf("%3d ", getResultat(ctx, i));
+  printf("\n");
+  assert(0 == spe_context_destroy(ctx));
+
+  //  convertionFunction = rpnCompile("32-5*9/");
+  convertionFunction = rpnCompile("2/");
+  ctx = spe_context_create(0, NULL);	 /* Send it to worker */
+  if (NULL == ctx) perror("create_context\n");
+  pthread_create(&pthread, NULL, &waitingThread, &ctx);
+  printf("\nF:");
+  for (i = 32; i <= 212; i+= 10) printf("%3d ", i);
+  printf("\nC:");
+  i = 19;
+  SendInt(ctx, i);
+  for (i = 32; i <= 212; i+= 10) printf("%3d ", getResultat(ctx, i));
+  printf("\n");
+  assert(0 == spe_context_destroy(ctx));
+  return 0;
+}
