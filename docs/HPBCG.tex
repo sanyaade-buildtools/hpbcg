@@ -78,27 +78,28 @@ point which lead to
 \item[Power4]  
   \begin{itemize}
     \item Basic power4 instruction set : Working draft
-    \item Cell spu : Working draft 
     \item FP2 extension : Working draft
     \item Altivec extension : To be integrated
-    \item Arm : To be integrated
   \end{itemize}
+\item Cell spu : Working draft 
+\item Arm : To be integrated
+\item x86 : initial version
 \end{description}
 
 Working demo / architecture :
 
-\begin{tabular}{|l | c c c|} \hline
-  Demo name       & Cell-spu & Itanium  & Power4\\ \hline
-  simple-multiply & ok       & ok       & ok \\ \hline
-  rpn             & ok \footnote{Divide precision problem to be solved} & ok  & ok \\ \hline
-  mendelbrot      & ok       & TODO  & ok \\ \hline
+\begin{tabular}{|l | c c c c|} \hline
+  Demo name       & Cell-spu & Itanium  & Power4 & x86\\ \hline
+  simple-multiply & ok       & ok       & ok  & ok\\ \hline
+  rpn             & ok \footnote{Divide precision problem to be  solved} & ok  & ok& ok \\ \hline
+  mendelbrot      & ok       & TODO  & ok  & TODO\\ \hline
 \end{tabular}
 
 \subsection{Tested platforms}
 
-\begin{tabular}{|r r r|} \hline
-  cell-spu 		& power4       & itanium           \\ \hline
-  PS3 linux yellow dog  & Sony/PS3     & Bull ia64 / linux \\
+\begin{tabular}{|r|r|r|r|} \hline
+  cell-spu 		& power4       & itanium           & x86\\ \hline
+  PS3 linux yellow dog  & Sony/PS3     & Bull ia64 / linux & FreeBSD \\
                         & IBM/BlueGene &	           \\ \hline
 \end{tabular}
 
@@ -132,6 +133,11 @@ Java on PS3 :\url{http://www.ibm.com/developerworks/java/jdk/linux/} could be us
   \item Complete the .isa file
   \item Test  FP2 on bluegene
   \end{itemize}
+\item[x86]  Thinks to be done
+  \begin{itemize}
+  \item Complete isa description
+  \end{itemize}
+
 \end{description}
 
 \section{Installing \hpbcg}
@@ -203,6 +209,8 @@ The actual cpu recognized cpu are
 \item \verb|#cpu power4|
 \item \verb|#cpu ia64|
 \item \verb|#cpu cell|
+\item \verb|#cpu power|
+\item \verb|#cpu x86|
 \end{itemize}
 
 \subsection{Inside parser}
@@ -481,6 +489,34 @@ Proc 11:   11   22   33   44   55   66   77   88   99  110
 ../..
 \end{verbatim}
 
+\subsubsection{x86 version}
+
+Use the command \texttt{make x86} to build the target
+\texttt{simple-multiply-x86}, run it !
+\begin{lstlisting}
+pifi multiplyCompile(int multiplyValue)
+{
+  insn *code= (insn *)calloc(1024, sizeof (insn));
+  printf("Code generation for multiply value %d\n", multiplyValue);
+  #[
+	.org	code
+     	push   %ebp
+     	mov    %esp,%ebp
+     	mov    0x8(%ebp),%eax
+        imul   $(multiplyValue),%eax,%eax
+     	pop    %ebp
+     	ret    
+  ]#;
+  iflush (code, hpbcg_asm_pc);
+  printf("Code generated\n");
+  return (pifi)code;
+}
+\end{lstlisting} % $
+
+The \texttt{x86} version is very simple, the two main instructions are
+lines 9 and 10 (mov and imul). The other instructions are context
+management.
+
 \subsection{rpn}
 
 rpn is a more complicated example. It compute conversion table from
@@ -680,18 +716,18 @@ void mulli_iRRI(r1, r2, i1)      \
 
 \section{Assembly languages}
 
-This part is devoted to different assembly languages that \hpbcg
-support.
+This part is devoted to different assembly languages syntax that
+\hpbcg support.
 
 The figure \ref{fig:ISACompare} try to summarize the supported data
 type.
 
 \begin{figure}
-\begin{tabular}{| r | r | r | r | r |} \hline
-  ISA 		   & Power4  & Altivec & CELL & IA64\\ \hline
-  Integer register & 32      & 32      & 128  & 128 \\ 
-  FP register      & 32      & 32      & 128  & 128 \\
-  Vector lenght    & 32      & 128     & 128  & 64  \\\hline
+\begin{tabular}{|r|r|r|r|r|r|} \hline
+  ISA 		   & Power4  & Altivec & CELL & IA64 & x86\\ \hline
+  Integer register & 32      & 32      & 128  & 128  &  \\ 
+  FP register      & 32      & 32      & 128  & 128  &  \\
+  Vector lenght    & 32      & 128     & 128  & 64   &  \\\hline
 \end{tabular}
   \caption{Isa principal facts}
   \label{fig:ISACompare}
@@ -763,6 +799,18 @@ Full programming description can be found in \cite{POWERABI1} or
   \item \verb|r8| or \verb|f8| is the return value depending on the
     used data type.
   \end{itemize}
+\end{description}
+
+\subsection{x86}
+
+x86 is an exception for almost everything. It has stack based calling
+convention, specialized register names and variable lenght instruction
+encoding.
+
+\begin{description}
+\item[Register name]
+\item[Calling convention]
+\item[Return convention] 
 \end{description}
 
 \section{Reporting bug}
