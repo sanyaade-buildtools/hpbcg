@@ -62,11 +62,13 @@ int main(int argc, char * argv[])
       for (i = 32; i <= 212; i+= 10) printf("%3d ", f2c(i));
       printf("\n");
       startTick = getTick();
-      for (i = 0; i <= 100; i+= 10)  
-	c2f(i);
-      for (i = 32; i <= 212; i+= 10) 
-	f2c(i);
-      printf("Run time %d ticks \n", getTick() - startTick);
+      for (i = 0; i <= 100; i+= 10)  	c2f(i);
+      for (i = 32; i <= 212; i+= 10) 	f2c(i);
+      printf("%d ticks compiled\n", getTick() - startTick);
+      startTick = getTick();
+      for (i = 0; i <= 100; i+= 10)  	rpnEval("9*5/32+", i);
+      for (i = 32; i <= 212; i+= 10) 	rpnEval("32-5*9/", i);
+      printf("%d ticks interpreted\n", getTick() - startTick);
     }
   else
     {
