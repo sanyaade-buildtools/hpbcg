@@ -1,4 +1,4 @@
-#!/bin/tcsh
+#!/bin/csh
 
 if (! $?PREFIX) then
     echo "PREFIX/WHERE not defined"

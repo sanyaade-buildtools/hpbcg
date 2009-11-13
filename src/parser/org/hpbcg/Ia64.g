@@ -132,7 +132,7 @@ options { k = 2; }
     {
         if (debug)
 	    {
-		System.out.println(dBug.DebugX86(a.getType()) + ":!" + a.getText() + "!");
+		System.out.println(dBug.DebugIa64(a.getType()) + ":!" + a.getText() + "!");
 	    }
     }
     public void Out(String a)
@@ -159,4 +159,4 @@ PAROPEN : '('  ( options {greedy=false;} : . )* ')' ;
 
 fragment LETTER : ('a'..'z' | 'A'..'Z');
 fragment NUMBER : ('0'..'9');
-fragment HEXNUMBER : '0x' ('0'..'9' | 'A' .. 'F' | 'a' .. 'f' );
+fragment HEXNUMBER : ('0'..'9' | 'A' .. 'F' | 'a' .. 'f' );

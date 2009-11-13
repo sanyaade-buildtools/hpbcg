@@ -3,7 +3,7 @@
 .hg.c:
 	hpbcg $< > $@
 
-CFLAGS=-Wall -I${HPBCGHOME}/include/ -g ${ADDCFLAGS} # -DASM_DEBUG -DWITH_HPBCG_FUNCTIONS
+CFLAGS=-fno-inline -Winline -O3 -Wall -I${HPBCGHOME}/include/ -g ${ADDCFLAGS} # -DASM_DEBUG -DWITH_HPBCG_FUNCTIONS
 
 CELLFILES =  rpn-cell.o main.o 
 CDIR = /opt/cell/sdk/usr/
@@ -34,13 +34,13 @@ simple-worker-cell:
 	spu-gcc -I${CDIR}/include -g -o simple-worker-cell simple-worker-cell.c 
 
 power4:
-	${MAKE} ${MFLAGS} ARCH="ia64" FILES="${POWERFILES}"  all
+	${MAKE} ${MFLAGS} ARCH="$@" FILES="${POWERFILES}"  all
 
 ia64:
-	${MAKE} ${MFLAGS} ARCH="ia64" FILES="${IAFILES}" all
+	${MAKE} ${MFLAGS} ARCH="$@" FILES="${IAFILES}" all
 
 x86:
-	${MAKE} ${MFLAGS} ARCH="x86"  FILES="${X86FILES}" all
+	${MAKE} ${MFLAGS} ARCH="$@"  FILES="${X86FILES}" all
 
 clean:
 	${MAKE} ARCH="cell"   FILES="${CELLFILES}"  real-clean

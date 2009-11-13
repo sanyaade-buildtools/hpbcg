@@ -1,6 +1,6 @@
 BEGIN{
     FS="=";
-    printf("String Debug%s(int value)\n\{\n", ARCH);
+    printf("String Debug%s(int value)\n{\n", ARCH);
     print "    switch (value)\n    {\n\t";
 }
 {
