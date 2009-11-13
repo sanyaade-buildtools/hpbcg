@@ -1,14 +1,5 @@
-.SUFFIXES : .class .java .g .hg
+include ../../../../Makefile.conf
 
-.hg.c:
-	hpbcg $< > $@
-.g.java:
-	antlr $<
-.java.class:
-	${JAVAC} $<
-
-JAVAC=jikes --emacs
-JAVAC=javac # -target 4
 JFILES = C.java Cell.java Ia64.java Power4.java X86.java Debug.java
 CFILES = Main.java Insn.java InsnCell.java InsnIa64.java  InsnPower4.java InsnList.java InsnX86.java
 D = org/hpbcg

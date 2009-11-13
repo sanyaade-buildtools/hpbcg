@@ -85,11 +85,73 @@ static char * getArchName()
 
 #if defined(__i386__) || defined(__x86_64__)
 /* http://fr.wikipedia.org/wiki/RDTSC */
-static __inline__ uint64_t getTick() {
+#define getTickDefined 1
+static uint64_t getTick() {
   uint64_t x;
   __asm__ volatile ("rdtsc" : "=A" (x));
   return x;
 }
+#endif 				/* i386 */
+
+#if defined(__ia64__)
+#include <stdint.h>
+/* http://www.fftw.org/cycle.h */
+#define getTickDefined 1
+#ifdef __ECC
+static uint64_t __getReg (int whichReg);
+#pragma intrinsic(__getReg);
+#define INL_REGID_APITC 3116 
+#endif       
+
+static uint64_t getTick()
+{
+#ifdef __ECC
+  return __getReg (INL_REGID_APITC);
 #else
-#warning "Tick/Tock not defined"
+  long result;
+  __asm__ __volatile__("mov %0=ar.itc" : "=r"(result) :: "memory");
+  while (__builtin_expect ((int) result == -1, 0))
+    __asm__ __volatile__("mov %0=ar.itc" : "=r"(result) ::"memory");
+  return result;
+#endif
+} 
+#endif	/* __ia64__ */
+
+#if defined(__SPU__)
+#define getTickDefined 1
+#include <stdint.h>
+static hpbcg_decrementerisInitialized = 0;
+static uint64_t getTick()
+{
+  if (!hpbcg_decrementerisInitialized)
+    {
+      spu_write_decrementer(0xFFFFFFFF);
+      hpbcg_decrementerisInitialized  = 1;
+    }
+  return spu_read_decrementer()
+}	/* getTick() */
+#endif	/* __SPU__ */
+
+
+#if defined(__PPC__)
+#define getTickDefined 1
+#include <stdint.h>
+static uint64_t getTick()
+{
+     unsigned int tbl, tbu0, tbu1;
+     uint64_t high, low;
+     do {
+	  __asm__ __volatile__ ("mftbu %0" : "=r"(tbu0));
+	  __asm__ __volatile__ ("mftb %0"  : "=r"(tbl));
+	  __asm__ __volatile__ ("mftbu %0" : "=r"(tbu1));
+     } while (tbu0 != tbu1);
+     high = tbu1;
+     low = tbl;
+     return (high << 32) | low;
+}
+#endif	/* __SPU__ */
+
+
+#if !defined(getTickDefined)
+#warning "getTick not defined"
 #endif
