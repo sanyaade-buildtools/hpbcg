@@ -11,7 +11,7 @@ class:
 	${JAVAC} ${JFILES} ${CFILES} 
 
 jar: 
-	(cd ../.. ; jar cvfm ${D}/${JARFILES} ${D}/MonManifest.txt ${D}/*.g ${D}/*.class ${D}/*.java)
+	(cd ../.. ; ${JAR} cvfm ${D}/${JARFILES} ${D}/MonManifest.txt ${D}/*.g ${D}/*.class ${D}/*.java)
 
 Debug.java:
 	echo "package org.hpbcg; " 			> Debug.java
