@@ -1,11 +1,7 @@
-.SUFFIXES : .hg
-
-.hg.c:
-	hpbcg $< > $@
+include ../../Makefile.conf
 
 CFLAGS=-I${HPBCGHOME}/include/ -g ${ADDCFLAGS}  -DASM_DEBUG=1 -DWITH_HPBCG_FUNCTIONS=1 
 CFLAGS=-I${HPBCGHOME}/include/ -g ${ADDCFLAGS} # -DASM_DEBUG=1 -DWITH_HPBCG_FUNCTIONS=1 
-CDIR = /opt/cell/sdk/usr/
 CELLFILES     = simple-multiply-cell simple-multiply-cell.c simple-worker-cell
 IAFILES       = simple-multiply-ia64 simple-multiply-ia64.c
 POWERFILES    = simple-multiply-power4 simple-multiply-power4.c
@@ -19,11 +15,11 @@ quoi:
 all: ${FILES}
 
 cell:
-	make FILES="${CELLFILES}" ADDCFLAGS="-Wall -I${CDIR}/include -lspe2" all
+	make FILES="${CELLFILES}" ADDCFLAGS="-Wall -lspe2" all
 simple-multiply-cell.c: simple-multiply-cell.hg
 
 simple-worker-cell: simple-worker-cell.c
-	spu-gcc -I${CDIR}/include -g -o simple-worker-cell simple-worker-cell.c 
+	spu-gcc -g -o simple-worker-cell simple-worker-cell.c 
 
 x86:
 	make FILES="${X86FILES}" ADDCFLAGS="-Wall " all

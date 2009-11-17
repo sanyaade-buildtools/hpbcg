@@ -1,6 +1,5 @@
+#include <stdlib.h>
 #include <stdio.h>
-#include <malloc_align.h>
-#include <free_align.h>
 #include <spu_mfcio.h>
 
 #define SIZE 1024		/* Binary code size */
@@ -15,7 +14,7 @@ int main(unsigned long long speid,
    int mask = 2;
    int res, a, i;
 
-   functionBuffer = _malloc_align(SIZE,7); 	/* Alloc memory for function */
+   functionBuffer = memalign(16, SIZE); 	/* Alloc memory for function */
    mfc_get(functionBuffer, argp, SIZE, 1, 0, 0);/* Read binary code from ppc */
    mfc_write_tag_mask(mask); 
    mfc_read_tag_status_all();

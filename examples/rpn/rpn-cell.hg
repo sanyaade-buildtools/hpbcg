@@ -6,8 +6,6 @@
 #include <pthread.h>
 #include <signal.h>
 
-#include <malloc_align.h>
-#include <free_align.h>
 #include <libspe2.h>
 
 #define SendInt(CTX, VAL) spe_in_mbox_write(CTX, \
@@ -25,16 +23,37 @@ int getResultat(spe_context_ptr_t context, int val)
   return resultat;
 }  
 
+spe_context_ptr_t ctx;
+pthread_t pthread;
 typedef int (*pifi)(int);
 pifi convertionFunction;
 
 #cpu cell
 
+void *waitingThread(void * arg)
+{
+  spe_program_handle_t *spu_handle;
+  spe_stop_info_t stop_info;
+  insn *insnbuffer;
+  spe_context_ptr_t ctx = *(spe_context_ptr_t *) arg;  
+  unsigned int entry = SPE_DEFAULT_ENTRY;
+
+  /* Load wrapper SPU code */
+  spu_handle = spe_image_open("simple-worker-cell");
+  assert(NULL != spu_handle);
+  spe_program_load(ctx, spu_handle);
+  /* Send and launch the code */
+  spe_context_run(ctx, &entry, 0, convertionFunction, NULL, &stop_info);
+  free(insnbuffer);
+  pthread_exit(0);
+}
+
 pifi rpnCompile(char *expr)
 {
-  insn *code= (insn *) _malloc_align(1024, 7);
+  insn *code; 
   int top = 3;
 
+  posix_memalign(&code, 16, 1024);
   #[ .org code ]#
 
 
@@ -61,20 +80,25 @@ pifi rpnCompile(char *expr)
 	{ --top; #[ sf  $(top), $(top), $(top+1) ]# }
       else if (*expr == '*')
 	{ --top; #[ mpy $(top), $(top), $(top+1) ]# }
-      else if (*expr == '/') /* gcc-4.3.2/gcc/config/spu/spu.md (div<mode>3_fast */
-	{ int y0  = top + 1;
-	  int y1  = top + 2;
+      else if (*expr == '/') 
+	{ int op0, op1, op2, op3  = top + 1;
+	  int op4  = top + 2;
 	  --top; 
+	  op0 = op1 = top;
+	  op2 = top+1;
+	  /* gcc-4.3.2/gcc/config/spu/spu.md (div<mode>3_fast */
+	  /* op0 = top, op1 = top, op2=top+1, op3, op4 */
 	  #[ 
-		   csflt $(top),   $(top),   0
-		   csflt $(top+1), $(top+1), 0
+		   csflt $(op1), $(op1), 0
+		   csflt $(op2), $(op2), 0
 
-		   frest $(y0),    $(top+1) 
-		   fi    $(y1),    $(top+1), $(y0)
-		   fnms  $(top),   $(y1),    $(top+1), $(top)
-		   fma   $(top),   $(top), $(y0), $(y1)
+		   frest $(op3),  $(op2) 
+		   fi    $(op3),  $(op2), $(op3)
+		   fm    $(op4),  $(op1), $(op3)
+		   fnms  $(top),  $(op4), $(op2), $(top)
+		   fma   $(top),  $(top), $(op3), $(op4)
 
-		   cflts $(top),   $(top), 0
+		   cflts $(top),  $(top), 0
 	  ]# 
 	}
       else
@@ -96,52 +120,28 @@ pifi rpnCompile(char *expr)
       fprintf(stderr, "expression too complex");
       exit(0);
     }
+  ctx = spe_context_create(0, NULL);	 /* Send it to worker */
+  if (NULL == ctx) perror("create_context\n");
+  pthread_create(&pthread, NULL, &waitingThread, &ctx);
   return (pifi)code;
-}
-
-void *waitingThread(void * arg)
-{
-  spe_program_handle_t *spu_handle;
-  spe_stop_info_t stop_info;
-  insn *insnbuffer;
-  spe_context_ptr_t ctx = *(spe_context_ptr_t *) arg;  
-  unsigned int entry = SPE_DEFAULT_ENTRY;
-
-  /* Load wrapper SPU code */
-  spu_handle = spe_image_open("simple-worker-cell");
-  assert(NULL != spu_handle);
-  spe_program_load(ctx, spu_handle);
-  /* Send and launch the code */
-  spe_context_run(ctx, &entry, 0, convertionFunction, NULL, &stop_info);
-  printf("Après context_run\n");
-  _free_align(insnbuffer);
-  pthread_exit(0);
 }
 
 int main(int argc, char * argv[])
 {
-  pthread_t pthread;
   int i;
-  spe_context_ptr_t ctx;
 
   convertionFunction = rpnCompile("9*5/32+");
-  ctx = spe_context_create(0, NULL);	 /* Send it to worker */
-  if (NULL == ctx) perror("create_context\n");
-  pthread_create(&pthread, NULL, &waitingThread, &ctx);
   printf("\nC:");
   for (i = 0; i <= 100; i+= 10) printf("%3d ", i);
   printf("\nF:");
-  i = 11;
+  i = 11; 		/* Send the limit iterator */
   SendInt(ctx, i);
   for (i = 0; i <= 100; i+= 10) printf("%3d ", getResultat(ctx, i));
   printf("\n");
   assert(0 == spe_context_destroy(ctx));
 
-  //  convertionFunction = rpnCompile("32-5*9/");
+  // convertionFunction = rpnCompile("32-5*9/");
   convertionFunction = rpnCompile("2/");
-  ctx = spe_context_create(0, NULL);	 /* Send it to worker */
-  if (NULL == ctx) perror("create_context\n");
-  pthread_create(&pthread, NULL, &waitingThread, &ctx);
   printf("\nF:");
   for (i = 32; i <= 212; i+= 10) printf("%3d ", i);
   printf("\nC:");

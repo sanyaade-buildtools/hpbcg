@@ -1,6 +1,6 @@
 #!/bin/csh
 
-if (! $#) then
+if ("" == $1) then
     echo "$0 <ArchName>"
     exit -1
 endif

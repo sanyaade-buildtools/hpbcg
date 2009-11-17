@@ -4,9 +4,8 @@
 #include <string.h>
 #include <pthread.h>
 
-#include <malloc_align.h>
-#include <free_align.h>
 #include <libspe2.h>
+#include <malloc.h>
 
 #cpu cell
 
@@ -21,14 +20,16 @@ pifi multiplyFunc;
 
 pifi multiplyCompile(int multiplyValue)
 {
- insn *code= (insn *)_malloc_align(1024, 7);
- (void) printf("Code generation for multiply value %d\n", multiplyValue);
+  insn *code;
+
+  posix_memalign(&code, 1024, 16);
+  printf("Code generation for multiply value %d\n", multiplyValue);
   #[
 	.org	code
 	mpyi    $3, $3, (multiplyValue) 
 	bi $lr 
   ]#;
-  (void) printf("Code generated\n");
+  printf("Code generated\n");
   return (pifi)code;
 }
 

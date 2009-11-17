@@ -30,7 +30,7 @@ static void iflush(register insn *addr, register insn *last)
  * if (0 == hpbcg_asm_pc % 2) && (1 == slot_bit) AddInsn (NOP_X, hpbcg_asm_pc++)
  * AddInsn (VAL , hpbcg_asm_pc++)
  */
-static inline void hpbcg_cell_addInsn(uint64_t insn)
+static void hpbcg_cell_addInsn(uint64_t insn)
 {
   int mask;
 
