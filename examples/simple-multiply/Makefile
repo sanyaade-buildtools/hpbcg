@@ -2,47 +2,46 @@ include ../../Makefile.conf
 
 CFLAGS=-I${HPBCGHOME}/include/ -g ${ADDCFLAGS}  -DASM_DEBUG=1 -DWITH_HPBCG_FUNCTIONS=1 
 CFLAGS=-I${HPBCGHOME}/include/ -g ${ADDCFLAGS} # -DASM_DEBUG=1 -DWITH_HPBCG_FUNCTIONS=1 
-CELLFILES     = simple-multiply-cell simple-multiply-cell.c simple-worker-cell
-IAFILES       = simple-multiply-ia64 simple-multiply-ia64.c
-POWERFILES    = simple-multiply-power4 simple-multiply-power4.c
-BLUEGENEFILES = simple-multiply-bluegene simple-multiply-bluegene.c
-X86FILES      = simple-multiply-x86 simple-multiply-x86.c
+CELLFILES     = simple-multiply-cell.o simple-worker-cell
+IAFILES       = simple-multiply-ia64.o		main.o
+POWERFILES    = simple-multiply-power4.o	main.o
+BLUEGENEFILES = simple-multiply-bluegene.o	main.o
+X86FILES      = simple-multiply-x86.o 		main.o
 
 quoi:
 	@echo -n "make what ?     "
 	@echo "make [cell|ia64|power4|bluegene|x86]"
 
-all: ${FILES}
+all: ${FILES} simple-multiply-${ARCH}
+
+simple-multiply-${ARCH}: ${FILES}
+	${CC} ${CFLAGS} -o $@ ${FILES}
 
 cell:
-	make FILES="${CELLFILES}" ADDCFLAGS="-Wall -lspe2" all
+	${MAKE} ${MFLAGS} FILES="${CELLFILES}" ADDCFLAGS="-Wall -lspe2" all
 simple-multiply-cell.c: simple-multiply-cell.hg
 
 simple-worker-cell: simple-worker-cell.c
 	spu-gcc -g -o simple-worker-cell simple-worker-cell.c 
 
 x86:
-	make FILES="${X86FILES}" ADDCFLAGS="-Wall " all
-simple-multiply-x86.c: simple-multiply-x86.hg
+	${MAKE} ${MFLAGS} ARCH="$@" FILES="${X86FILES}" ADDCFLAGS="-Wall " all
 
 ia64:
-	make FILES="${IAFILES}" ADDCFLAGS="-Wall " all
-#	make FILES="${IAFILES}" ADDCFLAGS="-DASM_DEBUG" all
-simple-multiply-ia64.c: simple-multiply-ia64.hg
+	${MAKE} ${MFLAGS} ARCH="$@" FILES="${IAFILES}" ADDCFLAGS="-Wall " all
 
 power4:
-	make FILES="${POWERFILES}" ADDCFLAGS="-Wall " all
-simple-multiply-power4.c: simple-multiply-power4.hg
+	${MAKE} ${MFLAGS} ARCH="$@" FILES="${POWERFILES}" ADDCFLAGS="-Wall " all
 
 bluegene:
-	make CC=mpixlc FILES="${BLUEGENEFILES}" ADDCFLAGS="" all
+	${MAKE} ${MFLAGS} CC=mpixlc FILES="${BLUEGENEFILES}" ADDCFLAGS="" all
 simple-multiply-bluegene.c : simple-multiply-bluegene.hg
 
 clean:
-	make FILES="${CELLFILES}"  real-clean
-	make FILES="${IAFILES}"    real-clean
-	make FILES="${POWERFILES}" real-clean
-	make FILES="${X86FILES}"   real-clean
+	${MAKE} ${MFLAGS} ARCH="cell"   FILES="${CELLFILES}"  real-clean
+	${MAKE} ${MFLAGS} ARCH="ia64"   FILES="${IAFILES}"    real-clean
+	${MAKE} ${MFLAGS} ARCH="power"  FILES="${POWERFILES}" real-clean
+	${MAKE} ${MFLAGS} ARCH="x86"    FILES="${X86FILES}"   real-clean
 
 real-clean:
-	-rm ${FILES}
+	-rm ${FILES} simple-multiply-${ARCH}.c simple-multiply-${ARCH}

@@ -31,6 +31,22 @@ A binary code generator is a tool which can generate binary code
 (runnable), at run-time, without using assembly (textual)
 representation.
 
+It is build to be
+\begin{itemize}
+\item Depending on the target speed may vary, but FAST mean some
+  instructions clocks per generated instruction
+\item Easy to port : Target a new architecture need only a simple low
+  level description. For example the \texttt{mulli} instruction from
+  the power 4 is describe by :
+
+\begin{lstlisting}
+001110  r1_5  r2_5  i1_15-0  | addi   r1,  r2,  i1
+\end{lstlisting}
+
+  Then, the process to build multiple dynamic generator for this
+  instruction is completely automatic.
+\end{itemize}
+
 It can be useful in a lot of situations :
 \begin{itemize}
 \item For code optimization at run-time using data as optimizing parameter
@@ -74,16 +90,16 @@ point which lead to
 \subsection{Working targets}
 
 \begin{description}
-\item[Itanium]  Working draft.
+\item[Itanium]  Working
 \item[Power4]  
   \begin{itemize}
-    \item Basic power4 instruction set : Working draft
-    \item FP2 extension : Working draft
-    \item Altivec extension : To be integrated
+    \item Basic power4 instruction set : Working 
+    \item FP2 extension : Working 
+    \item Altivec extension : Working
   \end{itemize}
-\item Cell spu : Working draft 
-\item Arm : To be integrated
-\item x86 : initial version
+\item[Cell spu] : Working draft 
+\item[Arm] : To be integrated
+\item[x86] : Initial version
 \end{description}
 
 Working demo / architecture :
@@ -141,6 +157,8 @@ Java on PS3 :\url{http://www.ibm.com/developerworks/java/jdk/linux/} could be us
 \end{description}
 
 \section{Installing \hpbcg}
+
+\subsection{Installation dependancies}
 
 \hpbcg should work on any reasonable unix like target. The
 requirements are :
@@ -251,31 +269,31 @@ This example is very simple, it's just a proof of concept. The
 \texttt{simple-multiply} program generate a specialized version of a
 very simple program. The non specialized version is :
 
-\begin{verbatim}
+\begin{lstlisting}
 int multiply (int a, int b)
 {
   return a * b;
 }
-\end{verbatim}
+\end{lstlisting}
 
 The compilette will specialize this code with an ``optimized'' version
 at run-time. The following code will be specialized as
 
-\begin{verbatim}
+\begin{lstlisting}
 int multiply (int a)
 {
   return a * 42;
 }
-\end{verbatim}
+\end{lstlisting}
 
 The obtained result is
-\begin{verbatim}
+\begin{lstlisting}
 turner:simple-multiply/>./simple-multiply-cell 42
 Code generation for multiply value 42
 Code generated
   1   2   3   4   5   6   7   8   9  10 
  42  84 126 168 210 252 294 336 378 420 
-\end{verbatim}
+\end{lstlisting}
 
 Please note that the value 42 is choosed by the user and can not be
 include into the code before run-time.
@@ -455,7 +473,7 @@ To run it you can do it  :
     ./simple-multiply-bluegene}
 
 \item in a batch :
-\begin{verbatim}
+\begin{lstlisting}
 # @ job_name = simple-multiply-bluegene
 # @ job_type = BLUEGENE
 # @ output = $(job_name).out
@@ -464,7 +482,7 @@ To run it you can do it  :
 # @ bg_size = 64
 # @ queue
 mpirun -mode VN -np 256 -mapfile TXYZ -exe ./simple-multiply-bluegene
-\end{verbatim}
+\end{lstlisting}
 \end{itemize}
 
 The generated code is similar to the power4 version with
@@ -523,10 +541,10 @@ rpn is a more complicated example. It compute conversion table from
 Celcius to Farenheit by ``compiling'' RPN expression. The interesting
 part of the program is the code generation which is build with 
 
-\begin{verbatim}
+\begin{lstlisting}
   pifi c2f= rpnCompile("9*5/32+");
   pifi f2c= rpnCompile("32-5*9/");
-\end{verbatim}
+\end{lstlisting}
 
 The main part is the RPN code generator which convert RPN expression
 to a binary code function. In this compilette example the registers
@@ -544,6 +562,17 @@ F: 32  50  68  86 104 122 140 158 176 194 212
 F: 32  42  52  62  72  82  92 102 112 122 132 142 152 162 172 182 192 202 212 
 C:  0   5  11  16  22  27  33  38  44  50  55  61  66  72  77  83  88  94 100 
 \end{verbatim}
+
+
+The \texttt{main.c} file contain 3 different version of the same
+program.
+\begin{enumerate}
+\item The interpreted version which use a stack for function evaluation
+\item The ``compilette'' generated program, which use a dynamic
+  generated version of the code.
+\item The static compiled version.
+\end{enumerate}
+
 
 \subsubsection{power4 version}
 
@@ -591,7 +620,46 @@ pifi rpnCompile(char *expr)
       ++expr;
     }
 \end{lstlisting}
+\subsubsection{Itanium version}
 
+\subsubsection{x86 version}
+
+\begin{lstlisting}
+      if (sscanf(expr, "%[0-9]%n", buf, &n)) 
+	{
+	  expr+= n - 1;
+	  n = strtol(buf, 0, 0);
+	  #[
+	    push	%eax
+	    mov	$(n), %eax
+	    ]# 
+	 }
+      else if (*expr == '+') #[
+	pop	%ecx
+	add	%ecx, %eax
+      ]# else if (*expr == '-') #[
+	mov	%eax, %ecx
+	pop	%eax
+	sub	%ecx, %eax
+      ]# else if (*expr == '*') #[
+	pop	%ecx
+	imul	%ecx, %eax
+      ]# else if (*expr == '/') #[
+	mov	%eax, %ecx
+	pop	%eax
+	cltd
+	idiv	%ecx
+      ]# else {
+	fprintf(stderr, "cannot compile: %s\n", expr);
+	abort();
+      }
+      ++expr;
+    }
+  #[
+	leave
+	ret
+  ]#;
+\end{lstlisting} % $
 
 \subsection{Mandelbrot set}
 
@@ -616,12 +684,12 @@ by the C ansi.
 
 A complex number is implemented with two successive floating point registers.
 
-\subsection{cell implementation}
+\subsubsection{cell implementation}
 
 A complex number is implemeted with one register. The two first slots
 are the real and imaginary parts.
 
-\subsection{bluegene implementation}
+\subsubsection{bluegene implementation}
 
 A complex number is implemented with one register (which contain 2 parts).
 
@@ -692,15 +760,15 @@ macro instruction which can be partially evaluated at static compile
 time, the second one is a function version which is usefull for
 debugging purpose.
 
-\begin{verbatim}
+\begin{lstlisting}
 #define mulli_iRRI(r1, r2, i1)    \
      ADDINSN(((((LENOK(7,6))<< 5  \
      |  LENOK(r1,5))<< 5          \
      |  LENOK(r2,5))<< 16         \
      |  LENOK(i1 & 65535, 16)))
-\end{verbatim}
+\end{lstlisting}
 
-\begin{verbatim}
+\begin{lstlisting}
 void mulli_iRRI(r1, r2, i1)      \
 {    ADDINSN(((((LENOK(7,6))<< 5 \
     |  LENOK(r1,5))<< 5          \
@@ -710,7 +778,7 @@ void mulli_iRRI(r1, r2, i1)      \
     printf("%p : %s%s 0x%X\n", asm_pc, "mulli_iRRI", *(asm_pc-1));
 #endif /* ASM_DEBUG */
 }
-\end{verbatim}
+\end{lstlisting}
 
 \subsection{\hpbcg Parser}
 
@@ -723,7 +791,7 @@ The figure \ref{fig:ISACompare} try to summarize the supported data
 type.
 
 \begin{figure}
-\begin{tabular}{|r|r|r|r|r|} \hline
+\begin{tabular}{|r|r|r|r|r|r|} \hline
   ISA 		   & Power4  & Altivec & CELL & IA64 & x86\\ \hline
   Integer register & 32      & 32      & 128  & 128  &  \\ 
   FP register      & 32      & 32      & 128  & 128  &  \\
