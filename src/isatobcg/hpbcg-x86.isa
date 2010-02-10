@@ -1,4 +1,6 @@
-
+# Variable length x86 processor familly description
+# 
+# Initial author Henri-Pierre Charles hpc@hpch.net
 x86 var
 
 0000 0001 11 r1_3 r2_3			| add  r1, r2
@@ -8,7 +10,7 @@ x86 var
 1000 1011 01 r2_3  r1_3 i1_7-0		| mov  i1, r1, r2
 1011 1 r1_3 i1_7-0 i1_15-8 i1_23-16 i1_31-24 | mov  i1, r1
 
-1111 0111 1111 1 r1_3  		| idiv  r1
+1111 0111 1111 1 r1_3  			| idiv  r1
 0000 1111 1010 1111 11 r2_3 r1_3  	| imul  r1, r2
 
 

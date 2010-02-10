@@ -16,4 +16,4 @@ doc: HPBCG.pdf
 
 clean:
 	(cd Img; make clean)
-	-rm HPBCG.aux HPBCG.bbl HPBCG.blg HPBCG.log HPBCG.lot HPBCG.ps HPBCG.pdf
+	-rm HPBCG.aux HPBCG.bbl HPBCG.blg HPBCG.log HPBCG.lot HPBCG.ps 
