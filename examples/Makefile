@@ -22,3 +22,9 @@ ia64:
 	${MAKE} -C simple-multiply ia64
 	${MAKE} -C rpn ia64
 	${MAKE} -C matrixvector ia64
+
+x86:
+
+	${MAKE} -C simple-multiply x86
+	${MAKE} -C rpn x86
+

@@ -56,6 +56,8 @@ pifi rpnCompile(char *expr)
 	leave
 	ret
   ]#;
+  iflush (code, hpbcg_asm_pc);
+  printf("Code generated\n");
   return (pifi)code;
 }
 

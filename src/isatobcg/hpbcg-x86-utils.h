@@ -4,6 +4,8 @@
  */
 
 #include <hpbcg-asm-common.h>
+#include <sys/mman.h>
+#include <unistd.h>
 
 static void hpbcg_x86_addInsn8(u_int64_t insn);
 static void hpbcg_x86_addInsn16(u_int64_t insn);
@@ -24,6 +26,13 @@ static insn *hpbcg_asm_pc;
 
 static void iflush(register insn *addr, register insn *last)
 {
+  long pageSize= getpagesize();
+  void *ptmp= (char *)((long)addr & ~(pageSize - 1));
+  if (mprotect(ptmp, (last - addr), PROT_READ | PROT_WRITE | PROT_EXEC))
+    {
+      perror("iflush: mprotect");
+      exit(-1);
+    }
   printf("Flush data cache from %p to %p\n", addr, last);  
 }
 
