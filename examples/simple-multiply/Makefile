@@ -40,7 +40,7 @@ simple-multiply-bluegene.c : simple-multiply-bluegene.hg
 clean:
 	${MAKE} ${MFLAGS} ARCH="cell"   FILES="${CELLFILES}"  real-clean
 	${MAKE} ${MFLAGS} ARCH="ia64"   FILES="${IAFILES}"    real-clean
-	${MAKE} ${MFLAGS} ARCH="power"  FILES="${POWERFILES}" real-clean
+	${MAKE} ${MFLAGS} ARCH="power4"  FILES="${POWERFILES}" real-clean
 	${MAKE} ${MFLAGS} ARCH="x86"    FILES="${X86FILES}"   real-clean
 
 real-clean:
