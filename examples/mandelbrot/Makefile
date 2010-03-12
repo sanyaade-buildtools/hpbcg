@@ -42,21 +42,21 @@ simple-worker-cell: simple-worker-cell.c
 	spu-gcc -g ${CFLAGS} -o simple-worker-cell simple-worker-cell.c 
 
 test: C C-complex power4 cell
-	make test-arch ARCH=""
-	make test-arch ARCH="-power4"
-	make test-arch ARCH="-complex"
-	make test-arch ARCH="-cell"
+	${MAKE} test-arch ARCH=""
+	${MAKE} test-arch ARCH="-power4"
+	${MAKE} test-arch ARCH="-complex"
+	${MAKE} test-arch ARCH="-cell"
 
 test-arch:
 	time ./mandelbrot${ARCH}  0.0   0.0 3    3    ${IMGSIZE} ${IMGFILE}
 	time ./mandelbrot${ARCH} -1.411 0.0 0.01 0.01 ${IMGSIZE} ${IMGFILE}
 clean:
 	-rm mandelbrot-palette
-	make FILES="${CFILES}"       real-clean
-	make FILES="${POWERFILES}"   real-clean
-	make FILES="${COMPLEXFILES}" real-clean
-	make FILES="${BGFILES}"      real-clean
-	make FILES="${CELLFILES}"    real-clean
+	${MAKE} FILES="${CFILES}"       real-clean
+	${MAKE} FILES="${POWERFILES}"   real-clean
+	${MAKE} FILES="${COMPLEXFILES}" real-clean
+	${MAKE} FILES="${BGFILES}"      real-clean
+	${MAKE} FILES="${CELLFILES}"    real-clean
 
 real-clean:
 	-rm ${FILES}

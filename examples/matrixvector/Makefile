@@ -16,12 +16,12 @@ quoi:
 all: ${FILES}
 
 power4:
-	make FILES="${POWERFILES}"  all
+	${MAKE} FILES="${POWERFILES}"  all
 
 clean:
-	make FILES="${POWERFILES}" real-clean
-#	make FILES="${CELLFILES}" real-clean
-#	make FILES="${IAFILES}" real-clean
+	${MAKE} FILES="${POWERFILES}" real-clean
+#	 ${MAKE} FILES="${CELLFILES}" real-clean
+#	 ${MAKE} FILES="${IAFILES}" real-clean
 
 real-clean:
 	-rm ${FILES}
