@@ -9,11 +9,11 @@
 all: images doc
 
 images:
-	(cd Img; make)
+	(cd Img; ${MAKE})
 
 doc: HPBCG.pdf
 
 
 clean:
-	(cd Img; make clean)
+	(cd Img; ${MAKE} clean)
 	-rm HPBCG.aux HPBCG.bbl HPBCG.blg HPBCG.log HPBCG.lot HPBCG.ps 
