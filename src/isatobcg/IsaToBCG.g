@@ -84,7 +84,7 @@ grammar IsaToBCG; // -*- java -*-
 isafile 	: isaline* EOF {dumpResult();};
 isaline 	: (isaarchlen | isalinedesc | COMMENT | ) NL;
 isalinedesc	: isabinpart CUT isaasmpart  {iList.addInstruction();};
-isaarchlen	: archname=('power4' | 'sparc' | 'ia64' | 'cell' | 'x86')   myIsaLen=(INT | 'var')
+isaarchlen	: archname=('power4' | 'sparc' | 'ia64' | 'cell' | 'x86' | 'armthumb')   myIsaLen=(INT | 'var')
 	{ iList.setNameAndLenght($archname.getText(), $myIsaLen.getText());};
 isabinpart 	: (binnum | intdescr | regdescr | paropen)+;
 binnum 		: BINNUM  		{ iList.addBinaryNumber  ($BINNUM.getText());		};
