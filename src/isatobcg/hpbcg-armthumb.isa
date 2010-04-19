@@ -8,13 +8,10 @@
 #
 #
 armthumb 16
-  #Rm---------r1
-  #Rd---------r2
-  #Rn---------r3
-  #Rs---------r4
-
-
-
+#Rm---------r1
+#Rd---------r2
+#Rn---------r3
+#Rs---------r4
 # Shift / Rotate
 000 00        i1_4-0 r1_3  r2_3        	| lsl r2, r1, i1
 000 01        i1_4-0 r1_3  r2_3        	| lsr r2, r1, i1
@@ -52,17 +49,17 @@ armthumb 16
 
 # High reg
 # 010 001 0000 XXXXXX  | unpredictable
-  010 001 00   r1_3-3 r2_3-3 r1_2-0 r2_2-0  | add r2, r1  
+#  010 001 00   r1_3-3 r2_3-3 r1_2-0 r2_2-0  | add r2, r1
 # 010 001 0100 XXXXXX  | unpredictable
-  010 001 01   r3_3-3 r1_3-3 r3_2-0 r1_2-0  | cmp r1, r3
+#  010 001 01   r3_3-3 r1_3-3 r3_2-0 r1_2-0  | cmp r1, r3
 # 010 001 1000 XXXXXX  | unpredictable
-  010 001 10    r2_3-3 r1_3-3 r1_2-0 r2_2-0 | mov r2, r1
+#  010 001 10    r2_3-3 r1_3-3 r1_2-0 r2_2-0 | mov r2, r1
   010 001 110    r1_4   000  		| bx  r1
   010 001 111    r1_4   000  		| blx r1
 # 010 001 11 xxxxxxx  | unpredictable
 
 # Load / Store register indexed
-010 01     r2_3 i1_7-0           	| ldr    r2, [pc, i1]
+010 01     r2_3 i1_7-0           	| ldr    r2, [r3, i1]
 010 1000   r1_3 r3_3 r2_3      		| str    r2, [r3, r1]
 010 1001   r1_3 r3_3 r2_3      		| strh   r2, [r3, r1]
 010 1010   r1_3 r3_3 r2_3      		| strb   r2, [r3, r1]
@@ -83,13 +80,13 @@ armthumb 16
 100 01  i1_4-0  r3_3  r2_3      	| ldrh   r2, [r3, i1]
 
 # Load / Store SP immediate indexed
-100 10  r2_3 i1_7-0                   	| str    r2, [sp, i1]
-100 11  r2_3 i1_7-0                  	| ldr    r2, [sp, i1]
+100 10  r2_3 i1_7-0                   	| str    r2, [r3, i1]
+100 11  r2_3 i1_7-0                  	| ldr    r2, [r3, i1]
 
 # Add PC/SP relative
-101 00  r2_3 i1_7-0       		| add    r2, pc, i1
-101 01  r2_3 i1_7-0       		| add    r2, sp, i1
-101 10 0001 i1_6-0                  	| sub    sp, sp, i1
+101 00  r2_3 i1_7-0       		| add    r2, r3, i1
+101 01  r2_3 i1_7-0       		| add    r2, r3, i1
+101 10 0001 i1_6-0                  	| sub    r2, r2, i1
 
 # 101 10001 xxxxxx | Unpredictable
 
@@ -147,5 +144,4 @@ armthumb 16
 111 10  i1_10-0                       	| bl        i1
 111 11  i1_10-0                       	| bl        i1
 
-010 001 11 1 r1_3-0          000      	| blx       r1
-
+# 010 001 11 1 r1_3-0          000      	| blx       r1
