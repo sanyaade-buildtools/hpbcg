@@ -33,7 +33,9 @@ static void iflush(register insn *addr, register insn *last)
       perror("iflush: mprotect");
       exit(-1);
     }
+#ifdef ASM_DEBUG
   printf("Flush data cache from %p to %p\n", addr, last);  
+#endif
 }
 
 static void hpbcg_x86_addInsn8(u_int64_t insn)

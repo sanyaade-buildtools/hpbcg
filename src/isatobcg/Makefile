@@ -5,56 +5,71 @@ YFLAGS = ${YACCFLAGS} 	# Needed on linux
 # LEX =lex  -d 		# Pour debuggage token lexer
 YACCFLAGS = -d -t 	# Pour debuggage token parser
 CFLAGS = -Wall -g -I../common
-TARGETS = \
-	hpbcg-cell.lst   hpbcg-cell.h 	\
-	hpbcg-power4.lst hpbcg-power4.h \
-	hpbcg-ia64.lst   hpbcg-ia64.h 	\
-	hpbcg-x86.lst    hpbcg-x86.h \
-	hpbcg-armthumb.lst   hpbcg-armthumb.h
-UTILS = hpbcg-cell-utils.h hpbcg-ia64-utils.h hpbcg-power4-utils.h	\
-	hpbcg-asm-common.h hpbcg-ia64-cache.h hpbcg-x86-utils.h
-CLASSFILES = IsaToBCGParser.class IsaToBCGLexer.class		\
-	InstructionsList.class Instruction.class		\
-	InstructionBinPart.class InstructionAsmPart.class
+CLASSFILES = IsaToBCGParser.class IsaToBCGLexer.class	\
+	Instruction.class InstructionBinPart.class	\
+	InstructionAsmPart.class
+CPU=armthumb cell power4 x86 ia64
 
-all: java isa test-v test-e test-c
+all: ${CLASSFILES} ${CPU}
 
-java: ${CLASSFILES}
+${CPU}: ${CLASSFILES} 
+	make doth ARCH=$@
+	make lst  ARCH=$@
+	make test ARCH=$@
 
-isa: ${TARGETS}
+doth: ${CLASSFILES} hpbcg-${ARCH}.h
 
-# Dummy rule 
-IsaToBCGParser.java IsaToBCGLexer.java: IsaToBCG.java
+lst:  ${CLASSFILES} hpbcg-${ARCH}.lst
 
-debug: 
-	java org.antlr.works.IDE IsaToBCG.g
+test: ${CLASSFILES} hpbcg-${ARCH}.testV hpbcg-${ARCH}.testE hpbcg-${ARCH}.testC
 
-install: 
+hpbcg-${ARCH}.testV:
+	java IsaToBCGParser -v hpbcg-${ARCH}.isa
+	touch hpbcg-${ARCH}.testV 
+
+hpbcg-${ARCH}.testE:
+	gcc -Wall -I. -E hpbcg-${ARCH}.h -o /dev/null 
+	touch hpbcg-${ARCH}.testE
+
+hpbcg-${ARCH}.testC:
+	gcc -Wall -I. -c hpbcg-${ARCH}.h -o /dev/null 
+	touch hpbcg-${ARCH}.testC
+
+install:
 	../../CheckPrefix
 	install -d ${PREFIX}/include/
-	install ${TARGETS} ${PREFIX}/include/
-	install ${UTILS} ${PREFIX}/include/
-test: test-v test-e test-c
+	install hpbcg-asm-common.h ${PREFIX}/include/
+	${MAKE} installArch  ARCH=cell
+	${MAKE} installArch  ARCH=power4
+	${MAKE} installArch  ARCH=ia64
+	${MAKE} installArch  ARCH=x86
+	${MAKE} installArch  ARCH=armthumb
 
-test-v:
-	java IsaToBCGParser -v hpbcg-cell.isa
-	java IsaToBCGParser -v hpbcg-power4.isa
-	java IsaToBCGParser -v hpbcg-ia64.isa
-	# java IsaToBCGParser -v hpbcg-x86.isa
-test-e:
-	gcc -Wall -I. -E hpbcg-cell.h      -o /dev/null 
-	gcc -Wall -I. -E hpbcg-power4.h    -o /dev/null 
-	gcc -Wall -I. -E hpbcg-ia64.h      -o /dev/null 
-	gcc -Wall -I. -E hpbcg-x86.h       -o /dev/null 
-	gcc -Wall -I. -E hpbcg-armthumb.h  -o /dev/null 
-test-c:
-	gcc -Wall -I. -c hpbcg-cell.h      -o /dev/null 
-	gcc -Wall -I. -c hpbcg-power4.h    -o /dev/null 
-	gcc -Wall -I. -c hpbcg-ia64.h      -o /dev/null 
-	gcc -Wall -I. -c hpbcg-x86.h       -o /dev/null 
-	gcc -Wall -I. -c hpbcg-armthumb.h  -o /dev/null 
+installArch:
+	install hpbcg-${ARCH}.h hpbcg-${ARCH}.lst hpbcg-${ARCH}-utils.h ${PREFIX}/include/
 
-clean:
-	-rm ${TARGETS} IsaToBCG.tokens
-	-rm IsaToBCG*.class IsaToBCG*.java
+# # Dummy rule 
+IsaToBCGParser.java IsaToBCGLexer.java: IsaToBCG.java
+
+clean: 
+	-rm IsaToBCG*.class IsaToBCG*.java IsaToBCG.tokens
 	-rm ${CLASSFILES}
+	${MAKE} realclean  ARCH=cell
+	${MAKE} realclean  ARCH=power4
+	${MAKE} realclean  ARCH=ia64
+	${MAKE} realclean  ARCH=x86
+	${MAKE} realclean  ARCH=armthumb
+
+realclean:
+	-rm hpbcg-${ARCH}.h hpbcg-${ARCH}.lst
+	-rm hpbcg-${ARCH}.testV hpbcg-${ARCH}.testE hpbcg-${ARCH}.testC
+# debug: 
+# 	java org.antlr.works.IDE IsaToBCG.g
+
+# install: 
+# 	../../CheckPrefix
+# 	install -d ${PREFIX}/include/
+# 	install ${TARGETS} ${PREFIX}/include/
+# 	install ${UTILS} ${PREFIX}/include/
+# test: test-v test-e test-c
+

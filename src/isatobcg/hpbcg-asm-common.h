@@ -150,8 +150,23 @@ static uint64_t getTick()
      low = tbl;
      return (high << 32) | low;
 }
-#endif	/* __SPU__ */
+#endif	/* __PPC__ */
 
+#if defined(__arm__)
+#define getTickDefined 1
+#include <stdint.h>
+#include <sys/time.h>
+static uint64_t getTick()
+{
+  int res;
+  struct timeval MyTime;
+  uint64_t tick;
+  res = gettimeofday(&MyTime, NULL);
+  tick = MyTime.tv_sec * 1000000 + MyTime.tv_usec;
+  if (0 == res)  return tick;
+  else return 0;
+}
+#endif	/* __arm__ */
 
 #if !defined(getTickDefined)
 #warning "getTick not defined"

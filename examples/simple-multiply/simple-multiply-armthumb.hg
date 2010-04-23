@@ -1,0 +1,22 @@
+#include <stdio.h>  /* -*- c -*- */
+#include <stdlib.h>
+#include <assert.h>
+
+#cpu armthumb
+
+typedef int (*pifi)(int);
+pifi multiplyCompile(int multiplyValue)
+{
+  insn *code= (insn *)calloc(1024, sizeof (insn));
+  printf("Code generation for multiply value %d\n", multiplyValue);
+  #[
+	.org	code
+	mov	r3, #(multiplyValue)
+	mul	r0, r3
+	blx	lr
+  ]#;
+  iflush (code, hpbcg_asm_pc);
+  printf("Code generated\n");
+  return (pifi)code+1;
+}
+
