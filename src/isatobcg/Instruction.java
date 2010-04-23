@@ -37,23 +37,28 @@ class Instruction
 	    if (InstructionBinPart.BINNUM == last.getType())
 		last.addBinNum(n, l);
 	    else
-		binPart.add (new InstructionBinPart(n, l));
+		binPart.add (new InstructionBinPart(InstructionBinPart.BINNUM, n, l));
 	}
 	else
-	    binPart.add (new InstructionBinPart(n, l));
+	    binPart.add (new InstructionBinPart(InstructionBinPart.BINNUM, n, l));
     } /*  */
 
     void addBinaryIntDescr(int number, int start, int end )
     {
- 	binPart.add (new InstructionBinPart(number, start, end));
+ 	binPart.add (new InstructionBinPart(InstructionBinPart.INTDESC, number, start, end));
     } /*  */
     void addBinaryIntExpr(String expr, int start, int end )
     {
- 	binPart.add (new InstructionBinPart(expr, start, end, 0));
+ 	binPart.add (new InstructionBinPart(InstructionBinPart.INTEXPR, expr, start, end, 0));
     } /*  */
     void addBinaryRegDescr(String n, int number, int size)
     {
- 	binPart.add (new InstructionBinPart (n, number, size));
+ 	binPart.add (new InstructionBinPart (InstructionBinPart.REGDESC, n, number, size));
+    } /*  */
+    
+    void addBinaryRegDescr(String n, int number, int start, int end)
+    {
+ 	binPart.add (new InstructionBinPart (InstructionBinPart.REGDESC, n, number, start, end));
     } /*  */
     
     void addAsmReg(String letter)
@@ -142,7 +147,7 @@ class Instruction
 	printFormat = "%p : "+getName()+" ";
 	for (int i = 0; i < end; ++i)
 	    {
-		if ("x86".equals (archName))
+		if ("x86".equals (archName) || "armthumb".equals (archName))
 		    {//   argList.append (","+(InstructionAsmPart) asmPart.elementAt(i));
 		    }
 		else
