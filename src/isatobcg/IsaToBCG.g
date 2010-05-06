@@ -185,7 +185,7 @@ grammar IsaToBCG; // -*- java -*-
 		if (null == m.group(4))
 		    cI.addBinaryIntDescr(Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)), Integer.parseInt(m.group(2)));
 		else
-		    cI.addBinaryIntDescr(Integer.parseInt(m.group(1)), Integer.parseInt(m.group(3)), Integer.parseInt(m.group(2)));
+		    cI.addBinaryIntDescr(Integer.parseInt(m.group(1)), Integer.parseInt(m.group(4)), Integer.parseInt(m.group(2)));
 	    }
 	else
 	    {

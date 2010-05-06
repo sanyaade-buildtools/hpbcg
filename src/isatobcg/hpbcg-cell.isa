@@ -190,7 +190,7 @@ cell 33
 1 0001000             i1_8-7 i2_15-0     i1_6-0 |  hbra i1, i2
 1 0001001             i1_8-7 i2_15-0     i1_6-0 |  hbrr i1, i2
 
-# Floating-Br2nch Instructions
+# Floating-Branch Instructions
 0 01011000100      r3_7       r2_7      r1_7   |    fa              r1,r2,r3
 0 01011001100      r3_7       r2_7      r1_7   |    dfa             r1,r2,r3
 0 01011000101      r3_7       r2_7      r1_7   |    fs              r1,r2,r3
