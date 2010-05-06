@@ -137,7 +137,7 @@ class InstructionBinPart
 	    {
 	    case INTDESC:  
 		mask = (1 << intBinPartLength) - 1;
-		if (intStart == 0)
+		if (0 == intStart)
 		    {
 			tmp = "i"+intNumber+" & "+mask+", "+intBinPartLength;	
 		    }
@@ -148,7 +148,7 @@ class InstructionBinPart
 		break;
 	    case INTEXPR:  
 		mask = (1 << intBinPartLength) - 1;
-		if (intStart == 0)
+		if (0 == intStart)
 		    {
 			tmp = "(("+intExpr+") & "+mask+"), "+intBinPartLength;
 		    }
@@ -159,7 +159,7 @@ class InstructionBinPart
 		break;
 	    case BINNUM:   tmp =  binaryValue+","+intBinPartLength;  			break;
 	    case REGDESC:  
-		if (intStart == 0)
+		if (0 == intStart)
 		    {
 			tmp =  regName+regNumber+","+intBinPartLength;  		
 		    }

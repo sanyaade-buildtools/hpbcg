@@ -49,7 +49,7 @@ class Instruction
     } /*  */
     void addBinaryIntExpr(String expr, int start, int end )
     {
- 	binPart.add (new InstructionBinPart(InstructionBinPart.INTEXPR, expr, start, end, 0));
+ 	binPart.add (new InstructionBinPart(InstructionBinPart.INTEXPR, expr, start, end));
     } /*  */
     void addBinaryRegDescr(String n, int number, int size)
     {
