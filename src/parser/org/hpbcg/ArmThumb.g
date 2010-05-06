@@ -33,6 +33,9 @@ lexer grammar  ArmThumb;  // -*- java -*-
                 Out("ASM_1_END ");
                 inAsm = false;  		
                 break;
+	    case REGLST:
+		Debug("REGLST:"+a.getText()); 
+		break;
             case ARMREG:
 		currentInsn.setParam(a.getText(), Insn.TYPEIREG); 
                 break;
@@ -127,11 +130,12 @@ ORG      : '.org' ;
 ENDMULTI : '}#' ;
 ENDUNI   : ']#' ;
 EOL      : '\n';
-WS       : (' ' | '\t');
+WS       : (' ' | '\t' | ',');
 INT      : ('+' | '-') ? (NUMBER)+;
-SEP      : ',' ;
+// SEP      : ',' ;
 INDEX    : (NUMBER)+ '('  ARMREG ')';
 LABEL	 : LETTER (LETTER | NUMBER)* ':' ;
+REGLST   : '{' (ARMREG) (SEP+ ARMREG)* '}';
 ARMREG  : ('r'|'f') (NUMBER)+ | 'pc' | 'lr' | 'sp' | '(r' (NUMBER)+ ')';
 ARMREGOPEN : ('r'|'f') '('  ( options {greedy=false;} : . )* ')'  ;
 PAROPEN  : '('  ( options {greedy=false;} : . )* ')' ;

@@ -4,6 +4,7 @@
 #include <hpbcg-asm-common.h>
 
 typedef int (*pifi)(int);
+
 pifi rpnCompile(char *expr);
 
 int __attribute__((noinline)) static_f2c(int i) 

@@ -103,11 +103,11 @@ armthumb 16
 # 101 10001 xxxxxx | Unpredictable
 
 # Push / pop
-# 101 101 0 l_8   		| push l, LR #TODO
-# 101 111 l_8 			| pop  l, LR #TODO 
+1011010 i1_7-0   			| push i1
+1011110 i1_7-0				| pop  i1
 
 # Bkrp
-101 1111 0    i1_7-0                  	| bkpt      i1
+101 1111 0    i1_7-0                  	| bkpt i1
 
 # Branch
 111 00  i1_10-0                       	| b  i1
