@@ -1,0 +1,21 @@
+#include <stdio.h>  /* -*- c -*- */
+#include <stdlib.h>
+#include <assert.h>
+
+#cpu power4
+
+typedef int (*pifi)(int);
+pifi multiplyCompile(int multiplyValue)
+{
+  insn *code= (insn *)calloc(1024, sizeof (insn));
+  printf("Code generation for multiply value %d\n", multiplyValue);
+  #[
+	.org	code
+	mulli r3, r3, (multiplyValue)  
+	blr
+  ]#;
+  iflush (code, hpbcg_asm_pc);
+  printf("Code generated\n");
+  return (pifi)code;
+}
+

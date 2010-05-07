@@ -1,0 +1,16 @@
+#include <stdio.h> /* -*- C -*- */
+
+#cpu cell
+
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef int (*pifi)(int);
+
+int main(int argc, char * argv[])
+{
+  #[
+
+    a $1, $2, $3 
+   ]#
+}

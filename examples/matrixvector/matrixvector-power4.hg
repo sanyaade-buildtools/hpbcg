@@ -1,0 +1,66 @@
+/* -*- c -*- */
+#cpu power4
+
+#include "matrix-utils.h"
+
+/** Register allocation :
+ * r0-r1 @ input/output vector
+ * r2 - r17  Matrix values
+ * r18-r21 Source vector
+ * r22-r25 Destination vector
+ */
+int regDst(int line)		{ return 22+line;} /* regDst */
+int regSrc(int col)		{ return 18+col;} /* regSrc */
+int regMat(int line, int col)	{ return 2+col+4*line;} /* regMat */
+int regIn(int narg)		{ return narg+3;}
+int regBase(int narg)		{ return narg+5;}
+
+/* Virtual instruction set */
+void genAdd(int regD, int regSrc1, int regSrc2)	{  #[ fadd r(regD), r(regSrc1), r(regSrc2)]# }
+void genSub(int regD, int regSrc1, int regSrc2)	{  #[ fsubs r(regD), r(regSrc1), r(regSrc2)]# }
+void genMul(int regD, int regMat, int regSrc)	{  #[ fmuls r(regD), r(regMat), r(regSrc) ]# }
+void genMulAdd(int regD, int regMat, int regSrc){  #[ fmadds r(regD), r(regMat), r(regSrc), r(regD)]# }
+void genMoveCst(int regDst, void  *cst)
+{  #[
+    lis	r(regDst), _HI(((long) cst))
+    ori	r(regDst), r5, _LO(((long) cst))
+]#}
+void genMove(int regDst, int regSrc)		{  #[ fmr r(regDst), r(regSrc) ]#}
+void genNeg(int regDst, int regSrc)		{  #[ fneg r(regDst), r(regSrc) ]#}
+void genLoad(int regD, int Depl, int regBase)	{  #[ lfs r(regD),(Depl),  r(regBase) ]# } 
+void genStore(int regSrc, int Depl, int regBase){  #[ stfs r(regSrc),(Depl),  r(regBase) ]# }
+void genIncr(int regBase) { }
+
+insn  *codePtr;
+
+void Initialize(int codeSize)
+{
+  codePtr = (insn *)calloc(codeSize, 1);
+#ifdef _IBMR2
+  codePtr += 2;
+#endif
+  #[
+    .org codePtr
+  ]#
+} /* Initialize */
+
+VectMatProd Finalize()
+{
+  long * codeB;
+  #[   blr      ]#
+#ifdef _IBMR2
+  codeB = (long *) codePtr - 2;
+  codeB[0] = (long) codePtr;
+  iflush(codePtr,hpbcg_asm_pc);
+#endif
+  return (VectMatProd)(codePtr);
+} /* Finalize */
+
+
+VectMatProd genNullMatProd()
+{
+
+  Initialize(40);
+  return Finalize();
+}
+

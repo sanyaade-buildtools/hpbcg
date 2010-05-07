@@ -1,0 +1,69 @@
+/* -*- C -*- */
+
+#cpu armthumb
+
+#include <stdio.h>
+#include <stdlib.h>
+
+
+typedef int (*pifi)(int);
+
+
+pifi rpnCompile(char *expr)
+{
+  insn *code= (insn *)calloc(64, sizeof(insn));
+  int top = 0;
+  #[	.org	code  
+	push {r1,r2,r3,r4,r5,r6,r7,lr}
+  ]#; 				/* Push registers */
+
+  while (*expr)
+    {
+      char  buf[32];
+      int n, tmp ;
+      if (sscanf(expr, "%[0-9]%n", buf, &n))
+	{
+	  expr+= n - 1;
+	  if (top == 7)
+	    {
+	      fprintf(stderr, "expression too complex");
+	      exit(0);
+	    }
+	  ++top; tmp = atoi(buf);
+	  #[
+	    mov   r(top), (tmp)  
+	  ]#;
+	}
+      else if (*expr == '+')
+	{ --top; #[	        add	r(top), r(top+1)	]# }
+      else if (*expr == '-')
+	{ --top; #[		sub	r(top), r(top+1)	]# }
+      else if (*expr == '*')
+	{ --top; #[		mul	r(top), r(top+1)	]# }
+      else if (*expr == '/')
+	{ --top; #[		bl 	(_aeabi_idiv)	]# } /* mv values to r0 r1 & Call division */
+      else
+	{
+	  fprintf(stderr, "cannot compile: %s\n", expr);
+	  abort();
+	}
+      ++expr;
+    }
+
+  if (1 != top)
+    {
+      fprintf(stderr, "stack error\n");
+      abort();
+    }
+
+  #[	
+    pop {r1,r2,r3,r4,r5,r6,r7,lr}
+    pop {pc}]#;
+  iflush(code, hpbcg_asm_pc);
+  if ((int)(hpbcg_asm_pc - code) >= 64)
+    {
+      fprintf(stderr, "expression too complex");
+      exit(0);
+    }
+  return (pifi)code;
+}

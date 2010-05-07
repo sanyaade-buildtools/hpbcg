@@ -1,0 +1,29 @@
+#include <stdio.h>  /* -*- c -*- */
+#include <stdlib.h>
+#include <assert.h>
+
+#cpu ia64
+
+typedef int (*pifi)(int);
+pifi multiplyCompile(int multiplyValue)
+{
+  insn *code= (insn *)calloc(1024, sizeof (insn));
+  printf("Code generation for multiply value %d\n", multiplyValue);
+  #[
+	.org	code
+	.proc   code+16, 0
+	mov	r33 = (multiplyValue)   
+	setf.sig f32 = r32
+	   nop.i 0 ;;
+	setf.sig f33 = r33		;;
+
+	xmpy.l  f32 = f32, f33 		;;
+
+	getf.sig r8= f32
+	br.ret.sptk.many b0 ;;
+  ]#;
+  iflush (code, hpbcg_asm_pc);
+  printf("Code generated\n");
+  return (pifi)code;
+}
+

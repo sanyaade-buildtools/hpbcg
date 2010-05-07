@@ -1,0 +1,158 @@
+# Arm Thumb ISA definition
+#
+# Initial author Henri-Pierre Charles hpc@hpch.net
+# Internship between Versailles University (France) and 
+# Tbilissi University (Georgia):(June 2008)
+#	Inola NIKABADZE inola.nikabadze@gmail.com
+#	Tamar ELOCHVILI	tamar_eloshvili@yahoo.fr 
+#
+#
+# Reference ARM 7TDMI data sheet Document Number:ARM DDI 0029E
+armthumb 16
+#Rm---------r1
+#Rd---------r2
+#Rn---------r3
+#Rs---------r4
+
+# Format 1 move shifted register
+# Shift / Rotate
+#   OP        Offset Rs    Rd
+000 00        i1_4-0 r1_3  r2_3        	| lsl r2, r1, i1
+000 01        i1_4-0 r1_3  r2_3        	| lsr r2, r1, i1
+000 10        i1_4-0 r1_3  r2_3      	| asr r2, r1, i1
+
+# Format 2 add / substract
+#      Im Op    Rn     Rs    Rd
+000 11 0  0     r1_3   r3_3  r2_3      	| add r2, r3, r1
+000 11 0  1     r1_3   r3_3  r2_3      	| sub r2, r3, r1
+000 11 1  0     i1_2-0 r3_3  r2_3    	| add r2, r3, i1
+000 11 1  1     i1_2-0 r3_3  r2_3     	| sub r2, r3, i1
+
+
+# Format 3 move / compare / add / substract immediate
+# With immediate
+#   Op        Rd     Imm
+001 00        r2_3   i1_7-0         	| mov r2, i1     
+001 01        r2_3   i1_7-0             | cmp r2, i1
+001 10        r2_3   i1_7-0          	| add r2, i1
+001 11        r2_3   i1_7-0            	| sub r2, i1
+
+# Format 4 ALU operations
+#       Op    Rs    Rd
+010 000 0000  r1_3  r2_3            	| and r2, r1
+010 000 0001  r1_3  r2_3            	| eor r2, r1
+010 000 0010  r1_3  r2_3            	| lsl r2, r1
+010 000 0011  r1_3  r2_3   		| lsr r2, r1
+010 000 0100  r1_3  r2_3   		| asr r2, r1
+010 000 0101  r1_3  r2_3            	| adc r2, r1
+010 000 0110  r1_3  r2_3             	| sbc r2, r1
+010 000 0111  r1_3  r2_3             	| ror r2, r1
+010 000 1000  r1_3  r2_3   		| tst r2, r1
+010 000 1001  r1_3  r2_3   		| neg r2, r1
+010 000 1010  r1_3  r2_3   		| cmp r2, r1
+010 000 1011  r1_3  r2_3   		| cmn r2, r1
+010 000 1100  r1_3  r2_3   		| orr r2, r1
+010 000 1101  r1_3  r2_3   		| mul r2, r1
+010 000 1110  r1_3  r2_3   		| bic r2, r1
+010 000 1111  r1_3  r2_3   		| mvn r2, r1
+
+# Format 5 Hi Register operation / branch exchange
+#       OP H1 H2
+010 001 10    r2_3-3 r1_3-3 r1_2-0 r2_2-0 | mov r2, r1
+010 001 11 0  0  r1_3   000  		| bx  r1
+010 001 11 1  1  r1_3   000  		| blx r1
+# 010 001 00   r1_3-3 r2_3-3 r1_2-0 r2_2-0  | add r2, r1
+# 010 001 01   r3_3-3 r1_3-3 r3_2-0 r1_2-0  | cmp r1, r3
+
+# High reg
+# 010 001 0000 XXXXXX  | unpredictable
+# 010 001 0100 XXXXXX  | unpredictable
+# 010 001 1000 XXXXXX  | unpredictable
+# 010 001 11 XXXXXXX   | unpredictable
+
+# Load / Store register indexed
+010 01     r2_3 i1_7-0           	| ldr    r2, [pc, i1]
+010 1000   r1_3 r3_3 r2_3      		| str    r2, [r3, r1]
+010 1001   r1_3 r3_3 r2_3      		| strh   r2, [r3, r1]
+010 1010   r1_3 r3_3 r2_3      		| strb   r2, [r3, r1]
+010 1011   r1_3 r3_3 r2_3      		| ldrsb  r2, [r3, r1]
+010 1100   r1_3 r3_3 r2_3 	     	| ldr    r2, [r3, r1]
+010 1101   r1_3 r3_3 r2_3 		| ldrh   r2, [r3, r1]
+010 1110   r1_3 r3_3 r2_3      		| ldrb   r2, [r3, r1]
+010 1111   r1_3 r3_3 r2_3  		| ldrsh  r2, [r3, r1]
+
+# Load / Store byte immediate indexed
+011 00  i1_4-0 r3_3  r2_3            	| str    r2, [r3, i1]
+# 011 01  i1_4-0 r3_3  r2_3	      	| ldr    r2, [r3, i1]
+011 10  i1_4-0 r3_3  r2_3            	| strb   r2, [r3, i1]
+011 11  i1_4-0 r3_3  r2_3            	| ldrb   r2, [r3, i1]
+
+# Load / Store half immediate indexed
+100 00  i1_4-0  r3_3  r2_3  		| strh   r2, [r3, i1]
+100 01  i1_4-0  r3_3  r2_3      	| ldrh   r2, [r3, i1]
+
+# Load / Store SP immediate indexed
+100 10  r2_3 i1_7-0                   	| str    r2, [sp, i1]
+100 11  r2_3 i1_7-0                  	| ldr    r2, [sp, i1]
+
+# Add PC/SP relative
+101 00  r2_3 i1_7-0       		| add    r2, pc, i1
+101 01  r2_3 i1_7-0       		| add    r2, sp, i1
+101 10 0001 i1_6-0                  	| sub    sp, r1, i1
+
+# 101 10001 xxxxxx | Unpredictable
+
+# Push / pop
+1011010 i1_7-0   			| push i1
+1011110 i1_7-0				| pop  i1
+
+# Bkrp
+101 1111 0    i1_7-0                  	| bkpt i1
+
+# Branch
+111 00  i1_10-0                       	| b  i1
+# Branch conditionnal
+110 1   0000  i1_7-0                  	| beq i1
+110 1   0001  i1_7-0                  	| bne i1
+110 1   0010  i1_7-0                  	| bcs i1
+110 1   0011  i1_7-0                  	| bcc i1
+110 1   0100  i1_7-0                  	| bmi i1
+110 1   0101  i1_7-0                  	| bpl i1
+110 1   0110  i1_7-0                  	| bvs i1
+110 1   0111  i1_7-0                  	| bvc i1
+110 1   1000  i1_7-0                  	| bhi i1
+110 1   1001  i1_7-0                  	| bls i1
+110 1   1010  i1_7-0                  	| bge i1
+110 1   1011  i1_7-0                  	| blt i1
+110 1   1100  i1_7-0                  	| bgt i1
+110 1   1101  i1_7-0                  	| ble i1
+
+# Multiple store / load
+# 110 00  r3_3 ------------------    	| stmia --------------   #TODO
+#110 01  r3_3  ----------------- 	| ldmia r3!---------     #TODO
+
+# Branch conditionnal
+110 1   0000  i1_7-0                  	| beq i1
+110 1   0001  i1_7-0                  	| bne i1
+110 1   0010  i1_7-0                  	| bcs i1
+110 1   0011  i1_7-0                  	| bcc i1
+110 1   0100  i1_7-0                  	| bmi i1
+110 1   0101  i1_7-0                  	| bpl i1
+110 1   0110  i1_7-0                  	| bvs i1
+110 1   0111  i1_7-0                  	| bvc i1
+110 1   1000  i1_7-0                  	| bhi i1
+110 1   1001  i1_7-0                  	| bls i1
+110 1   1010  i1_7-0                  	| bge i1
+110 1   1011  i1_7-0                  	| blt i1
+110 1   1100  i1_7-0                  	| bgt i1
+110 1   1101  i1_7-0                  	| ble i1
+
+110 11111     i1_7-0                  	| swi    i1
+
+# Branch
+111 00  i1_10-0                       	| b  i1
+111 01  i1_10-0                       	| blx       i1
+
+111 10  i1_10-0                       	| bl        i1
+# 111 11  i1_10-0                       	| bl        i1
+

@@ -1,0 +1,71 @@
+/* -*- C -*- */
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#cpu sparc
+#comment !
+#escape  @
+
+
+typedef int (*pifi)(int);
+
+
+pifi rpnCompile(char *expr)
+{
+  insn *code= (insn *)malloc(1024);
+  int top= #( %o0 )#;
+  #[
+	.org	code
+	! leaf procedure: empty prologue
+  ]#
+
+  while (*expr)
+    {
+      char buf[32];
+      int n;
+      if (sscanf(expr, "%[0-9]%n", buf, &n)) #[
+@	expr+= n - 1;
+@	++top;
+	set	(atoi(buf)), %r(top)
+      ]# else if (*expr == '+') #[
+@	--top;
+	add	%r(top), %r(top+1), %r(top)
+      ]# else if (*expr == '-') #[
+@	--top;
+	sub	%r(top), %r(top+1), %r(top)
+      ]# else if (*expr == '*') #[
+@	--top;
+	smul	%r(top), %r(top+1), %r(top)
+      ]# else if (*expr == '/') #[
+@	--top;
+	sdiv	%r(top), %r(top+1), %r(top)
+      ]# else {
+	fprintf(stderr, "cannot compile: %s\n", expr);
+	abort();
+      }
+      ++expr;
+    }
+
+  if (#( %o0 )# != top)
+    {
+      fprintf(stderr, "stack error\n");
+      abort();
+    }
+
+  #[
+	retl
+	nop	! delay slot
+  ]#
+
+  iflush(code, hpbcg_asm_pc);
+
+  if ((int)(hpbcg_asm_pc - code) >= 64)
+    {
+      fprintf(stderr, "expression too complex");
+      exit(0);
+    }
+
+  return (pifi)code;
+}
+

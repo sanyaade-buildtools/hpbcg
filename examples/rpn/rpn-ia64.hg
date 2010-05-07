@@ -1,0 +1,113 @@
+/* -*- C -*- */
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#cpu ia64
+
+typedef int (*pifi)(int);
+
+pifi rpnCompile(char *expr)
+{
+  int top;
+  insn *code= (insn *)calloc(64, sizeof(insn));
+  #[
+	.org	code
+	.proc	code+16, 0
+	alloc   r33 = ar.pfs, 1, 32, 0, 0
+  ]#;
+  top= 35;
+  #[
+	mov r(top) = r32
+  ]#;
+  while (*expr)
+    {
+      char buf[32];
+      int n;
+      if (sscanf(expr, "%[0-9]%n", buf, &n))
+	{
+	  expr += n - 1;
+	  n = strtol(buf, 0, 0);
+	  if (top == 35+32)
+	    {
+	      fprintf(stderr, "expression too complex");
+	      exit(0);
+	    }
+	  ++top;
+	  #[
+	    mov r(top) = (n) ;;
+	  ]#;
+	}
+      else if (*expr == '+')
+	{
+	  --top;
+	  #[	
+		add r(top) = r(top), r(top+1) ;;
+	  ]#;
+	}
+      else if (*expr == '-')
+	{
+	  --top;
+	  #[	
+		sub r(top) = r(top), r(top+1) ;;
+	  ]#;
+	}
+      else if (*expr == '*')
+	{
+	  --top;
+	  #[	
+		setf.sig f6 = r(top)
+		setf.sig f7 = r(top+1)	;;
+ 		xma.l f6 = f6, f7, f0	;;
+		getf.sig r(top)=f6 ;;
+	  ]#;
+	}
+      else if (*expr == '/')
+	{
+	  --top;
+	  #[	
+		sxt4 r(top) = r(top)
+	        sxt4 r(top+1) = r(top+1)	;;
+		setf.sig f8 = r(top)
+		setf.sig f9 = r(top+1)		;;
+		mov r2 = 0x0ffdd
+		fcvt.xf f8 = f8
+		fcvt.xf f9 = f9			;;
+		setf.exp f11 = r2
+		frcpa.s1 f10, p6 = f8, f9	;;
+	  (p6)	fmpy.s1 f8 = f8, f10
+	  (p6)	fnma.s1 f9 = f9, f10, f1	;;
+	  (p6)	fma.s1 f8 = f9, f8, f8
+	  (p6)	fma.s1 f9 = f9, f9, f11		;;
+	  (p6)	fma.s1 f10 = f9, f8, f8		;;
+		fcvt.fx.trunc.s1 f10 = f10	;;
+		getf.sig r(top) = f10 		;;
+	  ]#;
+	}
+      else
+	{
+	  fprintf(stderr, "cannot compile: %s\n", expr);
+	  abort();
+	}
+      ++expr;
+    }
+  if (35 != top)
+    {
+      fprintf(stderr, "stack error\n");
+      abort();
+    }
+  #[
+	mov.i ar.pfs = r33
+	mov r8 = r(top)
+	br.ret.sptk.many b0	;;
+  ]#;
+
+  iflush(code, hpbcg_asm_pc);
+
+  if ((int)(hpbcg_asm_pc - code) >= 64)
+    {
+      fprintf(stderr, "expression too complex");
+      exit(0);
+    }
+  return (pifi)code;
+}

@@ -1,0 +1,215 @@
+#include <stdio.h> /* -*- c -*- */
+#include <stdlib.h>
+#include <pthread.h>
+#include <assert.h>
+#include <malloc_align.h>
+#include <free_align.h>
+#include <libspe2.h>
+
+#include "mandelbrot-common.h"
+#include "mandelbrot-palette.h"
+
+#cpu cell
+
+typedef float (*pifdd) (tComplex *a, void *);
+pifdd isInSet;
+
+tComplex ConstZero   = { 0.0f, 0.0f };
+
+#define SendComplex(CTX, VAL)					\
+  spe_in_mbox_write(CTX, (unsigned int *) &VAL,			\
+		    1, SPE_MBOX_ANY_NONBLOCKING);
+#define GetComplex(CTX, VAL)						\
+  spe_out_intr_mbox_read(CTX, (unsigned int *) &VAL,			\
+			 1, SPE_MBOX_ALL_BLOCKING);
+
+
+void compileCarre(int dest, int a, int tmp, int rAlignDuplic, 
+		  int rAlignInvert, int rAlignRealign, 
+		  int rMoinsUnPlusUn)
+{
+
+#if 0
+ A = (ar   ai)
+ C = (-1.0 1.0 X X)
+ shufb ra ra ra 0123456701234567 
+ A = (ar    ai    ar    ai)
+ shufb rb ra ra 0123012345674567 
+ B = (ar    ar    ai    ai)
+ fm rt ra rb
+ T = (ar*ar ai*ar ar*ai ai*ai)
+ shufb rD rT rT CDEF89AB00000000
+ D = (ai*ai ar*ai 0 0)
+ fma rV = T+D*C
+#endif
+#[
+  shufb $(a),    $(a), $(a),  $(rAlignDuplic)
+  shufb $(tmp),  $(a),  $(a), $(rAlignInvert)
+  fm    $(a),    $(a), $(tmp)
+  shufb $(tmp),  $(a), $(a),  $(rAlignRealign)
+  fma   $(dest), $(tmp), $(rMoinsUnPlusUn), $(a)    
+]#
+} /* compileCarre */
+
+void compileModule(int dest, int a, int tmp1, int tmp2, int rAlignModulo)
+{
+
+#if 0
+ A = (ar   ai)
+ fm T1 = A * A  (ar*ar   ai*ai)
+ shufb T2 =     (ai*ai   00000)
+ fa dest = T2 + T1
+#endif
+#[
+  fm    $(tmp1),  $(a), $(a)
+  shufb $(tmp2),  $(tmp1),  $(tmp1), $(rAlignModulo)
+  fa    $(dest),    $(tmp1), $(tmp2)
+]#
+} /* compileMul */
+
+void compileAdd(int dest, int src1, int src2) {#[ fa $(dest), $(src1), $(src2)]# }
+void compileSub(int dest, int src1, int src2) {#[ fs $(dest), $(src1), $(src2)]# }
+
+static int regStack;
+void initRegAlloc(int val) { regStack = val; }
+int  regAlloc(l) 	   { return regStack++; }
+
+
+pifdd isInSetCompile(int limit)
+{
+  insn * code= (insn *)_malloc_align(1024, 7);
+  int rC, rBaseAlign;
+  int rQuatre, rMoinsUnPlusUn, rAlignDuplic, rAlignInvert, rAlignRealign, rAlignModulo;
+  int rZ, rMod, rTmp1, rTmp2, rTest, rI;
+  insn *branch;
+  initRegAlloc(5);
+  rC = 3;          // Floating registers 3 contain C
+  rBaseAlign = 4 ; // Address of the aligned values
+  rAlignDuplic  = regAlloc();
+  rAlignInvert  = regAlloc();
+  rAlignRealign = regAlloc();
+  rAlignModulo = regAlloc();
+  rZ = regAlloc();  
+  rMod = regAlloc();  
+  rMoinsUnPlusUn = regAlloc();
+  rTmp1 = regAlloc();
+  rTmp2 = regAlloc();
+  rI = regAlloc();
+  rTest = regAlloc();
+  rQuatre = regAlloc();
+  #[	
+    .org	code  
+    lqd   $(rAlignDuplic),   0, $(rBaseAlign)
+    lqd   $(rAlignInvert),   1, $(rBaseAlign)
+    lqd   $(rAlignRealign),  2, $(rBaseAlign)
+    lqd   $(rAlignModulo),   3, $(rBaseAlign)
+    lqd   $(rMoinsUnPlusUn), 4, $(rBaseAlign)
+    lqd   $(rQuatre), 	     5, $(rBaseAlign)
+    andi  $(rZ), $(rZ), 0
+    andi  $(rI), $(rI), 0
+branch:
+  ]# 				/* Should add a hint for branch */
+#if 1
+  compileCarre(rZ, rZ, rTmp1, rAlignDuplic, rAlignInvert, rAlignRealign, rMoinsUnPlusUn);
+  compileAdd(rZ, rZ, rC);
+  compileModule(rMod, rZ, rTmp1, rTmp2, rAlignModulo);
+#endif
+  #[    
+    fcgt $(rTest), $(rQuatre), $(rMod)
+    brz $(rTest), (+4)
+  ]#
+#if 1
+    /* For Loop */
+  #[    
+    ai   $(rI), $(rI), 1
+    ceqi $(rTest), $(rI), (limit)
+    brz  $(rTest), (branch - hpbcg_asm_pc)
+  ]#
+#endif
+    /* Get result */
+  #[    
+    ori  $(rC), $(rI), 0
+    bi $lr   
+  ]#
+   return (pifdd) code;
+}
+
+void *waitingThread(void * arg)
+{
+  spe_program_handle_t *spu_handle;
+  spe_stop_info_t stop_info;
+  spe_context_ptr_t ctx = *(spe_context_ptr_t *) arg;  
+  unsigned int entry = SPE_DEFAULT_ENTRY;
+
+  /* Load wrapper SPU code */
+  spu_handle = spe_image_open("./simple-worker-cell");
+  assert(NULL != spu_handle);
+  spe_program_load(ctx, spu_handle);
+  /* Send and launch the code */
+  spe_context_run(ctx, &entry, 0, isInSet, NULL, &stop_info);
+  pthread_exit(0);
+}
+
+int main(int argc, char * argv[])
+{
+  pthread_t pthread;
+  spe_context_ptr_t ctx;
+  tComplex Center, C1, C2;
+  tReal reInc, imInc, reSize, imSize;
+  int IMGXSIZE, IMGYSIZE, i, j, k;
+  int ITERLIMIT = 256;
+  tComplexUnion res;
+  if (argc <= 6)
+    {
+      fprintf(stderr, "%s [Cr] i[Ci] re[Size] i[Size] imgXsize imgYsize\n", argv[0]);
+      fprintf(stderr, "C = Center, B = bottom rigth\n");
+      fprintf(stderr, "Example : %s 0.0    0.0 3    3    1280 1024\n", argv[0]);
+      exit(0);
+    }
+
+  cSet(&Center, atof (argv[1]), atof (argv[2]));
+  reSize     = atof (argv[3]);  imSize   = atof (argv[4]);
+  IMGXSIZE   = atoi (argv[5]);
+  IMGYSIZE   = atoi (argv[6]);
+  fprintf(stderr, "Mandelbrot set (cell compilette support) : ");  pComplex(Center, stderr); 
+  fprintf(stderr, "Size     : %2.2f %2.2f ", reSize, imSize);
+  fprintf(stderr, "Img Size : %dx%d\n",IMGXSIZE, IMGYSIZE);
+  reInc = reSize / IMGXSIZE;
+  imInc = imSize / IMGYSIZE;
+  cSet(&C1, RE(Center) - (reSize / 2.0f), IMAG(Center) - (imSize / 2.0f));
+  (void) printf("P3\n");  
+  (void) printf("%d %d\n", IMGXSIZE, IMGYSIZE);  
+  (void) printf("%d\n", 256);  
+
+  isInSet = isInSetCompile(ITERLIMIT);
+  ctx = spe_context_create(0, NULL);		 /* Send it to worker */
+  pthread_create(&pthread, NULL, &waitingThread, &ctx);
+
+  for (i = 0; i < IMGYSIZE; i++)
+    {
+      C2 = C1;
+      for (j = 0; j < IMGXSIZE; ++j)
+	{
+#if 0
+	  printf("%2.2f %2.2f -- ", C2.re, C2.im);
+#endif
+	  SendComplex(ctx, C2.re);       	/* Send parameters */
+	  SendComplex(ctx, C2.im);       	
+	  GetComplex(ctx, res.u.intValues[0]); /* Receive results */
+	  k = COLORMAPSIZE*res.u.intValues[0]/ITERLIMIT;
+	  printf("%d %d %d\n", thePalette[k].r, thePalette[k].v, thePalette[k].b);
+
+#if 0
+	  GetComplex(ctx, res.u.intValues[1]);
+	  GetComplex(ctx, res2.u.intValues[0]); /* Receive results */
+	  GetComplex(ctx, res2.u.intValues[1]);
+	  printf("%X %X %X %X\n", res.u.intValues[0], res.u.intValues[1], res2.u.intValues[0], res2.u.intValues[1]);
+	  // printf("%2.2f %2.2f %2.2f %2.2f\n", res.u.complexValues.re, res.u.complexValues.im, res2.u.complexValues.re, res2.u.complexValues.im);
+#endif
+	  RE(C2) += reInc;
+	}
+      IMAG(C1) += imInc;
+      printf("\n");
+    }
+  return 0;
+}
