@@ -70,7 +70,6 @@ lexer grammar  ArmThumb;  // -*- java -*-
                 ejectInsn();
                 currentInsn = new InsnArmThumb(insnName);
                 break;
-            case SEP:                 break;
             case WS:                  break;
             case ARMREGOPEN:
 		switch(a.getText().charAt(0))
@@ -135,7 +134,7 @@ INT      : ('+' | '-') ? (NUMBER)+;
 // SEP      : ',' ;
 INDEX    : (NUMBER)+ '('  ARMREG ')';
 LABEL	 : LETTER (LETTER | NUMBER)* ':' ;
-REGLST   : '{' (ARMREG) (SEP+ ARMREG)* '}';
+REGLST   : '{' (ARMREG) (WS+ ARMREG)* '}';
 ARMREG  : ('r'|'f') (NUMBER)+ | 'pc' | 'lr' | 'sp' | '(r' (NUMBER)+ ')';
 ARMREGOPEN : ('r'|'f') '('  ( options {greedy=false;} : . )* ')'  ;
 PAROPEN  : '('  ( options {greedy=false;} : . )* ')' ;
