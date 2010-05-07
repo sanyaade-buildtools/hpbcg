@@ -20,6 +20,8 @@ class InsnArmThumb extends Insn
 	types[currentRegister] = TYPE;
 	switch (TYPE)
 	    {
+	    case TYPEMASKREG: registers[currentRegister++] = name; break;
+	    case TYPEINT:     registers[currentRegister++] = name; break;
 	    case TYPEIREG:
 		if      ("sp".equals(name))  registers[currentRegister] = "5";
 		else if ("lr".equals(name))  registers[currentRegister] = "6";
@@ -40,9 +42,6 @@ class InsnArmThumb extends Insn
 		tmp = new String (name.getBytes(), 1, name.length() - 1);
 		registers[currentRegister] = tmp;
 		currentRegister++;
-		break;
-	    case TYPEINT:
-		registers[currentRegister++] = name;
 		break;
 	    default:
 		System.out.println ("Unknown register name:"+name+" "+TYPE);

@@ -12,6 +12,7 @@ class Insn
     public static final int TYPEIDXREG = 5; // Index register
     public static final int TYPEINT    = 6; // Int value
     public static final int TYPEARREG  = 7; // Application register
+    public static final int TYPEMASKREG = 8; // Register Mask
     
     String insnName, labelName = null;
     String [] registers;
@@ -63,6 +64,7 @@ class Insn
 	    {
 		switch (types[i])
 		{
+		case TYPEMASKREG: break;
 		case TYPEIREG: tmp += "R"; break;
 		case TYPEFREG: tmp += "F"; break;
 		case TYPEPREG: tmp += "P"; break;

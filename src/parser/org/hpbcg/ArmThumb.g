@@ -1,11 +1,15 @@
 lexer grammar  ArmThumb;  // -*- java -*-
-@header{package org.hpbcg;}
+@header{
+    package org.hpbcg;
+    import java.util.regex.*;
+}
 @members{
 //   lexer class members</em>
     Insn currentInsn = null;
     boolean debug;
     InsnList ArmThumbList = new InsnList("armthumb");
     Debug dBug = new Debug();
+    Pattern regDescriptionPattern = Pattern.compile("r([0-9]+)|(lr)|(pc)|(sp)");
     public void myParse(boolean debug) throws antlr.TokenStreamException
     {
         boolean inAsm = true;        
@@ -34,7 +38,26 @@ lexer grammar  ArmThumb;  // -*- java -*-
                 inAsm = false;  		
                 break;
 	    case REGLST:
-		Debug("REGLST:"+a.getText()); 
+		int tmp, regMask = 0;
+		String regList = a.getText();
+		String regName;
+		Debug("REGLST:"+regList); 
+		Matcher m = regDescriptionPattern.matcher(regList);
+		while (m.find())
+		    {
+			regName = m.group();
+			Debug("RegName from regList: "+regName+" : "+regList);
+			if ('r' == regName.charAt(0))
+			    {
+				regMask |= 1 << (regName.charAt(1)-'0');
+			    }
+			else if (("lr".equals(regName)) || ("pc".equals(regName)))
+			    {
+				regMask |= 0x100;
+			    }
+		    }
+		Debug("regList code :"+regMask);
+		currentInsn.setParam(""+regMask, Insn.TYPEMASKREG); 
 		break;
             case ARMREG:
 		currentInsn.setParam(a.getText(), Insn.TYPEIREG); 
@@ -76,7 +99,7 @@ lexer grammar  ArmThumb;  // -*- java -*-
 		    {
 		    case 'r': currentInsn.setParam(a.getText(), Insn.TYPEIREG); break;
 		    case 'f': currentInsn.setParam(a.getText(), Insn.TYPEFREG); break;
-		    default : System.out.println("Surprising parametric register name :!"+a.getText()+"!"); System.exit(-1); break;
+		    default : System.err.println("Surprising parametric register name :!"+a.getText()+"!"); System.exit(-1); break;
 		    }
 		break;
             case PAROPEN:         
@@ -88,7 +111,7 @@ lexer grammar  ArmThumb;  // -*- java -*-
 		Out ("ORG("+a.getText()+");");
 		break;
             default : 
-                System.out.println("Surprising token  :!"+a.getText()+"!");
+                System.err.println("Surprising token  :!"+a.getText()+"!");
                 System.exit(0);
                 break;
             }
@@ -104,7 +127,7 @@ lexer grammar  ArmThumb;  // -*- java -*-
         }
         else
         {
-            if (debug) System.out.println("No defined insn");
+            if (debug) System.err.println("No defined insn");
         }    
     }        
     public void Debug(Token a)

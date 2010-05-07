@@ -14,7 +14,7 @@ pifi rpnCompile(char *expr)
   insn *code= (insn *)calloc(64, sizeof(insn));
   int top = 0;
   #[	.org	code  
-	push {r1,r2,r3,r4,r5,r6,r7,lr}
+	push {r1,,r2,r3,r4,r5,r6,r7,lr}
   ]#; 				/* Push registers */
 
   while (*expr)
