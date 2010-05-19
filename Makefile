@@ -11,6 +11,9 @@ dist: clean
 build:  clean
 	${MAKE} -C src/isatobcg
 	${MAKE} -C src/parser/org/hpbcg all
+	@echo "Ready to install" 
+	@echo "Launch make install WHERE=<Your dest dir>" 
+	@echo "example make WHERE=/usr/local" 
 
 install: 
 	${MAKE} -C src/isatobcg install PREFIX=${WHERE}

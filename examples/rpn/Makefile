@@ -1,6 +1,6 @@
 include ../../Makefile.conf
 
-CFLAGS=-fno-inline -Winline -O3 -Wall -I${HPBCGHOME}/include/ -g ${ADDCFLAGS} # -DASM_DEBUG -DWITH_HPBCG_FUNCTIONS
+CFLAGS=-fno-inline -Winline -Wall -I${HPBCGHOME}/include/ -g ${ADDCFLAGS} -DASM_DEBUG -DWITH_HPBCG_FUNCTIONS
 CELLFILES =  rpn-cell.o 
 IAFILES =    rpn-ia64.o   main.o
 POWERFILES = rpn-power4.o main.o

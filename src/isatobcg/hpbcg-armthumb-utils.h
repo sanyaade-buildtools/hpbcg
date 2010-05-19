@@ -10,6 +10,9 @@
 #define ADDINSN(VAL) (*(hpbcg_asm_pc++) = (VAL))
 #define ORG(PTR) (hpbcg_asm_pc = (insn *) PTR)
 
+/* External references to libc */
+extern int _aeabi_idiv(int, int);
+
 typedef uint16_t insn;
 static insn *hpbcg_asm_pc;
 static void iflush(register insn *addr, register insn *last)
