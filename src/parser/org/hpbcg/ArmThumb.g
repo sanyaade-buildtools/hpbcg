@@ -158,9 +158,9 @@ INT      : ('+' | '-') ? (NUMBER)+;
 INDEX    : (NUMBER)+ '('  ARMREG ')';
 LABEL	 : LETTER (LETTER | NUMBER)* ':' ;
 REGLST   : '{' (ARMREG) (WS+ ARMREG)* '}';
-ARMREG  : ('r'|'f') (NUMBER)+ | 'pc' | 'lr' | 'sp' | '(r' (NUMBER)+ ')';
+ARMREG  :    ('r'|'f') (NUMBER)+ | 'pc' | 'lr' | 'sp' | '(r' (NUMBER)+ ')';
 ARMREGOPEN : ('r'|'f') '('  ( options {greedy=false;} : . )* ')'  ;
-PAROPEN  : '('  ( options {greedy=false;} : . )* ')' ;
+PAROPEN  :  '('  ( options {greedy=false;} : . )* ')' ;
 MNEMO    : LETTER (LETTER)* ;
 
 fragment LETTER : ('a'..'z' | 'A'..'Z');

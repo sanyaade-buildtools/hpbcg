@@ -32,6 +32,7 @@ grammar IsaToBCG; // -*- java -*-
 	catch (FileNotFoundException e)
 	{
 	    System.err.println("File not found");
+	    System.exit(-1);
         }
 	catch (Exception e)
 	{
@@ -103,7 +104,7 @@ grammar IsaToBCG; // -*- java -*-
 			if (archLenght != len)
 			    {
 				isOk = false;
-				System.err.println("Incorrect size "+len+" (should be "+archLenght+") for insn " +insn.getName());
+				fatalMsg("Incorrect size "+len+" (should be "+archLenght+") for insn " +insn.getName());
 			    }
 		    }
 	    }
@@ -126,7 +127,6 @@ grammar IsaToBCG; // -*- java -*-
 		case 'l': OptionAction = OPTLIST; break;
 		case 'v': OptionAction = OPTVALID;  break;
 		default:  System.out.println("IsaToBCG -[m|v|d] [File.isa]\n");
-		    System.exit(0);
 		}
 	    else
 		inFile = new ANTLRInputStream(new FileInputStream(argv[i]));
@@ -189,8 +189,7 @@ grammar IsaToBCG; // -*- java -*-
 	    }
 	else
 	    {
-		System.out.println(n+" does not match a integer description");
-		System.exit(-1);
+		fatalMsg(n+" does not match a integer description");
 	    }
     } /* addBinaryIntDescr */
 
@@ -212,8 +211,7 @@ grammar IsaToBCG; // -*- java -*-
 	    }
 	else
 	    {
-		System.out.println(descr+" does not match a register description");
-		System.exit(-1);
+		fatalMsg(descr+" does not match a register description");
 	    }
     } /* addBinaryRegDescr */
 
@@ -229,6 +227,11 @@ grammar IsaToBCG; // -*- java -*-
     void errMsg(String msg)
     {
 	System.err.println(msg);
+    } /* errMsg */
+    void fatalMsg(String msg)
+    {
+	errMsg(msg);
+	System.exit(-1);
     } /* errMsg */
     void dumpResult()
     {

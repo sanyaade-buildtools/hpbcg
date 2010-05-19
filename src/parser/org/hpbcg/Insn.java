@@ -64,12 +64,12 @@ class Insn
 	    {
 		switch (types[i])
 		{
-		case TYPEMASKREG: break;
-		case TYPEIREG: tmp += "R"; break;
-		case TYPEFREG: tmp += "F"; break;
-		case TYPEPREG: tmp += "P"; break;
-		case TYPEARREG:tmp += "R";  break;
-		case TYPEBREG: tmp += "B";  break;
+		case TYPEIREG:    tmp += "R"; break;
+		case TYPEFREG:    tmp += "F"; break;
+		case TYPEPREG:    tmp += "P"; break;
+		case TYPEARREG:   tmp += "R";  break;
+		case TYPEBREG:    tmp += "B";  break;
+		case TYPEMASKREG: 
 		case TYPEINT: 
 		case TYPEIDXREG: tmp += "I"; break;
 		default:  System.out.println ("Unknown register type");

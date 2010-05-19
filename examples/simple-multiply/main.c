@@ -4,7 +4,7 @@
 #include <hpbcg-asm-common.h>
 
 typedef int (*pifi)(int);
-pifi multiplyCompile(char *expr);
+pifi multiplyCompile(int);
 
 int main(int argc, char *argv[])
 {
