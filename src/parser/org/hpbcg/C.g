@@ -6,7 +6,7 @@ options { k = 2; }
     {
         System.out.print("#include <hpbcg-"+a+".h> /* #cpu "+a+"*/");
     }
-    public String myParse (boolean debug) throws antlr.TokenStreamException
+    public String myParse (boolean debug) 
     {
 	boolean inC = true;
 	Token a, b, c;

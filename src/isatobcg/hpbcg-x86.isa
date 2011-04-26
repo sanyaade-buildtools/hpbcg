@@ -1,9 +1,24 @@
 # Variable length x86 processor familly description
 # 
 # Initial author Henri-Pierre Charles hpc@hpch.net
+# Additions by Khawar Sajjad saj@prism.uvsq.fr
+# -1 representation of mmx/sse registers 
+# -2 representation of addressing modes
+
 x86 var
 
-0000 0001 11 r1_3 r2_3			| add  r1, r2
+# X86 Addressing mode
+ADDRMOD 00           r6_3		| addr { r6 }
+ADDRMOD 01           r6_3 i6_7-0	| addr i6 {r6}
+ADDRMOD 11           r6_3		| addr r6
+ADDRMOD 00100 00     r6_3 r7_3		| addr {r6 r7}
+ADDRMOD 00100 i6_1-0 r6_3 r7_3		| addr {i6 r6 r7}
+ADDRMOD 01100 i7_1-0 r6_3 r7_3	i6_7-0	| addr i6 {i7 r6 r7}
+
+# Registers names (mm = v[0-9]+, mmx = w[0-9]+, )
+
+# Instructions list
+
 0010 1001 11 r1_3 r2_3			| sub  r1, r2
 
 1000 1001 11 r1_3 r2_3			| mov   r1, r2

@@ -4,8 +4,8 @@ grammar IsaToBCG; // -*- java -*-
 @header{
     import java.io.*;
     import java.util.Vector;
-    import java.util.Date;
     import java.util.Calendar;
+    import java.util.Date;
     import java.text.*;
     import java.util.regex.*;
 }
@@ -250,25 +250,32 @@ grammar IsaToBCG; // -*- java -*-
 }
 
 isafile 	: isaline* EOF {dumpResult();};
-isaline 	: (isaarchlen | isalinedesc | COMMENT | ) NL;
-isalinedesc	: isabinpart CUT isaasmpart  {addInstruction();};
-isaarchlen	: archname=('power4' | 'sparc' | 'ia64' | 'cell' | 'x86' | 'armthumb')   myIsaLen=(INT | 'var')
-	{ setNameAndLenght($archname.getText(), $myIsaLen.getText());};
+isaline 	: ( addrmodlinedesc | isaarchlen | isalinedesc | COMMENT | ) NL;
+// Adressing mode description
+addrmodlinedesc	: ( 'ADDRMOD' addrmodline);
+addrmodline	: ( addrmodbinpart CUT addrmodasmpart) ;
+addrmodbinpart  : ( binnum | intdescr | regdescr )+; 
+addrmodasmpart  : ('addr' ((addrmodreglist '{' addrmodreglist '}') | ('{' addrmodreglist '}') | addrmodreglist)) ;
+addrmodreglist  : (REGNAME | INTNAME)+;
+// Isa description
+isalinedesc	: isabinpart   CUT isaasmpart  	{addInstruction();};
+isaarchlen	: archname=   ('power4' | 'sparc' | 'ia64' | 'cell' | 'x86' | 'armthumb')   myIsaLen=(INT | 'var')
+						{ setNameAndLenght($archname.getText(), $myIsaLen.getText());};
 isabinpart 	: (binnum | intdescr | regdescr | paropen)+;
-binnum 		: BINNUM  		{ addBinaryNumber  ($BINNUM.getText());		};
-intdescr 	: INTDESCR 		{ addBinaryIntDescr($INTDESCR.getText());		};
-paropen		: PAROPEN 		{ addBinaryIntExpr ($PAROPEN.getText());		};
-regdescr 	: REGDESCR	 	{ addBinaryRegDescr($REGDESCR.getText());		};
-// predicatereg 	: 'QP'			{ addBinaryRegDescr("qp_6");			};
+binnum 		: BINNUM  			{ addBinaryNumber  ($BINNUM.getText());		};
+intdescr 	: INTDESCR 			{ addBinaryIntDescr($INTDESCR.getText());	};
+paropen		: PAROPEN 			{ addBinaryIntExpr ($PAROPEN.getText());	};
+regdescr 	: REGDESCR	 		{ addBinaryRegDescr($REGDESCR.getText());	};
+// 
 INTDESCR        : 'i' INT '_' INT ('-' INT)? 							;
-REGDESCR	: REGLETTER INT '_' INT	('-' INT)? 							;
+REGDESCR	: REGLETTER INT '_' INT	('-' INT)? 						;
 PAROPEN		: '(' (~(')'))*	')_' INT '-' INT						;
-isaasmpart 	: INSNNAME paramlist 	{ addName($INSNNAME.getText());			};
+isaasmpart 	: INSNNAME paramlist 		{ addName($INSNNAME.getText());			};
 paramlist 	: (param)*									;
 param 		: (intname | regname | BINNUM)							;
-regname		: REGNAME		{ addAsmReg($REGNAME.getText());			};
-intname		: INTNAME		{ addAsmInt($INTNAME.getText());			};
-REGNAME		: (REGLETTER (INT) | ('ax' | 'eax' | 'al' | 'sp' | 'pc')) 				;
+regname		: REGNAME			{ addAsmReg($REGNAME.getText());		};
+intname		: INTNAME			{ addAsmInt($INTNAME.getText());		};
+REGNAME		: (REGLETTER (INT) | ('ax' | 'eax' | 'al' | 'sp' | 'pc')) 			;
 INTNAME		: 'i' (INT)					;
 INSNNAME	: (LETTER)(LETTER | NUM)*			;
 BINNUM 		: ('0' | '1')+ 					;

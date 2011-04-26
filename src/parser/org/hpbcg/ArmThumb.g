@@ -10,7 +10,7 @@ lexer grammar  ArmThumb;  // -*- java -*-
     InsnList ArmThumbList = new InsnList("armthumb");
     Debug dBug = new Debug();
     Pattern regDescriptionPattern = Pattern.compile("r([0-9]+)|(lr)|(pc)|(sp)");
-    public void myParse(boolean debug) throws antlr.TokenStreamException
+    public void myParse(boolean debug) 
     {
         boolean inAsm = true;        
         Token a;

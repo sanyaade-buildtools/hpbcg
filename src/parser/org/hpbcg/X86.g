@@ -9,7 +9,7 @@ lexer grammar X86; // -*- java -*-
     boolean debug;
     InsnList x86List = new InsnList("x86");
     Debug dBug = new Debug();
-    public void myParse(boolean debug) throws antlr.TokenStreamException
+    public void myParse(boolean debug) 
     {
 	String tmp;
 	boolean inAsm = true;
