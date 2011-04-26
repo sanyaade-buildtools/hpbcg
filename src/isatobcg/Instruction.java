@@ -1,11 +1,11 @@
 import java.util.*;
 /**
- * Instruction description
+ * Instruction processor ISA description. 
  */
 class Instruction
 {
-    String name, archName;
-    Vector binPart, asmPart;
+    String instructionName, archName;	// Instruction name and architecture name
+    Vector binPart, asmPart;	// Binary description and semantic description
 
     public Instruction (String a)
     {
@@ -14,17 +14,10 @@ class Instruction
 	asmPart = new Vector();
 	archName = a;
     }
-
-    void setName(String n)
-    {
-	// System.out.println ("setName"+n+"\n");
-	name = n.replace('.', '_');
-    } /* addName */
-
-    String getName()
-    {
-	return name+"_"+insnFormat();
-    } /* addName */
+    /* Set instruction name */
+    void setName(String n)  {	instructionName = n.replace('.', '_');    } /* setName */
+    /* Get instruction name  + parameter format */
+    String getName()    {	return instructionName+"_"+insnFormat();    } /* getName */
 
     void addBinaryNumber(int n, int l)
     {
@@ -191,7 +184,8 @@ class Instruction
 			ibp = (InstructionBinPart) binPart.elementAt(i);
 			totalLen += ibp.getLength();
 		    }
-		if (0 != (totalLen % 8)) fatalError("Unknown insn length :"+totalLen); 
+		if (0 != (totalLen % 8)) fatalError("Unknown insn length :"+totalLen+
+						    ": instruction name "+instructionName); 
 		tmp.append("ADDINSN"+totalLen+"("); 
 	    }
 	else

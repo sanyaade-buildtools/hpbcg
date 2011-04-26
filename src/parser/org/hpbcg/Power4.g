@@ -6,7 +6,7 @@ lexer grammar  Power4;  // -*- java -*-
     boolean debug;
     InsnList powerList = new InsnList("power4");
     Debug dBug = new Debug();
-    public void myParse(boolean debug) throws antlr.TokenStreamException
+    public void myParse(boolean debug) 
     {
         boolean inAsm = true;        
         Token a;

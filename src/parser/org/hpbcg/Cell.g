@@ -5,7 +5,7 @@ lexer grammar  Cell;  // -*- java -*-
     Insn currentInsn = null;
     boolean debug;
     InsnList cellList = new InsnList("power4");
-    public void myParse(boolean debug) throws antlr.TokenStreamException
+    public void myParse(boolean debug) 
     {
         boolean inAsm = true;        
         Token a;

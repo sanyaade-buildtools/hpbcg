@@ -10,7 +10,7 @@ options { k = 2; }
     boolean debug;
     InsnList ia64List = new InsnList("ia64");
     Debug dBug = new Debug();
-    public void myParse(boolean debug) throws antlr.TokenStreamException
+    public void myParse(boolean debug) 
     {
 	boolean inAsm = true;
 	String tmp;

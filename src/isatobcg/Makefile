@@ -8,7 +8,7 @@ CFLAGS = -Wall -g -I../common
 CLASSFILES = IsaToBCGParser.class IsaToBCGLexer.class	\
 	Instruction.class InstructionBinPart.class	\
 	InstructionAsmPart.class
-CPU=armthumb cell power4 x86 ia64
+CPU=armthumb cell power4 ia64 # x86
 
 all: ${CLASSFILES} ${CPU}
 
@@ -42,8 +42,8 @@ install:
 	${MAKE} installArch  ARCH=cell
 	${MAKE} installArch  ARCH=power4
 	${MAKE} installArch  ARCH=ia64
-	${MAKE} installArch  ARCH=x86
 	${MAKE} installArch  ARCH=armthumb
+#  	${MAKE} installArch  ARCH=x86
 
 installArch:
 	install hpbcg-${ARCH}.h hpbcg-${ARCH}.lst hpbcg-${ARCH}-utils.h ${PREFIX}/include/
@@ -57,8 +57,8 @@ clean:
 	${MAKE} realclean  ARCH=cell
 	${MAKE} realclean  ARCH=power4
 	${MAKE} realclean  ARCH=ia64
-	${MAKE} realclean  ARCH=x86
 	${MAKE} realclean  ARCH=armthumb
+# 	${MAKE} realclean  ARCH=x86
 
 realclean:
 	-rm hpbcg-${ARCH}.h hpbcg-${ARCH}.lst
